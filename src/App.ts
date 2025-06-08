@@ -65,7 +65,7 @@ export class App {
     // Start game loop
     this.gameLoop = setInterval(() => {
       this.update();
-    }, 100); // Update every 100ms
+    }, 16); // Update every 16ms (~60fps)
 
     // Auto-save every 30 seconds
     setInterval(() => {
