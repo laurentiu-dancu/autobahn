@@ -109,23 +109,22 @@ export class CraftingPanel {
         const progress = this.craftingSystem.getCraftProgress(recipeId);
         
         // Update progress bar visibility and progress
-        const progressBar = btn.querySelector('.progress-bar');
+        const progressBarContainer = btn.querySelector('.progress-bar');
         const craftDetails = btn.querySelector('.craft-details');
-        const progressBar = btn.querySelector('.progress-fill');
+        const progressFill = btn.querySelector('.progress-fill');
         
-        if (progressBar && craftDetails) {
+        if (progressBarContainer && craftDetails) {
           if (isCrafting) {
-            progressBar.classList.remove('hidden');
-            progressBar.classList.add('visible');
+            progressBarContainer.classList.remove('hidden');
+            progressBarContainer.classList.add('visible');
             craftDetails.classList.add('hidden');
           } else {
-            progressBar.classList.remove('visible');
-            progressBar.classList.add('hidden');
+            progressBarContainer.classList.remove('visible');
+            progressBarContainer.classList.add('hidden');
             craftDetails.classList.remove('hidden');
           }
         }
         
-        const progressFill = btn.querySelector('.progress-fill');
         if (progressFill) {
           (progressFill as HTMLElement).style.width = `${progress * 100}%`;
         }
