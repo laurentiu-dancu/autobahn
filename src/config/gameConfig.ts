@@ -69,7 +69,7 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Bend Wire Spring',
     inputs: [{ resourceId: 'wireStock', amount: 1 }],
     outputs: [{ resourceId: 'wireSprings', amount: 1 }],
-    craftTime: 1500,
+    craftTime: 0,
     description: 'Hand-bend wire into automotive springs'
   },
   fileMetalBracket: {
@@ -77,7 +77,7 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'File Metal Bracket',
     inputs: [{ resourceId: 'sheetMetal', amount: 1 }],
     outputs: [{ resourceId: 'metalBrackets', amount: 1 }],
-    craftTime: 2000,
+    craftTime: 0,
     description: 'File and shape mounting brackets'
   },
   cutLeatherGasket: {
@@ -85,7 +85,7 @@ export const RECIPES: Record<string, Recipe> = {
     name: 'Cut Leather Gasket',
     inputs: [{ resourceId: 'leatherScraps', amount: 1 }],
     outputs: [{ resourceId: 'leatherGaskets', amount: 1 }],
-    craftTime: 1000,
+    craftTime: 0,
     description: 'Cut leather into sealing gaskets'
   },
   assembleSpringSet: {
@@ -96,7 +96,7 @@ export const RECIPES: Record<string, Recipe> = {
       { resourceId: 'metalBrackets', amount: 1 }
     ],
     outputs: [{ resourceId: 'springAssemblies', amount: 1 }],
-    craftTime: 3000,
+    craftTime: 0,
     description: 'Combine springs and brackets into suspension assemblies'
   },
   buildRepairKit: {
@@ -108,7 +108,7 @@ export const RECIPES: Record<string, Recipe> = {
       { resourceId: 'oil', amount: 1 }
     ],
     outputs: [{ resourceId: 'repairKits', amount: 1 }],
-    craftTime: 4000,
+    craftTime: 0,
     description: 'Package complete automotive repair kit'
   }
 };

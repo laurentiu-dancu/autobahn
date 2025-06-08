@@ -29,12 +29,18 @@ export class CraftingSystem {
 
     this.gameState.incrementClicks();
     
-    const craftEndTime = Date.now() + recipe.craftTime;
-    this.activeCrafts.set(recipeId, craftEndTime);
-
-    setTimeout(() => {
+    // For instant crafting (craftTime = 0), complete immediately
+    if (recipe.craftTime === 0) {
       this.completeCraft(recipeId);
-    }, recipe.craftTime);
+    } else {
+      // For timed crafting (machines), use the timer
+      const craftEndTime = Date.now() + recipe.craftTime;
+      this.activeCrafts.set(recipeId, craftEndTime);
+
+      setTimeout(() => {
+        this.completeCraft(recipeId);
+      }, recipe.craftTime);
+    }
 
     return true;
   }
