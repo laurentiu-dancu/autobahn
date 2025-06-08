@@ -33,8 +33,16 @@ export interface GameState {
   unlockedRecipes: Set<string>;
   unlockedMachines: Set<string>;
   totalClicks: number;
+  totalProduced: Record<string, number>;
+  totalSales: number;
   gameStartTime: number;
   lastSaveTime: number;
+  uiState: {
+    discoveredResources: Set<string>;
+    showMarket: boolean;
+    showFullMarket: boolean;
+    showEmergencyLabor: boolean;
+  };
 }
 
 export interface MarketItem {

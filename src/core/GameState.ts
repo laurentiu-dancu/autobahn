@@ -16,8 +16,16 @@ export class GameStateManager {
       unlockedRecipes: new Set(['forgeMetalPlate', 'cutWoodPlank']),
       unlockedMachines: new Set(),
       totalClicks: 0,
+      totalProduced: {},
+      totalSales: 0,
       gameStartTime: Date.now(),
-      lastSaveTime: Date.now()
+      lastSaveTime: Date.now(),
+      uiState: {
+        discoveredResources: new Set(['marks']), // Always show marks
+        showMarket: false,
+        showFullMarket: false,
+        showEmergencyLabor: false
+      }
     };
   }
 
@@ -27,10 +35,47 @@ export class GameStateManager {
 
   updateResource(resourceId: string, amount: number): void {
     if (this.state.resources[resourceId]) {
+      const oldAmount = this.state.resources[resourceId].amount;
       this.state.resources[resourceId].amount = Math.max(0, 
         this.state.resources[resourceId].amount + amount
       );
+      
+      // Track production
+      if (amount > 0) {
+        this.state.totalProduced[resourceId] = (this.state.totalProduced[resourceId] || 0) + amount;
+      }
+      
+      // Discover resource if we have it or just ran out
+      if (this.state.resources[resourceId].amount > 0 || (oldAmount > 0 && this.state.resources[resourceId].amount === 0)) {
+        this.state.uiState.discoveredResources.add(resourceId);
+      }
+      
+      // Check for emergency labor need
+      this.checkEmergencyLabor();
     }
+  }
+
+  private checkEmergencyLabor(): void {
+    const hasNoMoney = this.state.resources.marks.amount < 1;
+    const hasNoSellableItems = !this.hasSellableItems();
+    const cannotAffordBasicMaterial = !this.canAffordCheapestMaterial();
+    
+    this.state.uiState.showEmergencyLabor = hasNoMoney && hasNoSellableItems && cannotAffordBasicMaterial;
+  }
+
+  private hasSellableItems(): boolean {
+    const sellableResources = ['wireSprings', 'metalBrackets', 'leatherGaskets', 'springAssemblies', 'repairKits'];
+    return sellableResources.some(resourceId => this.state.resources[resourceId]?.amount > 0);
+  }
+
+  private canAffordCheapestMaterial(): boolean {
+    const cheapestPrice = Math.min(2, 3, 1, 4); // wireStock: 2, sheetMetal: 3, leatherScraps: 1, oil: 4
+    return this.state.resources.marks.amount >= cheapestPrice;
+  }
+
+  performEmergencyLabor(): void {
+    this.updateResource('marks', 0.15); // Small amount per click
+    this.incrementClicks();
   }
 
   canAfford(costs: { resourceId: string; amount: number }[]): boolean {
@@ -46,6 +91,10 @@ export class GameStateManager {
       this.updateResource(cost.resourceId, -cost.amount);
     });
     return true;
+  }
+
+  recordSale(): void {
+    this.state.totalSales++;
   }
 
   addMachine(machineId: string, machine: any): void {
@@ -83,7 +132,11 @@ export class GameStateManager {
     const saveData = {
       ...this.state,
       unlockedRecipes: Array.from(this.state.unlockedRecipes),
-      unlockedMachines: Array.from(this.state.unlockedMachines)
+      unlockedMachines: Array.from(this.state.unlockedMachines),
+      uiState: {
+        ...this.state.uiState,
+        discoveredResources: Array.from(this.state.uiState.discoveredResources)
+      }
     };
     localStorage.setItem(this.saveKey, JSON.stringify(saveData));
   }
@@ -97,7 +150,13 @@ export class GameStateManager {
       return {
         ...parsed,
         unlockedRecipes: new Set(parsed.unlockedRecipes),
-        unlockedMachines: new Set(parsed.unlockedMachines)
+        unlockedMachines: new Set(parsed.unlockedMachines),
+        uiState: {
+          ...parsed.uiState,
+          discoveredResources: new Set(parsed.uiState?.discoveredResources || ['marks'])
+        },
+        totalProduced: parsed.totalProduced || {},
+        totalSales: parsed.totalSales || 0
       };
     } catch (error) {
       console.error('Failed to load game:', error);

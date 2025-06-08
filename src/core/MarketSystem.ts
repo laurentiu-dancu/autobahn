@@ -42,11 +42,14 @@ export class MarketSystem {
 
     this.gameState.updateResource(resourceId, -quantity);
     this.gameState.updateResource('marks', totalValue);
+    this.gameState.recordSale();
     return true;
   }
 
   getBuyableItems(): Array<{resourceId: string, price: number, name: string}> {
     const state = this.gameState.getState();
+    if (!state.uiState.showMarket) return [];
+    
     return Object.entries(MARKET_ITEMS)
       .filter(([_, item]) => item.available && item.buyPrice)
       .map(([resourceId, item]) => ({
@@ -58,6 +61,8 @@ export class MarketSystem {
 
   getSellableItems(): Array<{resourceId: string, price: number, name: string, available: number}> {
     const state = this.gameState.getState();
+    if (!state.uiState.showFullMarket) return [];
+    
     return Object.entries(MARKET_ITEMS)
       .filter(([resourceId, item]) => {
         return item.available && item.sellPrice && state.resources[resourceId]?.amount > 0;

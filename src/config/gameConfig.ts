@@ -1,181 +1,245 @@
 import { Resource, Recipe, Machine, MarketItem, Milestone } from '../core/types';
 
 export const INITIAL_RESOURCES: Record<string, Resource> = {
-  ironOre: {
-    id: 'ironOre',
-    name: 'Iron Ore',
-    amount: 0,
-    description: 'Raw iron ore for metal production'
+  wireStock: {
+    id: 'wireStock',
+    name: 'Wire Stock',
+    amount: 5, // Hidden starter resource
+    description: 'Basic metal wire for springs and components'
   },
-  coal: {
-    id: 'coal',
-    name: 'Coal',
-    amount: 0,
-    description: 'Fuel for forges and machines'
+  sheetMetal: {
+    id: 'sheetMetal',
+    name: 'Sheet Metal',
+    amount: 3, // Hidden starter resource
+    description: 'Thin metal sheets for brackets'
   },
-  woodLogs: {
-    id: 'woodLogs',
-    name: 'Wood Logs',
-    amount: 0,
-    description: 'Raw wood for construction'
+  leatherScraps: {
+    id: 'leatherScraps',
+    name: 'Leather Scraps',
+    amount: 2, // Hidden starter resource
+    description: 'Leather pieces for gaskets'
   },
-  metalPlates: {
-    id: 'metalPlates',
-    name: 'Metal Plates',
-    amount: 0,
-    description: 'Forged metal plates for construction'
+  oil: {
+    id: 'oil',
+    name: 'Oil',
+    amount: 1, // Hidden starter resource
+    description: 'For lubrication and treatment'
   },
-  woodPlanks: {
-    id: 'woodPlanks',
-    name: 'Wood Planks',
+  wireSprings: {
+    id: 'wireSprings',
+    name: 'Wire Springs',
     amount: 0,
-    description: 'Cut wooden planks'
+    description: 'Hand-bent springs for automotive use'
   },
-  gears: {
-    id: 'gears',
-    name: 'Gears',
+  metalBrackets: {
+    id: 'metalBrackets',
+    name: 'Metal Brackets',
     amount: 0,
-    description: 'Mechanical gears for machinery'
+    description: 'Filed and shaped mounting brackets'
+  },
+  leatherGaskets: {
+    id: 'leatherGaskets',
+    name: 'Leather Gaskets',
+    amount: 0,
+    description: 'Cut gaskets for sealing'
+  },
+  springAssemblies: {
+    id: 'springAssemblies',
+    name: 'Spring Assemblies',
+    amount: 0,
+    description: 'Multiple springs combined for suspension'
+  },
+  repairKits: {
+    id: 'repairKits',
+    name: 'Automotive Repair Kits',
+    amount: 0,
+    description: 'Complete sets of common replacement parts'
   },
   marks: {
     id: 'marks',
     name: 'Marks',
-    amount: 10,
+    amount: 0, // Start with no money to encourage immediate crafting
     description: 'Currency for trading'
   }
 };
 
 export const RECIPES: Record<string, Recipe> = {
-  forgeMetalPlate: {
-    id: 'forgeMetalPlate',
-    name: 'Forge Metal Plate',
-    inputs: [
-      { resourceId: 'ironOre', amount: 1 },
-      { resourceId: 'coal', amount: 1 }
-    ],
-    outputs: [{ resourceId: 'metalPlates', amount: 1 }],
-    craftTime: 2000,
-    description: 'Forge iron ore and coal into metal plates'
-  },
-  cutWoodPlank: {
-    id: 'cutWoodPlank',
-    name: 'Cut Wood Plank',
-    inputs: [{ resourceId: 'woodLogs', amount: 1 }],
-    outputs: [{ resourceId: 'woodPlanks', amount: 1 }],
+  bendWireSpring: {
+    id: 'bendWireSpring',
+    name: 'Bend Wire Spring',
+    inputs: [{ resourceId: 'wireStock', amount: 1 }],
+    outputs: [{ resourceId: 'wireSprings', amount: 1 }],
     craftTime: 1500,
-    description: 'Cut wood logs into planks'
+    description: 'Hand-bend wire into automotive springs'
   },
-  assembleGear: {
-    id: 'assembleGear',
-    name: 'Assemble Gear',
-    inputs: [{ resourceId: 'metalPlates', amount: 2 }],
-    outputs: [{ resourceId: 'gears', amount: 1 }],
+  fileMetalBracket: {
+    id: 'fileMetalBracket',
+    name: 'File Metal Bracket',
+    inputs: [{ resourceId: 'sheetMetal', amount: 1 }],
+    outputs: [{ resourceId: 'metalBrackets', amount: 1 }],
+    craftTime: 2000,
+    description: 'File and shape mounting brackets'
+  },
+  cutLeatherGasket: {
+    id: 'cutLeatherGasket',
+    name: 'Cut Leather Gasket',
+    inputs: [{ resourceId: 'leatherScraps', amount: 1 }],
+    outputs: [{ resourceId: 'leatherGaskets', amount: 1 }],
+    craftTime: 1000,
+    description: 'Cut leather into sealing gaskets'
+  },
+  assembleSpringSet: {
+    id: 'assembleSpringSet',
+    name: 'Assemble Spring Set',
+    inputs: [
+      { resourceId: 'wireSprings', amount: 3 },
+      { resourceId: 'metalBrackets', amount: 1 }
+    ],
+    outputs: [{ resourceId: 'springAssemblies', amount: 1 }],
     craftTime: 3000,
-    description: 'Assemble metal plates into gears'
+    description: 'Combine springs and brackets into suspension assemblies'
+  },
+  buildRepairKit: {
+    id: 'buildRepairKit',
+    name: 'Build Repair Kit',
+    inputs: [
+      { resourceId: 'springAssemblies', amount: 1 },
+      { resourceId: 'leatherGaskets', amount: 2 },
+      { resourceId: 'oil', amount: 1 }
+    ],
+    outputs: [{ resourceId: 'repairKits', amount: 1 }],
+    craftTime: 4000,
+    description: 'Package complete automotive repair kit'
   }
 };
 
 export const MACHINES: Record<string, Machine> = {
-  manualPress: {
-    id: 'manualPress',
-    name: 'Manual Press',
-    recipeId: 'forgeMetalPlate',
+  wireBendingJig: {
+    id: 'wireBendingJig',
+    name: 'Wire Bending Jig',
+    recipeId: 'bendWireSpring',
     level: 1,
     cost: [
-      { resourceId: 'metalPlates', amount: 5 },
-      { resourceId: 'marks', amount: 20 }
-    ],
-    upgradeCost: [
-      { resourceId: 'metalPlates', amount: 10 },
-      { resourceId: 'marks', amount: 50 }
-    ],
-    productionRate: 0.8, // 20% faster than manual
-    isActive: false,
-    lastProduction: 0,
-    description: 'Automates metal plate forging'
-  },
-  woodSaw: {
-    id: 'woodSaw',
-    name: 'Wood Saw',
-    recipeId: 'cutWoodPlank',
-    level: 1,
-    cost: [
-      { resourceId: 'metalPlates', amount: 3 },
-      { resourceId: 'woodPlanks', amount: 5 },
+      { resourceId: 'metalBrackets', amount: 2 },
       { resourceId: 'marks', amount: 15 }
     ],
     upgradeCost: [
-      { resourceId: 'metalPlates', amount: 6 },
-      { resourceId: 'marks', amount: 30 }
+      { resourceId: 'metalBrackets', amount: 3 },
+      { resourceId: 'marks', amount: 25 }
     ],
     productionRate: 0.7, // 30% faster than manual
     isActive: false,
     lastProduction: 0,
-    description: 'Automates wood plank cutting'
+    description: 'Automates wire spring production'
+  },
+  filingStation: {
+    id: 'filingStation',
+    name: 'Filing Station',
+    recipeId: 'fileMetalBracket',
+    level: 1,
+    cost: [
+      { resourceId: 'wireSprings', amount: 5 },
+      { resourceId: 'marks', amount: 20 }
+    ],
+    upgradeCost: [
+      { resourceId: 'wireSprings', amount: 8 },
+      { resourceId: 'marks', amount: 35 }
+    ],
+    productionRate: 0.6, // 40% faster than manual
+    isActive: false,
+    lastProduction: 0,
+    description: 'Automates bracket filing and shaping'
   }
 };
 
 export const MARKET_ITEMS: Record<string, MarketItem> = {
-  ironOre: {
-    resourceId: 'ironOre',
+  wireStock: {
+    resourceId: 'wireStock',
     buyPrice: 2,
     available: true
   },
-  coal: {
-    resourceId: 'coal',
+  sheetMetal: {
+    resourceId: 'sheetMetal',
+    buyPrice: 3,
+    available: true
+  },
+  leatherScraps: {
+    resourceId: 'leatherScraps',
     buyPrice: 1,
     available: true
   },
-  woodLogs: {
-    resourceId: 'woodLogs',
-    buyPrice: 1,
+  oil: {
+    resourceId: 'oil',
+    buyPrice: 4,
     available: true
   },
-  metalPlates: {
-    resourceId: 'metalPlates',
-    sellPrice: 5,
-    available: true
-  },
-  woodPlanks: {
-    resourceId: 'woodPlanks',
+  wireSprings: {
+    resourceId: 'wireSprings',
     sellPrice: 3,
     available: true
   },
-  gears: {
-    resourceId: 'gears',
+  metalBrackets: {
+    resourceId: 'metalBrackets',
+    sellPrice: 5,
+    available: true
+  },
+  leatherGaskets: {
+    resourceId: 'leatherGaskets',
+    sellPrice: 2,
+    available: true
+  },
+  springAssemblies: {
+    resourceId: 'springAssemblies',
     sellPrice: 12,
+    available: true
+  },
+  repairKits: {
+    resourceId: 'repairKits',
+    sellPrice: 25,
     available: true
   }
 };
 
 export const MILESTONES: Milestone[] = [
   {
-    id: 'firstMetalPlate',
-    name: 'First Metal Plate',
-    description: 'Forge your first metal plate',
-    condition: (state) => state.resources.metalPlates.amount >= 1,
+    id: 'firstWireSpring',
+    name: 'First Wire Spring',
+    description: 'Bend your first wire spring',
+    condition: (state) => state.resources.wireSprings.amount >= 1,
     reward: (state) => {
-      state.unlockedRecipes.add('assembleGear');
+      state.unlockedRecipes.add('assembleSpringSet');
+      state.uiState.showMarket = true; // Reveal market after first craft
     },
     completed: false
   },
   {
-    id: 'tenMetalPlates',
-    name: 'Metal Production',
-    description: 'Produce 10 metal plates',
-    condition: (state) => state.resources.metalPlates.amount >= 10,
+    id: 'tenWireSprings',
+    name: 'Spring Production',
+    description: 'Produce 10 wire springs',
+    condition: (state) => state.totalProduced.wireSprings >= 10,
     reward: (state) => {
-      state.unlockedMachines.add('manualPress');
+      state.unlockedMachines.add('wireBendingJig');
     },
     completed: false
   },
   {
-    id: 'firstGear',
-    name: 'First Gear',
-    description: 'Assemble your first gear',
-    condition: (state) => state.resources.gears.amount >= 1,
+    id: 'firstSpringAssembly',
+    name: 'First Assembly',
+    description: 'Create your first spring assembly',
+    condition: (state) => state.resources.springAssemblies.amount >= 1,
     reward: (state) => {
-      state.unlockedMachines.add('woodSaw');
+      state.unlockedRecipes.add('buildRepairKit');
+      state.unlockedMachines.add('filingStation');
+    },
+    completed: false
+  },
+  {
+    id: 'firstSale',
+    name: 'First Sale',
+    description: 'Sell your first item',
+    condition: (state) => state.totalSales > 0,
+    reward: (state) => {
+      state.uiState.showFullMarket = true; // Reveal full market interface
     },
     completed: false
   }

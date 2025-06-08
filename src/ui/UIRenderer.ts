@@ -62,13 +62,17 @@ export class UIRenderer {
   private renderResources(): string {
     const state = this.gameState.getState();
     const resources = Object.values(state.resources)
-      .filter(resource => resource.amount > 0 || resource.id === 'marks')
+      .filter(resource => state.uiState.discoveredResources.has(resource.id))
       .map(resource => `
         <div class="resource-item">
           <span class="resource-name">${resource.name}</span>
           <span class="resource-amount">${Math.floor(resource.amount)}</span>
         </div>
       `).join('');
+
+    if (resources === '') {
+      return ''; // Don't show resources panel if no resources discovered
+    }
 
     return `
       <div class="panel resources-panel">
@@ -117,12 +121,24 @@ export class UIRenderer {
       `;
     }).join('');
 
+    // Emergency labor button
+    const state = this.gameState.getState();
+    const emergencyLabor = state.uiState.showEmergencyLabor ? `
+      <div class="emergency-labor">
+        <h4>⚠️ Emergency Work</h4>
+        <button id="emergency-labor-btn" class="craft-btn emergency">
+          Work for Competition (+0.15 marks)
+        </button>
+        <p class="emergency-note">Click to earn small amounts when out of resources</p>
+      </div>
+    ` : '';
     return `
       <div class="panel crafting-panel">
         <h3>🔨 Manual Crafting</h3>
         <div class="crafting-list">
           ${recipeButtons}
         </div>
+        ${emergencyLabor}
       </div>
     `;
   }
@@ -132,6 +148,9 @@ export class UIRenderer {
     const availableMachines = this.automationManager.getAvailableMachines();
     const builtMachines = Object.entries(state.machines);
 
+    if (availableMachines.length === 0 && builtMachines.length === 0) {
+      return ''; // Don't show machines panel if no machines available
+    }
     const machineBuilds = availableMachines
       .filter(machineId => !state.machines[machineId])
       .map(machineId => {
@@ -210,6 +229,11 @@ export class UIRenderer {
   }
 
   private renderMarket(): string {
+    const state = this.gameState.getState();
+    if (!state.uiState.showMarket) {
+      return ''; // Don't show market until unlocked
+    }
+
     const buyableItems = this.marketSystem.getBuyableItems();
     const sellableItems = this.marketSystem.getSellableItems();
 
@@ -236,6 +260,12 @@ export class UIRenderer {
       </div>
     `).join('');
 
+    const sellSectionDisplay = state.uiState.showFullMarket ? `
+      <div class="market-section">
+        <h4>Sell Products</h4>
+        ${sellSection}
+      </div>
+    ` : '';
     return `
       <div class="panel market-panel">
         <h3>💰 Market</h3>
@@ -243,10 +273,7 @@ export class UIRenderer {
           <h4>Buy Materials</h4>
           ${buySection}
         </div>
-        <div class="market-section">
-          <h4>Sell Products</h4>
-          ${sellSection}
-        </div>
+        ${sellSectionDisplay}
       </div>
     `;
   }
@@ -262,6 +289,10 @@ export class UIRenderer {
       });
     });
 
+    // Emergency labor button
+    this.container.querySelector('#emergency-labor-btn')?.addEventListener('click', () => {
+      this.gameState.performEmergencyLabor();
+    });
     // Machine building
     this.container.querySelectorAll('[data-machine]').forEach(btn => {
       btn.addEventListener('click', (e) => {
