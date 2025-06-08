@@ -119,7 +119,14 @@ export class MachinesPanel {
       btn.addEventListener('click', (e) => {
         const machineId = (e.target as HTMLElement).closest('[data-machine]')?.getAttribute('data-machine');
         if (machineId) {
-          this.automationManager.buildMachine(machineId);
+          const success = this.automationManager.buildMachine(machineId);
+          if (success) {
+            // Immediately disable the button to prevent visual flash
+            const button = e.target as HTMLButtonElement;
+            button.disabled = true;
+            button.classList.remove('available');
+            button.classList.add('disabled');
+          }
         }
       });
     });
