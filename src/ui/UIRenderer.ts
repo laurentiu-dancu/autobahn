@@ -375,9 +375,15 @@ export class UIRenderer {
     const discoveredResources = Object.values(state.resources)
       .filter(resource => state.uiState.discoveredResources.has(resource.id))
       .map(resource => `
+        // Get market price for this resource
+        const marketItem = require('../config/gameConfig').MARKET_ITEMS[resource.id];
+        const price = marketItem?.buyPrice || marketItem?.sellPrice || 0;
+        const pricePrefix = price > 0 ? `${price}m ` : '';
+        
+        return `
         <div class="resource-item-with-market">
           <div class="resource-info">
-            <span class="resource-name">${resource.name}</span>
+            <span class="resource-name">${pricePrefix}${resource.name}</span>
             <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
           </div>
           <div class="resource-actions">
@@ -402,7 +408,8 @@ export class UIRenderer {
             ` : ''}
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
     return `
       <div class="panel market-panel">

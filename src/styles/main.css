@@ -124,6 +124,7 @@ body {
 
 .resource-name {
   font-weight: bold;
+  font-size: 0.95rem;
 }
 
 .resource-amount {
