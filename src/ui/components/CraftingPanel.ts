@@ -21,6 +21,8 @@ export class CraftingPanel {
       const isCrafting = this.craftingSystem.isCrafting(recipe.id);
       const progress = this.craftingSystem.getCraftProgress(recipe.id);
       
+      const craftTimeText = recipe.craftTime > 0 ? ` (${recipe.craftTime / 1000}s)` : '';
+      
       const inputsText = recipe.inputs.map(input => {
         const resource = this.gameState.getState().resources[input.resourceId];
         return `${input.amount} ${resource?.name || input.resourceId}`;
@@ -38,7 +40,7 @@ export class CraftingPanel {
             data-recipe="${recipe.id}"
             ${!canCraft || isCrafting ? 'disabled' : ''}
           >
-            <div class="craft-name">${recipe.name}</div>
+            <div class="craft-name">${recipe.name}${craftTimeText}</div>
             <div class="craft-inputs">Needs: ${inputsText}</div>
             <div class="craft-outputs">Makes: ${outputsText}</div>
             ${isCrafting ? `

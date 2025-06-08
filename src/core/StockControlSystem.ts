@@ -6,6 +6,7 @@ export class StockControlSystem {
   private gameState: GameStateManager;
   private marketSystem: MarketSystem;
   private lastUpdate: number = Date.now();
+  private lastRuleExecution: number = 0;
 
   constructor(gameState: GameStateManager, marketSystem: MarketSystem) {
     this.gameState = gameState;
@@ -111,7 +112,7 @@ export class StockControlSystem {
 
   private paySalaries(deltaTime: number): void {
     const state = this.gameState.getState();
-    const minutesPassed = deltaTime / (1000 * 60); // Convert to minutes
+    const minutesPassed = deltaTime / (1000 * 10); // Convert to 10-second intervals (6x slower)
     
     let totalSalary = 0;
     Object.values(state.stockControl.personnel).forEach(personnel => {
@@ -133,6 +134,12 @@ export class StockControlSystem {
 
   private executeRules(): void {
     const state = this.gameState.getState();
+    
+    // Only execute rules every 5 seconds to prevent spam
+    const now = Date.now();
+    if (!this.lastRuleExecution) this.lastRuleExecution = now;
+    if (now - this.lastRuleExecution < 5000) return;
+    this.lastRuleExecution = now;
     
     Object.values(state.stockControl.rules).forEach(rule => {
       if (!rule.isEnabled) return;
@@ -191,7 +198,7 @@ export class StockControlSystem {
         id: 'procurementSpecialist',
         name: 'Material Procurement Specialist',
         type: 'procurement',
-        monthlySalary: 10, // marks per minute
+        monthlySalary: 2, // marks per 10-second interval
         hiringCost: 50,
         isActive: false,
         hiredAt: 0,
@@ -202,7 +209,7 @@ export class StockControlSystem {
         id: 'salesManager',
         name: 'Sales Manager',
         type: 'sales',
-        monthlySalary: 15,
+        monthlySalary: 3,
         hiringCost: 50,
         isActive: false,
         hiredAt: 0,
@@ -213,7 +220,7 @@ export class StockControlSystem {
         id: 'supplyChainCoordinator',
         name: 'Supply Chain Coordinator',
         type: 'coordinator',
-        monthlySalary: 25,
+        monthlySalary: 5,
         hiringCost: 100,
         isActive: false,
         hiredAt: 0,

@@ -52,6 +52,10 @@ export class MachinesPanel {
       const canUpgrade = this.automationManager.canUpgradeMachine(machineId);
       const recipe = RECIPES[machine.recipeId];
       
+      const currentSpeed = (machine.productionRate / 1000).toFixed(1);
+      const manualSpeed = recipe ? (recipe.craftTime / 1000).toFixed(1) : '0';
+      const efficiency = recipe ? Math.round((recipe.craftTime / machine.productionRate) * 100) : 100;
+      
       const upgradeCostText = machine.upgradeCost.map(cost => {
         const resource = state.resources[cost.resourceId];
         const actualCost = cost.amount * machine.level;
@@ -71,7 +75,7 @@ export class MachinesPanel {
           </div>
           <div class="machine-info">
             <div>Recipe: ${recipe?.name}</div>
-            <div>Speed: ${Math.round((1 / machine.productionRate) * 100)}% of manual</div>
+            <div>Speed: ${currentSpeed}s (Manual: ${manualSpeed}s) - ${efficiency}% efficiency</div>
           </div>
           ${machine.isActive ? `
             <div class="progress-bar">
