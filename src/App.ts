@@ -2,6 +2,7 @@ import { GameStateManager } from './core/GameState';
 import { CraftingSystem } from './core/CraftingSystem';
 import { AutomationManager } from './core/AutomationManager';
 import { MarketSystem } from './core/MarketSystem';
+import { SalvageSystem } from './core/SalvageSystem';
 import { UIRenderer } from './ui/UIRenderer';
 import { DevMode } from './core/DevMode';
 
@@ -10,6 +11,7 @@ export class App {
   private craftingSystem: CraftingSystem;
   private automationManager: AutomationManager;
   private marketSystem: MarketSystem;
+  private salvageSystem: SalvageSystem;
   private uiRenderer: UIRenderer;
   private gameLoop: number = 0;
   private devMode: DevMode;
@@ -23,6 +25,7 @@ export class App {
     this.craftingSystem = new CraftingSystem(this.gameState);
     this.automationManager = new AutomationManager(this.gameState, this.craftingSystem);
     this.marketSystem = new MarketSystem(this.gameState);
+    this.salvageSystem = new SalvageSystem(this.gameState);
     
     // Initialize UI
     this.uiRenderer = new UIRenderer(
@@ -30,6 +33,7 @@ export class App {
       this.craftingSystem,
       this.automationManager,
       this.marketSystem,
+      this.salvageSystem,
       container
     );
 

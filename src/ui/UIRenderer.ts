@@ -2,6 +2,7 @@ import { GameStateManager } from '../core/GameState';
 import { CraftingSystem } from '../core/CraftingSystem';
 import { AutomationManager } from '../core/AutomationManager';
 import { MarketSystem } from '../core/MarketSystem';
+import { SalvageSystem } from '../core/SalvageSystem';
 import { CraftingPanel } from './components/CraftingPanel';
 import { MachinesPanel } from './components/MachinesPanel';
 import { MarketPanel } from './components/MarketPanel';
@@ -11,6 +12,7 @@ export class UIRenderer {
   private craftingSystem: CraftingSystem;
   private automationManager: AutomationManager;
   private marketSystem: MarketSystem;
+  private salvageSystem: SalvageSystem;
   private container: HTMLElement;
   private lastRenderState: string = '';
   private isInitialized: boolean = false;
@@ -25,16 +27,18 @@ export class UIRenderer {
     craftingSystem: CraftingSystem,
     automationManager: AutomationManager,
     marketSystem: MarketSystem,
+    salvageSystem: SalvageSystem,
     container: HTMLElement
   ) {
     this.gameState = gameState;
     this.craftingSystem = craftingSystem;
     this.automationManager = automationManager;
     this.marketSystem = marketSystem;
+    this.salvageSystem = salvageSystem;
     this.container = container;
 
     // Initialize UI components
-    this.craftingPanel = new CraftingPanel(gameState, craftingSystem);
+    this.craftingPanel = new CraftingPanel(gameState, craftingSystem, salvageSystem);
     this.machinesPanel = new MachinesPanel(gameState, automationManager);
     this.marketPanel = new MarketPanel(gameState, marketSystem);
   }

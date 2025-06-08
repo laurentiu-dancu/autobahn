@@ -1,26 +1,20 @@
 import { GameStateManager } from '../../core/GameState';
 import { CraftingSystem } from '../../core/CraftingSystem';
+import { SalvageSystem } from '../../core/SalvageSystem';
 
 export class CraftingPanel {
   private gameState: GameStateManager;
   private craftingSystem: CraftingSystem;
+  private salvageSystem: SalvageSystem;
 
-  constructor(gameState: GameStateManager, craftingSystem: CraftingSystem) {
+  constructor(gameState: GameStateManager, craftingSystem: CraftingSystem, salvageSystem: SalvageSystem) {
     this.gameState = gameState;
     this.craftingSystem = craftingSystem;
+    this.salvageSystem = salvageSystem;
   }
 
   render(): string {
     const recipes = this.craftingSystem.getAvailableRecipes();
-    
-    if (recipes.length === 0) {
-      return `
-        <div class="panel crafting-panel">
-          <h3>🔨 Manual Crafting</h3>
-          <p>No recipes available yet...</p>
-        </div>
-      `;
-    }
     
     const recipeButtons = recipes.map(recipe => {
       const canCraft = this.craftingSystem.canCraft(recipe.id);
@@ -57,9 +51,25 @@ export class CraftingPanel {
       `;
     }).join('');
 
+    // Salvage materials button - always available
+    const salvageButton = `
+      <div class="salvage-section">
+        <button 
+          id="salvage-materials-btn" 
+          class="craft-btn available"
+        >
+          <div class="craft-name">🔍 Salvage Materials</div>
+          <div class="craft-outputs">Find: 1 Wire Stock, 1 Sheet Metal, 1 Leather Scraps, 1 Oil</div>
+        </button>
+      </div>
+    `;
     return `
       <div class="panel crafting-panel">
         <h3>🔨 Manual Crafting</h3>
+        ${salvageButton}
+        ${recipes.length > 0 ? `
+          <h4>Recipes</h4>
+        ` : ''}
         <div class="crafting-list">
           ${recipeButtons}
         </div>
@@ -68,6 +78,11 @@ export class CraftingPanel {
   }
 
   attachEventListeners(container: HTMLElement): void {
+    // Salvage materials button
+    container.querySelector('#salvage-materials-btn')?.addEventListener('click', () => {
+      this.salvageSystem.salvageMaterials();
+    });
+
     container.querySelectorAll('[data-recipe]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const recipeId = (e.target as HTMLElement).closest('[data-recipe]')?.getAttribute('data-recipe');

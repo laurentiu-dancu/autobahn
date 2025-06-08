@@ -251,6 +251,23 @@ body {
   color: #90ee90;
 }
 
+/* Salvage section */
+.salvage-section {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #8b4513;
+}
+
+.salvage-section .craft-btn {
+  border-color: #32cd32;
+  background: rgba(50, 205, 50, 0.2);
+}
+
+.salvage-section .craft-btn:hover {
+  background: rgba(50, 205, 50, 0.4);
+  transform: translateY(-1px);
+}
+
 /* Machines */
 .machine-build {
   margin-bottom: 15px;
