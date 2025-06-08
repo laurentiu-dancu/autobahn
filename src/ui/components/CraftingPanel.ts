@@ -40,14 +40,18 @@ export class CraftingPanel {
             data-recipe="${recipe.id}"
             ${!canCraft || isCrafting ? 'disabled' : ''}
           >
-            <div class="craft-name">${recipe.name}${craftTimeText}</div>
-            <div class="craft-inputs">Needs: ${inputsText}</div>
-            <div class="craft-outputs">Makes: ${outputsText}</div>
-            ${isCrafting ? `
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progress * 100}%"></div>
+            <div class="craft-content">
+              <div class="craft-name">${recipe.name}${craftTimeText}</div>
+              <div class="craft-details ${isCrafting ? 'hidden' : ''}">
+                <div class="craft-inputs">Needs: ${inputsText}</div>
+                <div class="craft-outputs">Makes: ${outputsText}</div>
               </div>
-            ` : ''}
+              <div class="progress-bar-container">
+                <div class="progress-bar ${isCrafting ? 'visible' : 'hidden'}">
+                  <div class="progress-fill" style="width: ${progress * 100}%"></div>
+                </div>
+              </div>
+            </div>
           </button>
         </div>
       `;
@@ -101,10 +105,29 @@ export class CraftingPanel {
     craftButtons.forEach(btn => {
       const recipeId = btn.getAttribute('data-recipe');
       if (recipeId) {
+        const isCrafting = this.craftingSystem.isCrafting(recipeId);
         const progress = this.craftingSystem.getCraftProgress(recipeId);
+        
+        // Update progress bar visibility and progress
+        const progressBar = btn.querySelector('.progress-bar');
+        const craftDetails = btn.querySelector('.craft-details');
         const progressBar = btn.querySelector('.progress-fill');
-        if (progressBar) {
-          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
+        
+        if (progressBar && craftDetails) {
+          if (isCrafting) {
+            progressBar.classList.remove('hidden');
+            progressBar.classList.add('visible');
+            craftDetails.classList.add('hidden');
+          } else {
+            progressBar.classList.remove('visible');
+            progressBar.classList.add('hidden');
+            craftDetails.classList.remove('hidden');
+          }
+        }
+        
+        const progressFill = btn.querySelector('.progress-fill');
+        if (progressFill) {
+          (progressFill as HTMLElement).style.width = `${progress * 100}%`;
         }
       }
     });

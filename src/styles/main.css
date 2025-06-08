@@ -249,6 +249,20 @@ body {
   margin-bottom: 4px;
 }
 
+.craft-content {
+  position: relative;
+  width: 100%;
+}
+
+.craft-details {
+  transition: opacity 0.2s ease;
+}
+
+.craft-details.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .craft-inputs, .craft-outputs {
   font-size: 0.9rem;
   opacity: 0.8;
@@ -260,6 +274,27 @@ body {
 
 .craft-outputs {
   color: #90ee90;
+}
+
+.progress-bar-container {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  right: 0;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.progress-bar.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.progress-bar.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 /* Salvage section */
