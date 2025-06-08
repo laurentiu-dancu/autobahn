@@ -10,6 +10,8 @@ export class UIRenderer {
   private automationManager: AutomationManager;
   private marketSystem: MarketSystem;
   private container: HTMLElement;
+  private lastRenderState: string = '';
+  private isInitialized: boolean = false;
 
   constructor(
     gameState: GameStateManager,
@@ -28,12 +30,44 @@ export class UIRenderer {
   render(): void {
     const state = this.gameState.getState();
     
+    // Create a hash of the current state to detect changes
+    const currentStateHash = this.createStateHash(state);
+    
+    // Only do full render if state has changed or this is the first render
+    if (currentStateHash !== this.lastRenderState || !this.isInitialized) {
+      this.fullRender();
+      this.lastRenderState = currentStateHash;
+      this.isInitialized = true;
+    } else {
+      // Only update dynamic elements that change frequently
+      this.updateDynamicElements();
+    }
+  }
+
+  private createStateHash(state: any): string {
+    // Create a simplified hash of state that affects UI structure
+    const hashData = {
+      discoveredResources: Array.from(state.uiState.discoveredResources).sort(),
+      showMarket: state.uiState.showMarket,
+      showFullMarket: state.uiState.showFullMarket,
+      showEmergencyLabor: state.uiState.showEmergencyLabor,
+      unlockedRecipes: Array.from(state.unlockedRecipes).sort(),
+      unlockedMachines: Array.from(state.unlockedMachines).sort(),
+      machineIds: Object.keys(state.machines).sort(),
+      totalClicks: state.totalClicks
+    };
+    return JSON.stringify(hashData);
+  }
+
+  private fullRender(): void {
+    const state = this.gameState.getState();
+    
     this.container.innerHTML = `
       <div class="game-container">
         <header class="game-header">
           <h1>🏭 Autobahn Workshop</h1>
           <div class="game-stats">
-            <span>Total Clicks: ${state.totalClicks}</span>
+            <span id="total-clicks">Total Clicks: ${state.totalClicks}</span>
             <button id="save-btn" class="save-btn">💾 Save</button>
             <button id="reset-btn" class="reset-btn">🔄 Reset</button>
           </div>
@@ -59,6 +93,118 @@ export class UIRenderer {
     this.attachEventListeners();
   }
 
+  private updateDynamicElements(): void {
+    const state = this.gameState.getState();
+    
+    // Update total clicks
+    const totalClicksElement = this.container.querySelector('#total-clicks');
+    if (totalClicksElement) {
+      totalClicksElement.textContent = `Total Clicks: ${state.totalClicks}`;
+    }
+
+    // Update resource amounts
+    this.updateResourceAmounts();
+    
+    // Update progress bars
+    this.updateProgressBars();
+    
+    // Update button states (availability)
+    this.updateButtonStates();
+  }
+
+  private updateResourceAmounts(): void {
+    const state = this.gameState.getState();
+    
+    Object.values(state.resources).forEach(resource => {
+      if (state.uiState.discoveredResources.has(resource.id)) {
+        const amountElement = this.container.querySelector(`[data-resource-amount="${resource.id}"]`);
+        if (amountElement) {
+          amountElement.textContent = Math.floor(resource.amount).toString();
+        }
+      }
+    });
+  }
+
+  private updateProgressBars(): void {
+    // Update crafting progress bars
+    const craftButtons = this.container.querySelectorAll('[data-recipe]');
+    craftButtons.forEach(btn => {
+      const recipeId = btn.getAttribute('data-recipe');
+      if (recipeId) {
+        const progress = this.craftingSystem.getCraftProgress(recipeId);
+        const progressBar = btn.querySelector('.progress-fill');
+        if (progressBar) {
+          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
+        }
+      }
+    });
+
+    // Update machine progress bars
+    const machineItems = this.container.querySelectorAll('.machine-item');
+    machineItems.forEach(item => {
+      const machineId = item.getAttribute('data-machine-id');
+      if (machineId) {
+        const progress = this.automationManager.getMachineProgress(machineId);
+        const progressBar = item.querySelector('.progress-fill');
+        if (progressBar) {
+          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
+        }
+      }
+    });
+  }
+
+  private updateButtonStates(): void {
+    // Update craft button states
+    const craftButtons = this.container.querySelectorAll('[data-recipe]');
+    craftButtons.forEach(btn => {
+      const recipeId = btn.getAttribute('data-recipe');
+      if (recipeId) {
+        const canCraft = this.craftingSystem.canCraft(recipeId);
+        const isCrafting = this.craftingSystem.isCrafting(recipeId);
+        
+        btn.classList.toggle('available', canCraft && !isCrafting);
+        btn.classList.toggle('disabled', !canCraft || isCrafting);
+        (btn as HTMLButtonElement).disabled = !canCraft || isCrafting;
+      }
+    });
+
+    // Update machine build button states
+    const buildButtons = this.container.querySelectorAll('[data-machine]');
+    buildButtons.forEach(btn => {
+      const machineId = btn.getAttribute('data-machine');
+      if (machineId) {
+        const canBuild = this.automationManager.canBuildMachine(machineId);
+        btn.classList.toggle('available', canBuild);
+        btn.classList.toggle('disabled', !canBuild);
+        (btn as HTMLButtonElement).disabled = !canBuild;
+      }
+    });
+
+    // Update machine upgrade button states
+    const upgradeButtons = this.container.querySelectorAll('[data-upgrade]');
+    upgradeButtons.forEach(btn => {
+      const machineId = btn.getAttribute('data-upgrade');
+      if (machineId) {
+        const canUpgrade = this.automationManager.canUpgradeMachine(machineId);
+        btn.classList.toggle('available', canUpgrade);
+        btn.classList.toggle('disabled', !canUpgrade);
+        (btn as HTMLButtonElement).disabled = !canUpgrade;
+      }
+    });
+
+    // Update market button states
+    const buyButtons = this.container.querySelectorAll('[data-buy]');
+    buyButtons.forEach(btn => {
+      const resourceId = btn.getAttribute('data-buy');
+      if (resourceId) {
+        const canBuy = this.marketSystem.canBuy(resourceId);
+        btn.classList.toggle('available', canBuy);
+        btn.classList.toggle('disabled', !canBuy);
+        (btn as HTMLButtonElement).disabled = !canBuy;
+      }
+    });
+  }
+
   private renderResources(): string {
     const state = this.gameState.getState();
     const resources = Object.values(state.resources)
@@ -66,7 +212,7 @@ export class UIRenderer {
       .map(resource => `
         <div class="resource-item">
           <span class="resource-name">${resource.name}</span>
-          <span class="resource-amount">${Math.floor(resource.amount)}</span>
+          <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
         </div>
       `).join('');
 
@@ -142,6 +288,7 @@ export class UIRenderer {
         <p class="emergency-note">Click to earn small amounts when out of resources</p>
       </div>
     ` : '';
+    
     return `
       <div class="panel crafting-panel">
         <h3>🔨 Manual Crafting</h3>
@@ -161,6 +308,7 @@ export class UIRenderer {
     if (availableMachines.length === 0 && builtMachines.length === 0) {
       return ''; // Don't show machines panel if no machines available
     }
+    
     const machineBuilds = availableMachines
       .filter(machineId => !state.machines[machineId])
       .map(machineId => {
@@ -199,7 +347,7 @@ export class UIRenderer {
       }).join(', ');
 
       return `
-        <div class="machine-item ${machine.isActive ? 'active' : 'inactive'}">
+        <div class="machine-item ${machine.isActive ? 'active' : 'inactive'}" data-machine-id="${machineId}">
           <div class="machine-header">
             <h4>${machine.name} (Level ${machine.level})</h4>
             <button 
@@ -276,6 +424,7 @@ export class UIRenderer {
         ${sellSection}
       </div>
     ` : '';
+    
     return `
       <div class="panel market-panel">
         <h3>💰 Market</h3>
@@ -303,6 +452,7 @@ export class UIRenderer {
     this.container.querySelector('#emergency-labor-btn')?.addEventListener('click', () => {
       this.gameState.performEmergencyLabor();
     });
+    
     // Machine building
     this.container.querySelectorAll('[data-machine]').forEach(btn => {
       btn.addEventListener('click', (e) => {
