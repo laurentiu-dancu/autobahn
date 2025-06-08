@@ -145,6 +145,8 @@ export class AutomationManager {
           if (this.gameState.canAfford(recipe.inputs)) {
             machine.status = 'running';
             machine.statusMessage = undefined;
+            // Reset production timer to start producing immediately
+            machine.lastProduction = now - productionTime;
           }
         }
       }
