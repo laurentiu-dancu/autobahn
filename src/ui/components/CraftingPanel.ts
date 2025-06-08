@@ -41,10 +41,10 @@ export class CraftingPanel {
           >
             <div class="craft-name">${recipe.name}${craftTimeText}</div>
             <div class="craft-details" data-recipe-details="${recipe.id}">
-              <div class="craft-inputs" style="display: ${isCrafting ? 'none' : 'block'};">Needs: ${inputsText}</div>
-              <div class="craft-outputs" style="display: ${isCrafting ? 'none' : 'block'};">Makes: ${outputsText}</div>
+              <div class="craft-inputs" data-craft-text="${recipe.id}">Needs: ${inputsText}</div>
+              <div class="craft-outputs" data-craft-text="${recipe.id}">Makes: ${outputsText}</div>
               ${recipe.craftTime > 0 ? `
-                <div class="progress-bar" style="display: ${isCrafting ? 'block' : 'none'};">
+                <div class="progress-bar" data-progress-bar="${recipe.id}" style="visibility: ${isCrafting ? 'visible' : 'hidden'}; position: ${isCrafting ? 'static' : 'absolute'};">
                   <div class="progress-fill" data-recipe-progress="${recipe.id}"></div>
                 </div>
               ` : ''}
@@ -101,17 +101,17 @@ export class CraftingPanel {
   }
 
   private startProgressAnimation(container: HTMLElement, recipeId: string): void {
-    const detailsContainer = container.querySelector(`[data-recipe-details="${recipeId}"]`);
-    const progressBar = container.querySelector(`[data-recipe-progress="${recipeId}"]`)?.parentElement;
+    const progressBar = container.querySelector(`[data-progress-bar="${recipeId}"]`);
     const progressFill = container.querySelector(`[data-recipe-progress="${recipeId}"]`) as HTMLElement;
-    const inputsElement = detailsContainer?.querySelector('.craft-inputs') as HTMLElement;
-    const outputsElement = detailsContainer?.querySelector('.craft-outputs') as HTMLElement;
+    const textElements = container.querySelectorAll(`[data-craft-text="${recipeId}"]`);
     
-    if (progressBar && progressFill && inputsElement && outputsElement) {
-      // Hide text and show progress bar
-      inputsElement.style.display = 'none';
-      outputsElement.style.display = 'none';
-      (progressBar as HTMLElement).style.display = 'block';
+    if (progressBar && progressFill && textElements.length > 0) {
+      // Hide text (but keep space) and show progress bar
+      textElements.forEach(el => {
+        (el as HTMLElement).style.visibility = 'hidden';
+      });
+      (progressBar as HTMLElement).style.visibility = 'visible';
+      (progressBar as HTMLElement).style.position = 'static';
       
       // Get recipe for timing
       const recipes = this.craftingSystem.getAvailableRecipes();
@@ -133,9 +133,11 @@ export class CraftingPanel {
         setTimeout(() => {
           progressFill.classList.remove('animating');
           progressFill.style.width = '0%';
-          (progressBar as HTMLElement).style.display = 'none';
-          inputsElement.style.display = 'block';
-          outputsElement.style.display = 'block';
+          (progressBar as HTMLElement).style.visibility = 'hidden';
+          (progressBar as HTMLElement).style.position = 'absolute';
+          textElements.forEach(el => {
+            (el as HTMLElement).style.visibility = 'visible';
+          });
         }, recipe.craftTime + 100); // Small buffer
       }
     }
@@ -154,21 +156,23 @@ export class CraftingPanel {
         btn.classList.toggle('disabled', !canCraft || isCrafting);
         (btn as HTMLButtonElement).disabled = !canCraft || isCrafting;
         
-        // Update visibility of text vs progress bar
-        const detailsContainer = container.querySelector(`[data-recipe-details="${recipeId}"]`);
-        const progressBar = container.querySelector(`[data-recipe-progress="${recipeId}"]`)?.parentElement;
-        const inputsElement = detailsContainer?.querySelector('.craft-inputs') as HTMLElement;
-        const outputsElement = detailsContainer?.querySelector('.craft-outputs') as HTMLElement;
+        // Update visibility of text vs progress bar using visibility property
+        const progressBar = container.querySelector(`[data-progress-bar="${recipeId}"]`);
+        const textElements = container.querySelectorAll(`[data-craft-text="${recipeId}"]`);
         
-        if (progressBar && inputsElement && outputsElement) {
+        if (progressBar && textElements.length > 0) {
           if (isCrafting) {
-            inputsElement.style.display = 'none';
-            outputsElement.style.display = 'none';
-            (progressBar as HTMLElement).style.display = 'block';
+            textElements.forEach(el => {
+              (el as HTMLElement).style.visibility = 'hidden';
+            });
+            (progressBar as HTMLElement).style.visibility = 'visible';
+            (progressBar as HTMLElement).style.position = 'static';
           } else {
-            inputsElement.style.display = 'block';
-            outputsElement.style.display = 'block';
-            (progressBar as HTMLElement).style.display = 'none';
+            textElements.forEach(el => {
+              (el as HTMLElement).style.visibility = 'visible';
+            });
+            (progressBar as HTMLElement).style.visibility = 'hidden';
+            (progressBar as HTMLElement).style.position = 'absolute';
           }
         }
       }

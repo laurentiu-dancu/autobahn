@@ -252,7 +252,7 @@ body {
 }
 
 .craft-details {
-  min-height: 2.4em; /* Reserve space for 2 lines of text or progress bar */
+  position: relative; /* Allow absolute positioning of progress bar */
 }
 
 /* Salvage section */
