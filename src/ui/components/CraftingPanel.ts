@@ -42,8 +42,8 @@ export class CraftingPanel {
           >
             <div class="craft-details" data-craft-details="${recipe.id}">
               <div class="craft-name">${recipe.name}${craftTimeText}</div>
-              <div class="craft-inputs">Needs: ${inputsText}</div>
-              <div class="craft-outputs">Makes: ${outputsText}</div>
+              <div class="craft-inputs" data-craft-inputs="${recipe.id}">Needs: ${inputsText}</div>
+              <div class="craft-outputs" data-craft-outputs="${recipe.id}">Makes: ${outputsText}</div>
               ${recipe.craftTime > 0 ? `
                 <div class="craft-progress-overlay" data-recipe-progress-container="${recipe.id}" style="display: none;">
                   <div class="progress-bar">
@@ -117,12 +117,20 @@ export class CraftingPanel {
         // Hide/show craft details text when crafting
         const craftDetails = btn.querySelector(`[data-craft-details="${recipeId}"]`) as HTMLElement;
         if (craftDetails) {
-          // When crafting, make the text semi-transparent so progress bar is visible over it
-          craftDetails.style.opacity = isCrafting ? '0.3' : '1';
+          // Keep craft details at full opacity - we'll hide specific elements instead
+          craftDetails.style.opacity = '1';
+        }
+        
+        // Hide/show the inputs and outputs text when crafting
+        const craftInputs = btn.querySelector(`[data-craft-inputs="${recipeId}"]`) as HTMLElement;
+        const craftOutputs = btn.querySelector(`[data-craft-outputs="${recipeId}"]`) as HTMLElement;
+        if (craftInputs && craftOutputs) {
+          craftInputs.style.display = isCrafting ? 'none' : 'block';
+          craftOutputs.style.display = isCrafting ? 'none' : 'block';
         }
         
         // Update progress bar fill
-        const progressBar = btn.querySelector(`[data-recipe-progress="${recipeId}"]`) as HTMLElement;
+        const progressBar = btn.querySelector(`[data-recipe-progress="${recipe.id}"]`) as HTMLElement;
         if (progressBar) {
           progressBar.style.width = `${progress * 100}%`;
         }
