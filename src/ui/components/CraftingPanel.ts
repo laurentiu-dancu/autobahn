@@ -62,7 +62,7 @@ export class CraftingPanel {
           class="craft-btn available"
         >
           <div class="craft-name">🔍 Salvage Materials</div>
-          <div class="craft-outputs">Find: 1 Wire Stock, 1 Sheet Metal, 1 Leather Scraps, 1 Oil</div>
+          <div class="craft-outputs">Find: 1 random material (Wire Stock, Sheet Metal, Leather Scraps, or Oil)</div>
         </button>
       </div>
     `;

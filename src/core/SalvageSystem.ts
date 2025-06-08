@@ -8,17 +8,20 @@ export class SalvageSystem {
   }
 
   salvageMaterials(): void {
-    // Provide small amounts of basic materials
-    const salvageAmounts = {
-      wireStock: 1,
-      sheetMetal: 1,
-      leatherScraps: 1,
-      oil: 1
-    };
+    // Define possible materials to find
+    const possibleMaterials = [
+      { resourceId: 'wireStock', amount: 1 },
+      { resourceId: 'sheetMetal', amount: 1 },
+      { resourceId: 'leatherScraps', amount: 1 },
+      { resourceId: 'oil', amount: 1 }
+    ];
 
-    Object.entries(salvageAmounts).forEach(([resourceId, amount]) => {
-      this.gameState.updateResource(resourceId, amount);
-    });
+    // Randomly select one material to find
+    const randomIndex = Math.floor(Math.random() * possibleMaterials.length);
+    const foundMaterial = possibleMaterials[randomIndex];
+
+    // Give the player the randomly found material
+    this.gameState.updateResource(foundMaterial.resourceId, foundMaterial.amount);
 
     this.gameState.incrementClicks();
   }
