@@ -2,7 +2,7 @@ import { GameStateManager } from '../core/GameState';
 import { CraftingSystem } from '../core/CraftingSystem';
 import { AutomationManager } from '../core/AutomationManager';
 import { MarketSystem } from '../core/MarketSystem';
-import { RECIPES, MACHINES } from '../config/gameConfig';
+import { RECIPES, MACHINES, MARKET_ITEMS } from '../config/gameConfig';
 
 export class UIRenderer {
   private gameState: GameStateManager;
@@ -374,11 +374,11 @@ export class UIRenderer {
     // Get discovered resources for display
     const discoveredResources = Object.values(state.resources)
       .filter(resource => state.uiState.discoveredResources.has(resource.id))
-      .map(resource => `
+      .map(resource => {
         // Get market price for this resource
-        const marketItem = require('../config/gameConfig').MARKET_ITEMS[resource.id];
+        const marketItem = MARKET_ITEMS[resource.id];
         const price = marketItem?.buyPrice || marketItem?.sellPrice || 0;
-        const pricePrefix = price > 0 ? \`${price}m ` : '';
+        const pricePrefix = price > 0 ? `${price}m ` : '';
         
         return `
         <div class="resource-item-with-market">
@@ -408,9 +408,9 @@ export class UIRenderer {
             ` : ''}
           </div>
         </div>
-      )
-      `;
-      }).join('');
+        `;
+      })
+      .join('');
 
     return `
       <div class="panel market-panel">
@@ -498,7 +498,5 @@ export class UIRenderer {
         this.forceFullRender();
       }
     });
-  }
-}
   }
 }
