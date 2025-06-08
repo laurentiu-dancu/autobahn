@@ -1,6 +1,6 @@
 import { Recipe } from './types';
 import { GameStateManager } from './GameState';
-import { RECIPES } from '../config/gameConfig';
+import { RECIPES } from '../config/recipes';
 
 export class CraftingSystem {
   private gameState: GameStateManager;

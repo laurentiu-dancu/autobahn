@@ -1,7 +1,8 @@
 import { Machine } from './types';
 import { GameStateManager } from './GameState';
 import { CraftingSystem } from './CraftingSystem';
-import { MACHINES, RECIPES } from '../config/gameConfig';
+import { MACHINES } from '../config/machines';
+import { RECIPES } from '../config/recipes';
 
 export class AutomationManager {
   private gameState: GameStateManager;

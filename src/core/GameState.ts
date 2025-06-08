@@ -1,5 +1,6 @@
 import { GameState } from './types';
-import { INITIAL_RESOURCES, MILESTONES } from '../config/gameConfig';
+import { INITIAL_RESOURCES } from '../config/resources';
+import { MILESTONES } from '../config/milestones';
 
 export class GameStateManager {
   private state: GameState;
@@ -22,9 +23,7 @@ export class GameStateManager {
       lastSaveTime: Date.now(),
       uiState: {
         discoveredResources: new Set(['marks']), // Always show marks
-        showMarket: false,
-        showFullMarket: false,
-        showEmergencyLabor: false
+        showMarket: false
       }
     };
   }

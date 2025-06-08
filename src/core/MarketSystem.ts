@@ -1,5 +1,5 @@
 import { GameStateManager } from './GameState';
-import { MARKET_ITEMS } from '../config/gameConfig';
+import { MARKET_ITEMS } from '../config/marketItems';
 
 export class MarketSystem {
   private gameState: GameStateManager;

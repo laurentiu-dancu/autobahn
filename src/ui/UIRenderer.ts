@@ -2,7 +2,9 @@ import { GameStateManager } from '../core/GameState';
 import { CraftingSystem } from '../core/CraftingSystem';
 import { AutomationManager } from '../core/AutomationManager';
 import { MarketSystem } from '../core/MarketSystem';
-import { RECIPES, MACHINES, MARKET_ITEMS } from '../config/gameConfig';
+import { CraftingPanel } from './components/CraftingPanel';
+import { MachinesPanel } from './components/MachinesPanel';
+import { MarketPanel } from './components/MarketPanel';
 
 export class UIRenderer {
   private gameState: GameStateManager;
@@ -12,6 +14,11 @@ export class UIRenderer {
   private container: HTMLElement;
   private lastRenderState: string = '';
   private isInitialized: boolean = false;
+
+  // UI Components
+  private craftingPanel: CraftingPanel;
+  private machinesPanel: MachinesPanel;
+  private marketPanel: MarketPanel;
 
   constructor(
     gameState: GameStateManager,
@@ -25,6 +32,11 @@ export class UIRenderer {
     this.automationManager = automationManager;
     this.marketSystem = marketSystem;
     this.container = container;
+
+    // Initialize UI components
+    this.craftingPanel = new CraftingPanel(gameState, craftingSystem);
+    this.machinesPanel = new MachinesPanel(gameState, automationManager);
+    this.marketPanel = new MarketPanel(gameState, marketSystem);
   }
 
   forceFullRender(): void {
@@ -79,15 +91,15 @@ export class UIRenderer {
 
         <div class="game-content">
           <div class="left-panel">
-            ${this.renderCrafting()}
+            ${this.craftingPanel.render()}
           </div>
           
           <div class="center-panel">
-            ${this.renderMachines()}
+            ${this.machinesPanel.render()}
           </div>
           
           <div class="right-panel">
-            ${this.renderMarket()}
+            ${this.marketPanel.render()}
           </div>
         </div>
       </div>
@@ -105,385 +117,25 @@ export class UIRenderer {
       totalClicksElement.textContent = `Total Clicks: ${state.totalClicks}`;
     }
 
-    // Update resource amounts
-    this.updateResourceAmounts();
-    
-    // Update progress bars
-    this.updateProgressBars();
-    
-    // Update button states (availability)
-    this.updateButtonStates();
-  }
+    // Update each panel's dynamic elements
+    const leftPanel = this.container.querySelector('.left-panel');
+    const centerPanel = this.container.querySelector('.center-panel');
+    const rightPanel = this.container.querySelector('.right-panel');
 
-  private updateResourceAmounts(): void {
-    const state = this.gameState.getState();
-    
-    Object.values(state.resources).forEach(resource => {
-      if (state.uiState.discoveredResources.has(resource.id)) {
-        const amountElement = this.container.querySelector(`[data-resource-amount="${resource.id}"]`);
-        if (amountElement) {
-          amountElement.textContent = Math.floor(resource.amount).toString();
-        }
-      }
-    });
-  }
-
-  private updateProgressBars(): void {
-    // Update crafting progress bars
-    const craftButtons = this.container.querySelectorAll('[data-recipe]');
-    craftButtons.forEach(btn => {
-      const recipeId = btn.getAttribute('data-recipe');
-      if (recipeId) {
-        const progress = this.craftingSystem.getCraftProgress(recipeId);
-        const progressBar = btn.querySelector('.progress-fill');
-        if (progressBar) {
-          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
-        }
-      }
-    });
-
-    // Update machine progress bars
-    const machineItems = this.container.querySelectorAll('.machine-item');
-    machineItems.forEach(item => {
-      const machineId = item.getAttribute('data-machine-id');
-      if (machineId) {
-        const progress = this.automationManager.getMachineProgress(machineId);
-        const progressBar = item.querySelector('.progress-fill');
-        if (progressBar) {
-          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
-        }
-      }
-    });
-  }
-
-  private updateButtonStates(): void {
-    // Update craft button states
-    const craftButtons = this.container.querySelectorAll('[data-recipe]');
-    craftButtons.forEach(btn => {
-      const recipeId = btn.getAttribute('data-recipe');
-      if (recipeId) {
-        const canCraft = this.craftingSystem.canCraft(recipeId);
-        const isCrafting = this.craftingSystem.isCrafting(recipeId);
-        
-        btn.classList.toggle('available', canCraft && !isCrafting);
-        btn.classList.toggle('disabled', !canCraft || isCrafting);
-        (btn as HTMLButtonElement).disabled = !canCraft || isCrafting;
-      }
-    });
-
-    // Update machine build button states
-    const buildButtons = this.container.querySelectorAll('[data-machine]');
-    buildButtons.forEach(btn => {
-      const machineId = btn.getAttribute('data-machine');
-      if (machineId) {
-        const canBuild = this.automationManager.canBuildMachine(machineId);
-        btn.classList.toggle('available', canBuild);
-        btn.classList.toggle('disabled', !canBuild);
-        (btn as HTMLButtonElement).disabled = !canBuild;
-      }
-    });
-
-    // Update machine upgrade button states
-    const upgradeButtons = this.container.querySelectorAll('[data-upgrade]');
-    upgradeButtons.forEach(btn => {
-      const machineId = btn.getAttribute('data-upgrade');
-      if (machineId) {
-        const canUpgrade = this.automationManager.canUpgradeMachine(machineId);
-        btn.classList.toggle('available', canUpgrade);
-        btn.classList.toggle('disabled', !canUpgrade);
-        (btn as HTMLButtonElement).disabled = !canUpgrade;
-      }
-    });
-
-    // Update inline market button states
-    const buyButtons = this.container.querySelectorAll('[data-buy]');
-    buyButtons.forEach(btn => {
-      const resourceId = btn.getAttribute('data-buy');
-      if (resourceId) {
-        const canBuy = this.marketSystem.canBuy(resourceId);
-        btn.classList.toggle('available', canBuy);
-        btn.classList.toggle('disabled', !canBuy);
-        (btn as HTMLButtonElement).disabled = !canBuy;
-      }
-    });
-
-    const sellButtons = this.container.querySelectorAll('[data-sell]');
-    sellButtons.forEach(btn => {
-      const resourceId = btn.getAttribute('data-sell');
-      if (resourceId) {
-        const canSell = this.marketSystem.canSell(resourceId);
-        btn.classList.toggle('available', canSell);
-        btn.classList.toggle('disabled', !canSell);
-        (btn as HTMLButtonElement).disabled = !canSell;
-      }
-    });
-  }
-
-  private renderCrafting(): string {
-    const recipes = this.craftingSystem.getAvailableRecipes();
-    
-    if (recipes.length === 0) {
-      return `
-        <div class="panel crafting-panel">
-          <h3>🔨 Manual Crafting</h3>
-          <p>No recipes available yet...</p>
-        </div>
-      `;
-    }
-    
-    const recipeButtons = recipes.map(recipe => {
-      const canCraft = this.craftingSystem.canCraft(recipe.id);
-      const isCrafting = this.craftingSystem.isCrafting(recipe.id);
-      const progress = this.craftingSystem.getCraftProgress(recipe.id);
-      
-      const inputsText = recipe.inputs.map(input => {
-        const resource = this.gameState.getState().resources[input.resourceId];
-        return `${input.amount} ${resource?.name || input.resourceId}`;
-      }).join(', ');
-
-      const outputsText = recipe.outputs.map(output => {
-        const resource = this.gameState.getState().resources[output.resourceId];
-        return `${output.amount} ${resource?.name || output.resourceId}`;
-      }).join(', ');
-
-      return `
-        <div class="craft-item">
-          <button 
-            class="craft-btn ${canCraft && !isCrafting ? 'available' : 'disabled'}" 
-            data-recipe="${recipe.id}"
-            ${!canCraft || isCrafting ? 'disabled' : ''}
-          >
-            <div class="craft-name">${recipe.name}</div>
-            <div class="craft-inputs">Needs: ${inputsText}</div>
-            <div class="craft-outputs">Makes: ${outputsText}</div>
-            ${isCrafting ? `
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progress * 100}%"></div>
-              </div>
-            ` : ''}
-          </button>
-        </div>
-      `;
-    }).join('');
-
-    return `
-      <div class="panel crafting-panel">
-        <h3>🔨 Manual Crafting</h3>
-        <div class="crafting-list">
-          ${recipeButtons}
-        </div>
-      </div>
-    `;
-  }
-
-  private renderMachines(): string {
-    const state = this.gameState.getState();
-    const availableMachines = this.automationManager.getAvailableMachines();
-    const builtMachines = Object.entries(state.machines);
-
-    if (availableMachines.length === 0 && builtMachines.length === 0) {
-      return ''; // Don't show machines panel if no machines available
-    }
-    
-    const machineBuilds = availableMachines
-      .filter(machineId => !state.machines[machineId])
-      .map(machineId => {
-        const machine = MACHINES[machineId];
-        const canBuild = this.automationManager.canBuildMachine(machineId);
-        
-        const costText = machine.cost.map(cost => {
-          const resource = state.resources[cost.resourceId];
-          return `${cost.amount} ${resource?.name || cost.resourceId}`;
-        }).join(', ');
-
-        return `
-          <div class="machine-build">
-            <button 
-              class="build-btn ${canBuild ? 'available' : 'disabled'}"
-              data-machine="${machineId}"
-              ${!canBuild ? 'disabled' : ''}
-            >
-              <div class="machine-name">Build ${machine.name}</div>
-              <div class="machine-cost">Cost: ${costText}</div>
-              <div class="machine-desc">${machine.description}</div>
-            </button>
-          </div>
-        `;
-      }).join('');
-
-    const activeMachines = builtMachines.map(([machineId, machine]) => {
-      const progress = this.automationManager.getMachineProgress(machineId);
-      const canUpgrade = this.automationManager.canUpgradeMachine(machineId);
-      const recipe = RECIPES[machine.recipeId];
-      
-      const upgradeCostText = machine.upgradeCost.map(cost => {
-        const resource = state.resources[cost.resourceId];
-        const actualCost = cost.amount * machine.level;
-        return `${actualCost} ${resource?.name || cost.resourceId}`;
-      }).join(', ');
-
-      return `
-        <div class="machine-item ${machine.isActive ? 'active' : 'inactive'}" data-machine-id="${machineId}">
-          <div class="machine-header">
-            <h4>${machine.name} (Level ${machine.level})</h4>
-            <button 
-              class="toggle-btn" 
-              data-toggle="${machineId}"
-            >
-              ${machine.isActive ? '⏸️ Pause' : '▶️ Start'}
-            </button>
-          </div>
-          <div class="machine-info">
-            <div>Recipe: ${recipe?.name}</div>
-            <div>Speed: ${Math.round((1 / machine.productionRate) * 100)}% of manual</div>
-          </div>
-          ${machine.isActive ? `
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${progress * 100}%"></div>
-            </div>
-          ` : ''}
-          <button 
-            class="upgrade-btn ${canUpgrade ? 'available' : 'disabled'}"
-            data-upgrade="${machineId}"
-            ${!canUpgrade ? 'disabled' : ''}
-          >
-            Upgrade (${upgradeCostText})
-          </button>
-        </div>
-      `;
-    }).join('');
-
-    return `
-      <div class="panel machines-panel">
-        <h3>⚙️ Automation</h3>
-        ${machineBuilds}
-        ${activeMachines}
-      </div>
-    `;
-  }
-
-  private renderMarket(): string {
-    const state = this.gameState.getState();
-    if (!state.uiState.showMarket) {
-      return ''; // Don't show market until unlocked
-    }
-
-    // Define raw materials that can be bought
-    const rawMaterials = ['wireStock', 'sheetMetal', 'leatherScraps', 'oil'];
-
-    // Get discovered resources for display
-    const discoveredResources = Object.values(state.resources)
-      .filter(resource => state.uiState.discoveredResources.has(resource.id))
-      .map(resource => {
-        // Get market price for this resource
-        const marketItem = MARKET_ITEMS[resource.id];
-        const price = marketItem?.buyPrice || marketItem?.sellPrice || 0;
-        const pricePrefix = price > 0 ? `${price}m ` : '';
-        
-        return `
-        <div class="resource-item-with-market">
-          <div class="resource-info">
-            <span class="resource-name">${pricePrefix}${resource.name}</span>
-            <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
-          </div>
-          <div class="resource-actions">
-            ${rawMaterials.includes(resource.id) ? `
-              <button 
-                class="inline-market-btn buy-btn ${this.marketSystem.canBuy(resource.id) ? 'available' : 'disabled'}"
-                data-buy="${resource.id}"
-                ${!this.marketSystem.canBuy(resource.id) ? 'disabled' : ''}
-                title="Buy ${resource.name}"
-              >
-                +
-              </button>
-            ` : ''}
-            ${this.marketSystem.canSell(resource.id) ? `
-              <button 
-                class="inline-market-btn sell-btn available"
-                data-sell="${resource.id}"
-                title="Sell ${resource.name}"
-              >
-                -
-              </button>
-            ` : ''}
-          </div>
-        </div>
-      `;
-      }).join('');
-
-    return `
-      <div class="panel market-panel">
-        <h3>💰 Resources & Market</h3>
-        
-        <div class="resources-section">
-          <div class="resources-list">
-            ${discoveredResources}
-          </div>
-        </div>
-      </div>
-    `;
+    if (leftPanel) this.craftingPanel.updateDynamicElements(leftPanel as HTMLElement);
+    if (centerPanel) this.machinesPanel.updateDynamicElements(centerPanel as HTMLElement);
+    if (rightPanel) this.marketPanel.updateDynamicElements(rightPanel as HTMLElement);
   }
 
   private attachEventListeners(): void {
-    // Crafting buttons
-    this.container.querySelectorAll('[data-recipe]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const recipeId = (e.target as HTMLElement).closest('[data-recipe]')?.getAttribute('data-recipe');
-        if (recipeId) {
-          this.craftingSystem.startCraft(recipeId);
-        }
-      });
-    });
+    // Attach event listeners for each panel
+    const leftPanel = this.container.querySelector('.left-panel');
+    const centerPanel = this.container.querySelector('.center-panel');
+    const rightPanel = this.container.querySelector('.right-panel');
 
-    // Machine building
-    this.container.querySelectorAll('[data-machine]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).closest('[data-machine]')?.getAttribute('data-machine');
-        if (machineId) {
-          this.automationManager.buildMachine(machineId);
-        }
-      });
-    });
-
-    // Machine toggle
-    this.container.querySelectorAll('[data-toggle]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).getAttribute('data-toggle');
-        if (machineId) {
-          this.automationManager.toggleMachine(machineId);
-        }
-      });
-    });
-
-    // Machine upgrade
-    this.container.querySelectorAll('[data-upgrade]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).getAttribute('data-upgrade');
-        if (machineId) {
-          this.automationManager.upgradeMachine(machineId);
-        }
-      });
-    });
-
-    // Market buy
-    this.container.querySelectorAll('[data-buy]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const resourceId = (e.target as HTMLElement).getAttribute('data-buy');
-        if (resourceId) {
-          this.marketSystem.buy(resourceId);
-        }
-      });
-    });
-
-    // Market sell
-    this.container.querySelectorAll('[data-sell]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const resourceId = (e.target as HTMLElement).getAttribute('data-sell');
-        if (resourceId) {
-          this.marketSystem.sell(resourceId);
-        }
-      });
-    });
+    if (leftPanel) this.craftingPanel.attachEventListeners(leftPanel as HTMLElement);
+    if (centerPanel) this.machinesPanel.attachEventListeners(centerPanel as HTMLElement);
+    if (rightPanel) this.marketPanel.attachEventListeners(rightPanel as HTMLElement);
 
     // Save button
     this.container.querySelector('#save-btn')?.addEventListener('click', () => {
