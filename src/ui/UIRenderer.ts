@@ -96,7 +96,7 @@ export class UIRenderer {
         <header class="game-header">
           <h1>🏭 Autobahn Workshop</h1>
           <div class="game-stats">
-            <span id="total-clicks">Total Clicks: ${state.totalClicks}</span>
+            <span id="marks-display">ℛℳ ${Math.floor(state.resources.marks.amount)}</span>
             <button id="save-btn" class="save-btn">💾 Save</button>
             <button id="reset-btn" class="reset-btn">🔄 Reset</button>
           </div>
@@ -125,10 +125,10 @@ export class UIRenderer {
   private updateDynamicElements(): void {
     const state = this.gameState.getState();
     
-    // Update total clicks
-    const totalClicksElement = this.container.querySelector('#total-clicks');
-    if (totalClicksElement) {
-      totalClicksElement.textContent = `Total Clicks: ${state.totalClicks}`;
+    // Update marks display
+    const marksElement = this.container.querySelector('#marks-display');
+    if (marksElement) {
+      marksElement.textContent = `ℛℳ ${Math.floor(state.resources.marks.amount)}`;
     }
 
     // Update each panel's dynamic elements

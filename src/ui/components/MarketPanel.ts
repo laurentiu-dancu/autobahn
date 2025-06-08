@@ -22,12 +22,12 @@ export class MarketPanel {
 
     // Get discovered resources for display
     const discoveredResources = Object.values(state.resources)
-      .filter(resource => state.uiState.discoveredResources.has(resource.id))
+      .filter(resource => state.uiState.discoveredResources.has(resource.id) && resource.id !== 'marks') // Exclude marks from market display
       .map(resource => {
         // Get market price for this resource
         const marketItem = MARKET_ITEMS[resource.id];
         const price = marketItem?.buyPrice || marketItem?.sellPrice || 0;
-        const pricePrefix = price > 0 ? `${price}m ` : '';
+        const pricePrefix = price > 0 ? `${price}ℛℳ ` : '';
         
         return `
         <div class="resource-item-with-market">
@@ -100,7 +100,7 @@ export class MarketPanel {
     
     // Update resource amounts
     Object.values(state.resources).forEach(resource => {
-      if (state.uiState.discoveredResources.has(resource.id)) {
+      if (state.uiState.discoveredResources.has(resource.id) && resource.id !== 'marks') {
         const amountElement = container.querySelector(`[data-resource-amount="${resource.id}"]`);
         if (amountElement) {
           amountElement.textContent = Math.floor(resource.amount).toString();
