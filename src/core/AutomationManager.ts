@@ -94,20 +94,20 @@ export class AutomationManager {
     const now = Date.now();
 
     Object.values(state.machines).forEach(machine => {
+      // If machine is not active, ensure it's marked as paused
       if (!machine.isActive) {
-        if (machine.status !== 'paused') {
-          machine.status = 'paused';
-          machine.statusMessage = 'Manually paused';
-        }
+        machine.status = 'paused';
+        machine.statusMessage = 'Manually paused';
         return;
       }
 
       const recipe = RECIPES[machine.recipeId];
       if (!recipe) return;
 
-      const productionTime = recipe.craftTime * machine.productionRate; // Machine rate is multiplier of manual time
+      const productionTime = recipe.craftTime * machine.productionRate;
       const timeSinceLastProduction = now - machine.lastProduction;
 
+      // Check if enough time has passed for a production cycle
       if (timeSinceLastProduction >= productionTime) {
         // Check if we can afford the inputs
         if (this.gameState.canAfford(recipe.inputs)) {
@@ -123,7 +123,7 @@ export class AutomationManager {
           machine.statusMessage = undefined;
           this.gameState.checkMilestones();
         } else {
-          // Can't afford inputs - update status
+          // Can't afford inputs - update status to waiting
           const missingResources = recipe.inputs
             .filter(input => {
               const available = state.resources[input.resourceId]?.amount || 0;
@@ -148,6 +148,10 @@ export class AutomationManager {
             // Reset production timer to start producing immediately
             machine.lastProduction = now - productionTime;
           }
+        } else if (machine.status !== 'running') {
+          // Ensure running machines are marked as running
+          machine.status = 'running';
+          machine.statusMessage = undefined;
         }
       }
     });
@@ -156,7 +160,7 @@ export class AutomationManager {
   getMachineProgress(machineId: string): number {
     const state = this.gameState.getState();
     const machine = state.machines[machineId];
-    if (!machine || !machine.isActive) return 0;
+    if (!machine || !machine.isActive || machine.status !== 'running') return 0;
 
     const recipe = RECIPES[machine.recipeId];
     if (!recipe) return 0;

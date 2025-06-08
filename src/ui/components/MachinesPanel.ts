@@ -49,7 +49,6 @@ export class MachinesPanel {
       }).join('');
 
     const activeMachines = builtMachines.map(([machineId, machine]) => {
-      const progress = this.automationManager.getMachineProgress(machineId);
       const canUpgrade = this.automationManager.canUpgradeMachine(machineId);
       const recipe = RECIPES[machine.recipeId];
       
@@ -64,12 +63,16 @@ export class MachinesPanel {
         return `${actualCost}${symbol} ${resource?.name || cost.resourceId}`;
       }).join(', ');
 
-      // Status indicator
+      // Get actual machine status directly from the machine state
       const statusIcon = machine.status === 'running' ? '🟢' : 
                         machine.status === 'waiting_resources' ? '🟡' : '🔴';
       const statusText = machine.status === 'running' ? 'Running' :
                         machine.status === 'waiting_resources' ? 'Waiting for Resources' : 
                         'Paused';
+
+      // Get actual progress from automation manager
+      const progress = this.automationManager.getMachineProgress(machineId);
+      
       return `
         <div class="machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}" data-machine-id="${machineId}">
           <div class="machine-header">
@@ -91,7 +94,7 @@ export class MachinesPanel {
           </div>
           ${machine.isActive && machine.status === 'running' ? `
             <div class="progress-bar">
-              <div class="progress-fill" style="width: ${progress * 100}%"></div>
+              <div class="progress-fill" data-machine-progress="${machineId}" style="width: ${progress * 100}%"></div>
             </div>
           ` : ''}
           <button 
@@ -154,33 +157,58 @@ export class MachinesPanel {
   }
 
   updateDynamicElements(container: HTMLElement): void {
-    // Update machine progress bars - use CSS animations for smooth progress
+    const state = this.gameState.getState();
+    
+    // Update machine status and progress based on actual machine state
     const machineItems = container.querySelectorAll('.machine-item');
     machineItems.forEach(item => {
       const machineId = item.getAttribute('data-machine-id');
       if (machineId) {
-        const state = this.gameState.getState();
         const machine = state.machines[machineId];
-        const progressBar = item.querySelector('.progress-fill');
+        if (!machine) return;
+
+        // Update machine item classes based on actual machine status
+        item.className = `machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}`;
         
-        if (progressBar && machine && machine.isActive) {
-          const progressElement = progressBar as HTMLElement;
-          const recipe = RECIPES[machine.recipeId];
-          
-          if (recipe && machine.status === 'running') {
-            const productionTime = recipe.craftTime * machine.productionRate;
-            const timeSinceLastProduction = Date.now() - machine.lastProduction;
-            const progress = Math.min(1, timeSinceLastProduction / productionTime);
-            
-            // Use smooth CSS transition for machine progress
-            progressElement.style.width = `${progress * 100}%`;
+        // Update status display
+        const statusIndicator = item.querySelector('.status-indicator');
+        if (statusIndicator) {
+          const statusIcon = machine.status === 'running' ? '🟢' : 
+                            machine.status === 'waiting_resources' ? '🟡' : '🔴';
+          const statusText = machine.status === 'running' ? 'Running' :
+                            machine.status === 'waiting_resources' ? 'Waiting for Resources' : 
+                            'Paused';
+          statusIndicator.textContent = `${statusIcon} ${statusText}`;
+        }
+
+        // Update status message
+        const statusMessage = item.querySelector('.status-message');
+        if (statusMessage) {
+          if (machine.statusMessage) {
+            statusMessage.textContent = machine.statusMessage;
+            statusMessage.style.display = 'block';
           } else {
-            // Reset progress bar when machine is not running
-            (progressBar as HTMLElement).style.width = '0%';
+            statusMessage.style.display = 'none';
           }
-        } else if (progressBar) {
-          // Reset progress bar when machine is inactive
-          (progressBar as HTMLElement).style.width = '0%';
+        }
+
+        // Update toggle button text based on actual machine state
+        const toggleBtn = item.querySelector('[data-toggle]');
+        if (toggleBtn) {
+          toggleBtn.textContent = machine.isActive ? '⏸️ Pause' : '▶️ Start';
+        }
+
+        // Update progress bar based on actual machine progress
+        const progressFill = item.querySelector(`[data-machine-progress="${machineId}"]`) as HTMLElement;
+        if (progressFill) {
+          const progress = this.automationManager.getMachineProgress(machineId);
+          progressFill.style.width = `${progress * 100}%`;
+        }
+
+        // Show/hide progress bar based on machine status
+        const progressBar = item.querySelector('.progress-bar') as HTMLElement;
+        if (progressBar) {
+          progressBar.style.display = (machine.isActive && machine.status === 'running') ? 'block' : 'none';
         }
       }
     });
