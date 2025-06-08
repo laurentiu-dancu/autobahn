@@ -49,33 +49,7 @@ export class GameStateManager {
       if (this.state.resources[resourceId].amount > 0 || (oldAmount > 0 && this.state.resources[resourceId].amount === 0)) {
         this.state.uiState.discoveredResources.add(resourceId);
       }
-      
-      // Check for emergency labor need
-      this.checkEmergencyLabor();
     }
-  }
-
-  private checkEmergencyLabor(): void {
-    const hasNoMoney = this.state.resources.marks.amount < 1;
-    const hasNoSellableItems = !this.hasSellableItems();
-    const cannotAffordBasicMaterial = !this.canAffordCheapestMaterial();
-    
-    this.state.uiState.showEmergencyLabor = hasNoMoney && hasNoSellableItems && cannotAffordBasicMaterial;
-  }
-
-  private hasSellableItems(): boolean {
-    const sellableResources = ['wireSprings', 'metalBrackets', 'leatherGaskets', 'springAssemblies', 'repairKits'];
-    return sellableResources.some(resourceId => this.state.resources[resourceId]?.amount > 0);
-  }
-
-  private canAffordCheapestMaterial(): boolean {
-    const cheapestPrice = Math.min(2, 3, 1, 4); // wireStock: 2, sheetMetal: 3, leatherScraps: 1, oil: 4
-    return this.state.resources.marks.amount >= cheapestPrice;
-  }
-
-  performEmergencyLabor(): void {
-    this.updateResource('marks', 0.15); // Small amount per click
-    this.incrementClicks();
   }
 
   canAfford(costs: { resourceId: string; amount: number }[]): boolean {

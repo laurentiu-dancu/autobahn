@@ -166,19 +166,6 @@ body {
   background: rgba(220, 20, 60, 0.4);
 }
 
-.emergency-labor {
-  margin-top: 20px;
-  padding-top: 15px;
-  border-top: 1px solid #8b4513;
-}
-
-.emergency-note {
-  font-size: 0.8rem;
-  opacity: 0.7;
-  margin-top: 5px;
-  font-style: italic;
-}
-
 .craft-name {
   font-weight: bold;
   font-size: 1.1rem;
@@ -289,12 +276,24 @@ body {
 }
 
 /* Market */
-.market-section {
+.resources-section {
   margin-bottom: 20px;
 }
 
-.market-item {
-  margin-bottom: 8px;
+.market-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.market-section {
+  margin-bottom: 15px;
+}
+
+.market-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .market-btn {
@@ -307,6 +306,7 @@ body {
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease;
+  margin-bottom: 3px;
 }
 
 .buy-btn.available {

@@ -40,8 +40,6 @@ export interface GameState {
   uiState: {
     discoveredResources: Set<string>;
     showMarket: boolean;
-    showFullMarket: boolean;
-    showEmergencyLabor: boolean;
   };
 }
 

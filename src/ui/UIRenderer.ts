@@ -55,8 +55,6 @@ export class UIRenderer {
     const hashData = {
       discoveredResources: Array.from(state.uiState.discoveredResources).sort(),
       showMarket: state.uiState.showMarket,
-      showFullMarket: state.uiState.showFullMarket,
-      showEmergencyLabor: state.uiState.showEmergencyLabor,
       unlockedRecipes: Array.from(state.unlockedRecipes).sort(),
       unlockedMachines: Array.from(state.unlockedMachines).sort(),
       machineIds: Object.keys(state.machines).sort(),
@@ -81,7 +79,6 @@ export class UIRenderer {
 
         <div class="game-content">
           <div class="left-panel">
-            ${this.renderResources()}
             ${this.renderCrafting()}
           </div>
           
@@ -211,31 +208,6 @@ export class UIRenderer {
     });
   }
 
-  private renderResources(): string {
-    const state = this.gameState.getState();
-    const resources = Object.values(state.resources)
-      .filter(resource => state.uiState.discoveredResources.has(resource.id))
-      .map(resource => `
-        <div class="resource-item">
-          <span class="resource-name">${resource.name}</span>
-          <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
-        </div>
-      `).join('');
-
-    if (resources === '') {
-      return ''; // Don't show resources panel if no resources discovered
-    }
-
-    return `
-      <div class="panel resources-panel">
-        <h3>📦 Resources</h3>
-        <div class="resources-list">
-          ${resources}
-        </div>
-      </div>
-    `;
-  }
-
   private renderCrafting(): string {
     const recipes = this.craftingSystem.getAvailableRecipes();
     
@@ -283,25 +255,12 @@ export class UIRenderer {
       `;
     }).join('');
 
-    // Emergency labor button
-    const state = this.gameState.getState();
-    const emergencyLabor = state.uiState.showEmergencyLabor ? `
-      <div class="emergency-labor">
-        <h4>⚠️ Emergency Work</h4>
-        <button id="emergency-labor-btn" class="craft-btn emergency">
-          Work for Competition (+0.15 marks)
-        </button>
-        <p class="emergency-note">Click to earn small amounts when out of resources</p>
-      </div>
-    ` : '';
-    
     return `
       <div class="panel crafting-panel">
         <h3>🔨 Manual Crafting</h3>
         <div class="crafting-list">
           ${recipeButtons}
         </div>
-        ${emergencyLabor}
       </div>
     `;
   }
@@ -398,47 +357,64 @@ export class UIRenderer {
       return ''; // Don't show market until unlocked
     }
 
+    // Get discovered resources for display
+    const discoveredResources = Object.values(state.resources)
+      .filter(resource => state.uiState.discoveredResources.has(resource.id))
+      .map(resource => `
+        <div class="resource-item">
+          <span class="resource-name">${resource.name}</span>
+          <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
+        </div>
+      `).join('');
+
     const buyableItems = this.marketSystem.getBuyableItems();
     const sellableItems = this.marketSystem.getSellableItems();
 
     const buySection = buyableItems.map(item => `
-      <div class="market-item">
-        <button 
-          class="market-btn buy-btn ${this.marketSystem.canBuy(item.resourceId) ? 'available' : 'disabled'}"
-          data-buy="${item.resourceId}"
-          ${!this.marketSystem.canBuy(item.resourceId) ? 'disabled' : ''}
-        >
-          Buy ${item.name} (${item.price} marks)
-        </button>
-      </div>
+      <button 
+        class="market-btn buy-btn ${this.marketSystem.canBuy(item.resourceId) ? 'available' : 'disabled'}"
+        data-buy="${item.resourceId}"
+        ${!this.marketSystem.canBuy(item.resourceId) ? 'disabled' : ''}
+      >
+        Buy ${item.name} (${item.price}₼)
+      </button>
     `).join('');
 
     const sellSection = sellableItems.map(item => `
-      <div class="market-item">
-        <button 
-          class="market-btn sell-btn available"
-          data-sell="${item.resourceId}"
-        >
-          Sell ${item.name} (${item.price} marks) [${item.available}]
-        </button>
-      </div>
+      <button 
+        class="market-btn sell-btn available"
+        data-sell="${item.resourceId}"
+      >
+        Sell ${item.name} (${item.price}₼) [${item.available}]
+      </button>
     `).join('');
 
-    const sellSectionDisplay = state.uiState.showFullMarket ? `
-      <div class="market-section">
-        <h4>Sell Products</h4>
-        ${sellSection}
-      </div>
-    ` : '';
-    
     return `
       <div class="panel market-panel">
-        <h3>💰 Market</h3>
-        <div class="market-section">
-          <h4>Buy Materials</h4>
-          ${buySection}
+        <h3>💰 Resources & Market</h3>
+        
+        <div class="resources-section">
+          <h4>📦 Your Resources</h4>
+          <div class="resources-list">
+            ${discoveredResources}
+          </div>
         </div>
-        ${sellSectionDisplay}
+        
+        <div class="market-actions">
+          <div class="market-section">
+            <h4>🛒 Buy</h4>
+            <div class="market-buttons">
+              ${buySection}
+            </div>
+          </div>
+          
+          <div class="market-section">
+            <h4>💸 Sell</h4>
+            <div class="market-buttons">
+              ${sellSection}
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }
@@ -454,11 +430,6 @@ export class UIRenderer {
       });
     });
 
-    // Emergency labor button
-    this.container.querySelector('#emergency-labor-btn')?.addEventListener('click', () => {
-      this.gameState.performEmergencyLabor();
-    });
-    
     // Machine building
     this.container.querySelectorAll('[data-machine]').forEach(btn => {
       btn.addEventListener('click', (e) => {

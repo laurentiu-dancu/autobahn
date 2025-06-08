@@ -61,7 +61,7 @@ export class MarketSystem {
 
   getSellableItems(): Array<{resourceId: string, price: number, name: string, available: number}> {
     const state = this.gameState.getState();
-    if (!state.uiState.showFullMarket) return [];
+    if (!state.uiState.showMarket) return [];
     
     return Object.entries(MARKET_ITEMS)
       .filter(([resourceId, item]) => {
