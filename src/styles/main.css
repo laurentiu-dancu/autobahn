@@ -7,7 +7,7 @@
 body {
   font-family: 'Courier New', monospace;
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   min-height: 100vh;
   overflow-x: auto;
 }
@@ -31,7 +31,7 @@ body {
 }
 
 .game-header h1 {
-  color: #85c1e9;
+  color: #aed6f1;
   font-size: 2rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
@@ -45,10 +45,10 @@ body {
 #marks-display {
   font-size: 1.2rem;
   font-weight: bold;
-  color: #f7dc6f;
+  color: #2c3e50;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
   padding: 8px 12px;
-  background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+  background: linear-gradient(135deg, #f7dc6f 0%, #f4d03f 100%);
   border: 1px solid #d68910;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -95,7 +95,7 @@ body {
 }
 
 .panel {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
   border: 2px solid #5d6d7e;
   border-radius: 8px;
   padding: 20px;
@@ -103,7 +103,7 @@ body {
 }
 
 .panel h3 {
-  color: #85c1e9;
+  color: #aed6f1;
   margin-bottom: 15px;
   font-size: 1.3rem;
   border-bottom: 1px solid #5d6d7e;
@@ -111,7 +111,7 @@ body {
 }
 
 .panel h4 {
-  color: #aed6f1;
+  color: #d5dbdb;
   margin-bottom: 10px;
 }
 
@@ -127,7 +127,7 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  background: linear-gradient(135deg, #4a6741 0%, #3e5a36 100%);
   border-radius: 4px;
   border-left: 3px solid #5d6d7e;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
@@ -144,11 +144,11 @@ body {
 .resource-name {
   font-weight: bold;
   font-size: 0.95rem;
-  color: #d5dbdb;
+  color: #f8f9fa;
 }
 
 .resource-amount {
-  color: #82e0aa;
+  color: #a9dfbf;
   font-weight: bold;
 }
 
@@ -165,7 +165,7 @@ body {
   border: 1px solid #5d6d7e;
   border-radius: 4px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
@@ -180,7 +180,7 @@ body {
 .inline-market-btn.buy-btn.available {
   border-color: #3498db;
   background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .inline-market-btn.buy-btn.available:hover {
@@ -191,7 +191,7 @@ body {
 .inline-market-btn.sell-btn.available {
   border-color: #f39c12;
   background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .inline-market-btn.sell-btn.available:hover {
@@ -222,7 +222,7 @@ body {
   border: 2px solid #5d6d7e;
   border-radius: 6px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease;
@@ -233,7 +233,7 @@ body {
 .craft-btn.available {
   border-color: #85c1e9;
   background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .craft-btn.available:hover {
@@ -277,15 +277,15 @@ body {
 
 .craft-inputs, .craft-outputs {
   font-size: 0.9rem;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .craft-inputs {
-  color: #f1948a;
+  color: #f1c0e8;
 }
 
 .craft-outputs {
-  color: #82e0aa;
+  color: #a9dfbf;
 }
 
 .progress-bar-container {
@@ -319,7 +319,7 @@ body {
 .salvage-section .craft-btn {
   border-color: #27ae60;
   background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .salvage-section .craft-btn:hover {
@@ -335,10 +335,11 @@ body {
 .cost-summary {
   margin-bottom: 15px;
   padding: 10px;
-  background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+  background: linear-gradient(135deg, #4a6741 0%, #3e5a36 100%);
   border-radius: 4px;
   border-left: 3px solid #5d6d7e;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #f8f9fa;
 }
 
 .cost-warning {
@@ -347,7 +348,7 @@ body {
 }
 
 .cost-warning.low-funds {
-  color: #ec7063;
+  color: #f1948a;
 }
 
 .personnel-section {
@@ -364,7 +365,7 @@ body {
   border: 2px solid #5d6d7e;
   border-radius: 6px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease;
@@ -375,7 +376,7 @@ body {
 .hire-btn.available {
   border-color: #27ae60;
   background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .hire-btn.available:hover {
@@ -395,7 +396,7 @@ body {
 
 .personnel-cost, .personnel-desc, .personnel-total {
   font-size: 0.9rem;
-  opacity: 0.8;
+  opacity: 0.9;
   margin-bottom: 2px;
 }
 
@@ -411,12 +412,13 @@ body {
   border-radius: 6px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #f8f9fa;
 }
 
 .personnel-item.active {
   border-color: #27ae60;
   background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .personnel-header {
@@ -431,7 +433,7 @@ body {
   border: 1px solid #e74c3c;
   border-radius: 4px;
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: #ecf0f1;
+  color: #ffffff;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.8rem;
@@ -444,7 +446,7 @@ body {
 
 .personnel-info {
   font-size: 0.9rem;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .personnel-info div {
@@ -466,7 +468,7 @@ body {
   border: 1px solid #85c1e9;
   border-radius: 4px;
   background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-  color: #ecf0f1;
+  color: #ffffff;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
@@ -488,12 +490,13 @@ body {
   border-radius: 4px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #f8f9fa;
 }
 
 .rule-item.enabled {
   border-color: #27ae60;
   background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .rule-item.disabled {
@@ -513,7 +516,7 @@ body {
   border: 1px solid #5d6d7e;
   border-radius: 3px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.8rem;
@@ -526,7 +529,7 @@ body {
 
 .rule-info {
   font-size: 0.8rem;
-  opacity: 0.8;
+  opacity: 0.9;
   margin-bottom: 5px;
 }
 
@@ -539,7 +542,7 @@ body {
   border: 1px solid #e74c3c;
   border-radius: 3px;
   background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-  color: #ecf0f1;
+  color: #ffffff;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.8rem;
@@ -561,7 +564,7 @@ body {
   border: 2px solid #5d6d7e;
   border-radius: 6px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s ease;
@@ -572,7 +575,7 @@ body {
 .build-btn.available {
   border-color: #27ae60;
   background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .build-btn.available:hover {
@@ -586,32 +589,33 @@ body {
   border-radius: 6px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: #f8f9fa;
 }
 
 .machine-item.active {
   border-color: #27ae60;
   background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .machine-item.machine-waiting_resources {
   border-color: #f39c12;
   background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .machine-item.machine-waiting_resources .machine-header h4 {
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .machine-item.machine-stopped {
   border-color: #95a5a6;
   background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .machine-item.machine-stopped .machine-header h4 {
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .machine-header {
@@ -626,7 +630,7 @@ body {
   border: 1px solid #5d6d7e;
   border-radius: 4px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
@@ -640,7 +644,7 @@ body {
 .machine-info {
   margin-bottom: 10px;
   font-size: 0.9rem;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .machine-status {
@@ -667,7 +671,7 @@ body {
   border: 1px solid #5d6d7e;
   border-radius: 4px;
   background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
-  color: #e0e6ed;
+  color: #f8f9fa;
   cursor: pointer;
   font-family: inherit;
   font-size: 0.9rem;
@@ -678,7 +682,7 @@ body {
 .upgrade-btn.available {
   border-color: #85c1e9;
   background: linear-gradient(135deg, #5dade2 0%, #3498db 100%);
-  color: #ecf0f1;
+  color: #ffffff;
 }
 
 .upgrade-btn.available:hover {
