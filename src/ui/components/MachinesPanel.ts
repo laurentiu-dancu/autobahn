@@ -148,7 +148,7 @@ export class MachinesPanel {
         
         if (progressBar && machine && machine.isActive) {
           const progressElement = progressBar as HTMLElement;
-          const recipe = require('../../config/recipes').RECIPES[machine.recipeId];
+          const recipe = RECIPES[machine.recipeId];
           
           if (recipe) {
             const productionTime = recipe.craftTime * machine.productionRate;
