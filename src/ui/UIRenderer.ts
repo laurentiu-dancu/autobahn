@@ -378,7 +378,7 @@ export class UIRenderer {
         // Get market price for this resource
         const marketItem = require('../config/gameConfig').MARKET_ITEMS[resource.id];
         const price = marketItem?.buyPrice || marketItem?.sellPrice || 0;
-        const pricePrefix = price > 0 ? `${price}m ` : '';
+        const pricePrefix = price > 0 ? \`${price}m ` : '';
         
         return `
         <div class="resource-item-with-market">
@@ -408,6 +408,7 @@ export class UIRenderer {
             ` : ''}
           </div>
         </div>
+      )
       `;
       }).join('');
 
@@ -497,5 +498,7 @@ export class UIRenderer {
         this.forceFullRender();
       }
     });
+  }
+}
   }
 }
