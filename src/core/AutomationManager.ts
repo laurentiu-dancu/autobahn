@@ -1,16 +1,13 @@
 import { Machine } from './types';
 import { GameStateManager } from './GameState';
-import { CraftingSystem } from './CraftingSystem';
 import { MACHINES } from '../config/machines';
 import { RECIPES } from '../config/recipes';
 
 export class AutomationManager {
   private gameState: GameStateManager;
-  private craftingSystem: CraftingSystem;
 
-  constructor(gameState: GameStateManager, craftingSystem: CraftingSystem) {
+  constructor(gameState: GameStateManager) {
     this.gameState = gameState;
-    this.craftingSystem = craftingSystem;
   }
 
   canBuildMachine(machineId: string): boolean {

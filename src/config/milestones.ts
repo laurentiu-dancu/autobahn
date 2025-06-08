@@ -38,7 +38,7 @@ export const MILESTONES: Milestone[] = [
     name: 'First Sale',
     description: 'Sell your first item',
     condition: (state) => state.totalSales > 0,
-    reward: (state) => {
+    reward: () => {
       // No longer needed - market is integrated
     },
     completed: false
@@ -60,8 +60,8 @@ export const MILESTONES: Milestone[] = [
     name: 'Basic Automation',
     description: 'Hire both procurement specialist and sales manager',
     condition: (state) => {
-      return state.stockControl.personnel.procurementSpecialist && 
-             state.stockControl.personnel.salesManager;
+      return !!(state.stockControl.personnel.procurementSpecialist && 
+                state.stockControl.personnel.salesManager);
     },
     reward: (state) => {
       state.unlockedStockControl.add('supplyChainCoordinator');
