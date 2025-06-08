@@ -368,62 +368,49 @@ export class UIRenderer {
       return ''; // Don't show market until unlocked
     }
 
+    // Define raw materials that can be bought
+    const rawMaterials = ['wireStock', 'sheetMetal', 'leatherScraps', 'oil'];
+
     // Get discovered resources for display
     const discoveredResources = Object.values(state.resources)
       .filter(resource => state.uiState.discoveredResources.has(resource.id))
       .map(resource => `
-        <div class="resource-item">
-          <span class="resource-name">${resource.name}</span>
-          <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
+        <div class="resource-item-with-market">
+          <div class="resource-info">
+            <span class="resource-name">${resource.name}</span>
+            <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
+          </div>
+          <div class="resource-actions">
+            ${rawMaterials.includes(resource.id) ? `
+              <button 
+                class="inline-market-btn buy-btn ${this.marketSystem.canBuy(resource.id) ? 'available' : 'disabled'}"
+                data-buy="${resource.id}"
+                ${!this.marketSystem.canBuy(resource.id) ? 'disabled' : ''}
+                title="Buy ${resource.name}"
+              >
+                +
+              </button>
+            ` : ''}
+            ${this.marketSystem.canSell(resource.id) ? `
+              <button 
+                class="inline-market-btn sell-btn available"
+                data-sell="${resource.id}"
+                title="Sell ${resource.name}"
+              >
+                -
+              </button>
+            ` : ''}
+          </div>
         </div>
       `).join('');
-
-    const buyableItems = this.marketSystem.getBuyableItems();
-    const sellableItems = this.marketSystem.getSellableItems();
-
-    const buySection = buyableItems.map(item => `
-      <button 
-        class="market-btn buy-btn ${this.marketSystem.canBuy(item.resourceId) ? 'available' : 'disabled'}"
-        data-buy="${item.resourceId}"
-        ${!this.marketSystem.canBuy(item.resourceId) ? 'disabled' : ''}
-      >
-        Buy ${item.name} (${item.price}₼)
-      </button>
-    `).join('');
-
-    const sellSection = sellableItems.map(item => `
-      <button 
-        class="market-btn sell-btn available"
-        data-sell="${item.resourceId}"
-      >
-        Sell ${item.name} (${item.price}₼) [${item.available}]
-      </button>
-    `).join('');
 
     return `
       <div class="panel market-panel">
         <h3>💰 Resources & Market</h3>
         
         <div class="resources-section">
-          <h4>📦 Your Resources</h4>
           <div class="resources-list">
             ${discoveredResources}
-          </div>
-        </div>
-        
-        <div class="market-actions">
-          <div class="market-section">
-            <h4>🛒 Buy</h4>
-            <div class="market-buttons">
-              ${buySection}
-            </div>
-          </div>
-          
-          <div class="market-section">
-            <h4>💸 Sell</h4>
-            <div class="market-buttons">
-              ${sellSection}
-            </div>
           </div>
         </div>
       </div>

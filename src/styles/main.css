@@ -138,16 +138,21 @@ body {
 }
 
 .inline-market-btn {
-  padding: 4px 8px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
   border: 1px solid #8b4513;
-  border-radius: 3px;
+  border-radius: 4px;
   background: rgba(139, 69, 19, 0.3);
   color: #e8d5b7;
   cursor: pointer;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
+  font-weight: bold;
   transition: all 0.2s ease;
-  min-width: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .inline-market-btn.buy-btn.available {
@@ -158,7 +163,7 @@ body {
 
 .inline-market-btn.buy-btn.available:hover {
   background: rgba(65, 105, 225, 0.5);
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .inline-market-btn.sell-btn.available {
@@ -169,7 +174,7 @@ body {
 
 .inline-market-btn.sell-btn.available:hover {
   background: rgba(255, 165, 0, 0.5);
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .inline-market-btn.disabled {
