@@ -138,6 +138,15 @@ export class AutomationManager {
           machine.status = 'waiting_resources';
           machine.statusMessage = `Waiting for: ${missingResources.join(', ')}`;
         }
+      } else {
+        // Machine is still in production cycle
+        if (machine.status === 'waiting_resources') {
+          // Check if we now have resources available
+          if (this.gameState.canAfford(recipe.inputs)) {
+            machine.status = 'running';
+            machine.statusMessage = undefined;
+          }
+        }
       }
     });
   }
