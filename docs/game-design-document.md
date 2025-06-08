@@ -153,21 +153,78 @@ A simple milestone system where reaching specific production targets unlocks new
 
 ### 3.3. Stock Control System
 
-**Basic Stock Control:**
-- **Auto-Buy Thresholds:** Set minimum inventory levels for raw materials; system automatically purchases when stock falls below threshold
-- **Auto-Sell Targets:** Set maximum inventory levels for finished products; system automatically sells excess stock
-- **Simple Rules:** Basic if-then logic for inventory management
+**Concept Overview:**
+The Stock Control System allows players to hire trading personnel who manage market transactions automatically based on configured rules. These hired workers operate independently but require monthly salaries paid in marks. If the player runs out of marks, the workers quit and all automated trading stops until new personnel are hired.
 
-**Advanced Stock Control:**
-- **Multi-Tier Thresholds:** Different buying/selling rules based on inventory levels and market conditions
-- **Production Balancing:** Coordinate material purchasing with production capacity and demand forecasting
-- **Profit Optimization:** Advanced algorithms that consider market prices, storage costs, and production efficiency
+**Trading Personnel Types:**
 
-**Stock Control Progression:**
-- Unlocks after demonstrating manual trading proficiency
-- Starts with simple buy/sell automation
-- Evolves into sophisticated supply chain management
-- Eventually enables hands-off operation of entire production chains
+*Material Procurement Specialist:*
+- **Role:** Automatically purchases raw materials when inventory falls below set thresholds
+- **Monthly Salary:** 10 marks per minute of game time
+- **Configuration Options:**
+  - Set minimum stock levels for each raw material (Wire Stock, Sheet Metal, Leather Scraps, Oil)
+  - Set maximum purchase quantities per transaction
+  - Enable/disable purchasing for specific materials
+- **Behavior:** Monitors inventory every 30 seconds, purchases materials when below threshold if sufficient marks available
+
+*Sales Manager:*
+- **Role:** Automatically sells finished products when inventory exceeds set thresholds
+- **Monthly Salary:** 15 marks per minute of game time
+- **Configuration Options:**
+  - Set maximum stock levels for each finished product
+  - Set minimum sale quantities per transaction
+  - Enable/disable selling for specific products
+- **Behavior:** Monitors inventory every 30 seconds, sells excess products when above threshold
+
+*Supply Chain Coordinator (Advanced):*
+- **Role:** Manages both buying and selling with advanced optimization
+- **Monthly Salary:** 25 marks per minute of game time
+- **Unlock Requirement:** Hire both basic specialists for at least 5 minutes each
+- **Configuration Options:**
+  - Balanced inventory management across entire production chain
+  - Profit margin optimization
+  - Production demand forecasting
+  - Emergency stock management
+- **Behavior:** Analyzes production rates, adjusts buying/selling to maintain optimal inventory levels
+
+**Employment Mechanics:**
+
+*Hiring Process:*
+- Access through "Stock Control" panel (unlocks after 10 manual market transactions)
+- One-time hiring cost: 50 marks per specialist
+- Must have sufficient marks to cover at least 1 minute of salary
+- Can hire multiple specialists of the same type for redundancy
+
+*Salary System:*
+- Salaries deducted automatically every minute of real-time gameplay
+- Warning notifications when marks drop below 3 minutes of salary coverage
+- Automatic termination when marks reach zero - all automated trading stops
+- Rehiring requires paying the full hiring cost again
+
+*Configuration Interface:*
+- Simple threshold sliders for each resource/product
+- Enable/disable toggles for each automated action
+- Real-time preview of what actions would be taken with current settings
+- Activity log showing recent automated transactions
+
+**Progression Path:**
+1. **Manual Trading Phase:** Player learns market mechanics through direct buy/sell actions
+2. **Basic Automation Unlock:** After 10 manual transactions, Stock Control panel becomes available
+3. **Specialist Hiring:** Player can hire Material Procurement Specialist or Sales Manager
+4. **Advanced Coordination:** After demonstrating proficiency with basic specialists, Supply Chain Coordinator unlocks
+5. **Full Automation:** With proper configuration and sufficient marks, entire trading operation runs hands-off
+
+**Strategic Considerations:**
+- **Cash Flow Management:** Players must balance automation benefits against ongoing salary costs
+- **Risk vs. Reward:** Automated trading provides convenience but requires steady income to maintain
+- **Scaling Economics:** As production increases, automation becomes more cost-effective
+- **Emergency Planning:** Players must maintain manual trading skills for when automation fails due to insufficient funds
+
+**Anti-Softlock Protection:**
+- Salvage Materials action remains always available regardless of automation status
+- Manual trading always remains accessible even when specialists are employed
+- Clear warnings before specialists quit due to insufficient funds
+- Graceful degradation: automation stops but core game mechanics remain functional
 
 ## 4. User Interface (UI) / User Experience (UX) (MVP)
 
