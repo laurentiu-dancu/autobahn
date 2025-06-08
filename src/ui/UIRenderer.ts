@@ -195,7 +195,7 @@ export class UIRenderer {
       }
     });
 
-    // Update market button states
+    // Update inline market button states
     const buyButtons = this.container.querySelectorAll('[data-buy]');
     buyButtons.forEach(btn => {
       const resourceId = btn.getAttribute('data-buy');
@@ -204,6 +204,17 @@ export class UIRenderer {
         btn.classList.toggle('available', canBuy);
         btn.classList.toggle('disabled', !canBuy);
         (btn as HTMLButtonElement).disabled = !canBuy;
+      }
+    });
+
+    const sellButtons = this.container.querySelectorAll('[data-sell]');
+    sellButtons.forEach(btn => {
+      const resourceId = btn.getAttribute('data-sell');
+      if (resourceId) {
+        const canSell = this.marketSystem.canSell(resourceId);
+        btn.classList.toggle('available', canSell);
+        btn.classList.toggle('disabled', !canSell);
+        (btn as HTMLButtonElement).disabled = !canSell;
       }
     });
   }
