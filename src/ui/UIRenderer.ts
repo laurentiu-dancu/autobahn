@@ -86,6 +86,16 @@ export class UIRenderer {
 
   private renderCrafting(): string {
     const recipes = this.craftingSystem.getAvailableRecipes();
+    
+    if (recipes.length === 0) {
+      return `
+        <div class="panel crafting-panel">
+          <h3>🔨 Manual Crafting</h3>
+          <p>No recipes available yet...</p>
+        </div>
+      `;
+    }
+    
     const recipeButtons = recipes.map(recipe => {
       const canCraft = this.craftingSystem.canCraft(recipe.id);
       const isCrafting = this.craftingSystem.isCrafting(recipe.id);

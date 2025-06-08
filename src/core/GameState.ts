@@ -13,7 +13,7 @@ export class GameStateManager {
     return {
       resources: { ...INITIAL_RESOURCES },
       machines: {},
-      unlockedRecipes: new Set(['forgeMetalPlate', 'cutWoodPlank']),
+      unlockedRecipes: new Set(['bendWireSpring', 'fileMetalBracket', 'cutLeatherGasket']),
       unlockedMachines: new Set(),
       totalClicks: 0,
       totalProduced: {},
