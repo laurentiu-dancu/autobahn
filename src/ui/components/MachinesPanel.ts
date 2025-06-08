@@ -64,8 +64,13 @@ export class MachinesPanel {
         return `${actualCost}${symbol} ${resource?.name || cost.resourceId}`;
       }).join(', ');
 
+      // Status indicator
+      const statusIcon = machine.status === 'running' ? '🟢' : 
+                        machine.status === 'waiting_resources' ? '🟡' : '🔴';
+      const statusText = machine.status === 'running' ? 'Running' :
+                        machine.status === 'waiting_resources' ? 'Waiting for Resources' : 'Paused';
       return `
-        <div class="machine-item ${machine.isActive ? 'active' : 'inactive'}" data-machine-id="${machineId}">
+        <div class="machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}" data-machine-id="${machineId}">
           <div class="machine-header">
             <h4>${machine.name} (Level ${machine.level})</h4>
             <button 
@@ -78,8 +83,12 @@ export class MachinesPanel {
           <div class="machine-info">
             <div>Recipe: ${recipe?.name}</div>
             <div>Speed: ${currentSpeed}s (Manual: ${manualSpeed}s) - ${efficiency}% efficiency</div>
+            <div class="machine-status">
+              <span class="status-indicator">${statusIcon} ${statusText}</span>
+              ${machine.statusMessage ? `<div class="status-message">${machine.statusMessage}</div>` : ''}
+            </div>
           </div>
-          ${machine.isActive ? `
+          ${machine.isActive && machine.status === 'running' ? `
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${progress * 100}%"></div>
             </div>
@@ -150,15 +159,18 @@ export class MachinesPanel {
           const progressElement = progressBar as HTMLElement;
           const recipe = RECIPES[machine.recipeId];
           
-          if (recipe) {
+          if (recipe && machine.status === 'running') {
             const productionTime = recipe.craftTime * machine.productionRate;
             const timeSinceLastProduction = Date.now() - machine.lastProduction;
             const progress = Math.min(1, timeSinceLastProduction / productionTime);
             
             // Use smooth CSS transition for machine progress
             progressElement.style.width = `${progress * 100}%`;
+          } else {
+            // Reset progress bar when machine is not running
+            (progressBar as HTMLElement).style.width = '0%';
           }
-        } else if (progressBar && (!machine || !machine.isActive)) {
+        } else if (progressBar) {
           // Reset progress bar when machine is inactive
           (progressBar as HTMLElement).style.width = '0%';
         }

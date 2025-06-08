@@ -546,6 +546,15 @@ body {
   background: rgba(50, 205, 50, 0.1);
 }
 
+.machine-item.machine-waiting_resources {
+  border-color: #ffa500;
+  background: rgba(255, 165, 0, 0.1);
+}
+
+.machine-item.machine-waiting_resources .machine-header h4 {
+  color: #ffa500;
+}
+
 .machine-header {
   display: flex;
   justify-content: space-between;
@@ -572,6 +581,24 @@ body {
   margin-bottom: 10px;
   font-size: 0.9rem;
   opacity: 0.8;
+}
+
+.machine-status {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(139, 69, 19, 0.3);
+}
+
+.status-indicator {
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.status-message {
+  font-size: 0.8rem;
+  color: #ffa500;
+  margin-top: 4px;
+  font-style: italic;
 }
 
 .upgrade-btn {

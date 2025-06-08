@@ -33,7 +33,9 @@ export class AutomationManager {
     const machine: Machine = {
       ...machineTemplate,
       lastProduction: Date.now(),
-      isActive: true
+      isActive: true,
+      status: 'running',
+      statusMessage: undefined
     };
 
     this.gameState.addMachine(machineId, machine);
@@ -78,6 +80,11 @@ export class AutomationManager {
       machine.isActive = !machine.isActive;
       if (machine.isActive) {
         machine.lastProduction = Date.now();
+        machine.status = 'running';
+        machine.statusMessage = undefined;
+      } else {
+        machine.status = 'paused';
+        machine.statusMessage = 'Manually paused';
       }
     }
   }
@@ -87,7 +94,13 @@ export class AutomationManager {
     const now = Date.now();
 
     Object.values(state.machines).forEach(machine => {
-      if (!machine.isActive) return;
+      if (!machine.isActive) {
+        if (machine.status !== 'paused') {
+          machine.status = 'paused';
+          machine.statusMessage = 'Manually paused';
+        }
+        return;
+      }
 
       const recipe = RECIPES[machine.recipeId];
       if (!recipe) return;
@@ -98,6 +111,7 @@ export class AutomationManager {
       if (timeSinceLastProduction >= productionTime) {
         // Check if we can afford the inputs
         if (this.gameState.canAfford(recipe.inputs)) {
+          // Successfully produce
           this.gameState.spendResources(recipe.inputs);
           
           recipe.outputs.forEach(output => {
@@ -105,7 +119,24 @@ export class AutomationManager {
           });
 
           machine.lastProduction = now;
+          machine.status = 'running';
+          machine.statusMessage = undefined;
           this.gameState.checkMilestones();
+        } else {
+          // Can't afford inputs - update status
+          const missingResources = recipe.inputs
+            .filter(input => {
+              const available = state.resources[input.resourceId]?.amount || 0;
+              return available < input.amount;
+            })
+            .map(input => {
+              const resource = state.resources[input.resourceId];
+              const available = resource?.amount || 0;
+              return `${resource?.name || input.resourceId} (need ${input.amount}, have ${Math.floor(available)})`;
+            });
+          
+          machine.status = 'waiting_resources';
+          machine.statusMessage = `Waiting for: ${missingResources.join(', ')}`;
         }
       }
     });

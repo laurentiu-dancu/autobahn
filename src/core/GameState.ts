@@ -136,6 +136,17 @@ export class GameStateManager {
       const parsed = JSON.parse(saveData);
       return {
         ...parsed,
+        // Ensure machines have status fields for backwards compatibility
+        machines: Object.fromEntries(
+          Object.entries(parsed.machines || {}).map(([id, machine]: [string, any]) => [
+            id,
+            {
+              ...machine,
+              status: machine.status || 'running',
+              statusMessage: machine.statusMessage || undefined
+            }
+          ])
+        ),
         unlockedRecipes: new Set(parsed.unlockedRecipes),
         unlockedMachines: new Set(parsed.unlockedMachines),
         unlockedStockControl: new Set(parsed.unlockedStockControl || []),

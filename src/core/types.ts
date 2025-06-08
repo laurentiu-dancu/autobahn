@@ -24,6 +24,8 @@ export interface Machine {
   productionRate: number; // multiplier for base craft time
   isActive: boolean;
   lastProduction: number;
+  status: 'running' | 'waiting_resources' | 'paused';
+  statusMessage?: string;
   description: string;
 }
 
