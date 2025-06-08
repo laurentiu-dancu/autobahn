@@ -67,7 +67,7 @@ export class AutomationManager {
     if (!this.gameState.spendResources(upgradeCost)) return false;
 
     machine.level++;
-    machine.productionRate = Math.max(0.2, machine.productionRate * 0.85); // 15% faster each level, minimum 20% of manual time
+    machine.productionRate = Math.max(0.5, machine.productionRate * 0.85); // 15% faster each level, minimum 50% of manual time (2x faster max)
     return true;
   }
 
