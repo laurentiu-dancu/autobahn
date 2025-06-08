@@ -66,5 +66,6 @@ export const MILESTONES: Milestone[] = [
     reward: (state) => {
       state.unlockedStockControl.add('supplyChainCoordinator');
     },
+    completed: false
   }
 ];
