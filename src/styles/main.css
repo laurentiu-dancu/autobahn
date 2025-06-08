@@ -264,6 +264,7 @@ body {
 
 .craft-details {
   position: relative; /* Allow absolute positioning of progress bar */
+  transition: opacity 0.2s ease; /* Smooth transition when text fades */
 }
 
 .craft-progress-overlay {
@@ -271,10 +272,20 @@ body {
   top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   z-index: 10;
-  background: rgba(139, 69, 19, 0.9); /* Semi-transparent background to overlay text */
-  border-radius: 4px;
-  padding: 2px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 69, 19, 0.95); /* Semi-transparent background */
+  border-radius: 6px;
+  pointer-events: none; /* Allow clicks to pass through to button */
+}
+
+.craft-progress-overlay .progress-bar {
+  width: 90%;
+  height: 8px;
+  margin: 0; /* Remove default margin */
 }
 
 /* Salvage section */

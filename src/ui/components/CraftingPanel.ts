@@ -40,14 +40,18 @@ export class CraftingPanel {
             data-recipe="${recipe.id}"
             ${!canCraft || isCrafting ? 'disabled' : ''}
           >
-            <div class="craft-name">${recipe.name}${craftTimeText}</div>
-            <div class="craft-inputs">Needs: ${inputsText}</div>
-            <div class="craft-outputs">Makes: ${outputsText}</div>
-            ${recipe.craftTime > 0 ? `
-              <div class="progress-bar" data-recipe-progress-container="${recipe.id}" style="display: ${isCrafting ? 'block' : 'none'};">
-                <div class="progress-fill" data-recipe-progress="${recipe.id}" style="width: ${progress * 100}%"></div>
-              </div>
-            ` : ''}
+            <div class="craft-details" data-craft-details="${recipe.id}">
+              <div class="craft-name">${recipe.name}${craftTimeText}</div>
+              <div class="craft-inputs">Needs: ${inputsText}</div>
+              <div class="craft-outputs">Makes: ${outputsText}</div>
+              ${recipe.craftTime > 0 ? `
+                <div class="craft-progress-overlay" data-recipe-progress-container="${recipe.id}" style="display: none;">
+                  <div class="progress-bar">
+                    <div class="progress-fill" data-recipe-progress="${recipe.id}" style="width: 0%"></div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
           </button>
         </div>
       `;
@@ -104,10 +108,17 @@ export class CraftingPanel {
         const isCrafting = this.craftingSystem.isCrafting(recipeId);
         const progress = this.craftingSystem.getCraftProgress(recipeId);
         
-        // Show/hide progress bar container
-        const progressContainer = btn.querySelector(`[data-recipe-progress-container="${recipeId}"]`) as HTMLElement;
-        if (progressContainer) {
-          progressContainer.style.display = isCrafting ? 'block' : 'none';
+        // Show/hide progress overlay
+        const progressOverlay = btn.querySelector(`[data-recipe-progress-container="${recipeId}"]`) as HTMLElement;
+        if (progressOverlay) {
+          progressOverlay.style.display = isCrafting ? 'block' : 'none';
+        }
+        
+        // Hide/show craft details text when crafting
+        const craftDetails = btn.querySelector(`[data-craft-details="${recipeId}"]`) as HTMLElement;
+        if (craftDetails) {
+          // When crafting, make the text semi-transparent so progress bar is visible over it
+          craftDetails.style.opacity = isCrafting ? '0.3' : '1';
         }
         
         // Update progress bar fill
