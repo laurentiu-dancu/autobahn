@@ -94,7 +94,7 @@ export class UIRenderer {
     this.container.innerHTML = `
       <div class="game-container">
         <header class="game-header">
-          <h1>🏭 Autobahn Workshop</h1>
+          <h1>🏭 Autobahn - Industrial Incremental</h1>
           <div class="game-stats">
             <span id="marks-display">€${Math.floor(state.resources.marks.amount)} Marks</span>
             <button id="save-btn" class="save-btn">💾 Save</button>
