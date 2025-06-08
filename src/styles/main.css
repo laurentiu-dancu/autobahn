@@ -417,7 +417,7 @@ body {
 
 .personnel-item.active {
   border-color: #27ae60;
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  background: linear-gradient(135deg, #1e5631 0%, #27ae60 100%);
   color: #ffffff;
 }
 
@@ -495,7 +495,7 @@ body {
 
 .rule-item.enabled {
   border-color: #27ae60;
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  background: linear-gradient(135deg, #1e5631 0%, #27ae60 100%);
   color: #ffffff;
 }
 
@@ -594,7 +594,7 @@ body {
 
 .machine-item.active {
   border-color: #27ae60;
-  background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+  background: linear-gradient(135deg, #1e5631 0%, #27ae60 100%);
   color: #ffffff;
 }
 
