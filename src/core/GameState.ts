@@ -167,5 +167,7 @@ export class GameStateManager {
   resetGame(): void {
     localStorage.removeItem(this.saveKey);
     this.state = this.createNewGame();
+    // Trigger a notification that the game was reset
+    this.showNotification('Game reset successfully!');
   }
 }

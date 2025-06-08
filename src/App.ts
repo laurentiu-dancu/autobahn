@@ -44,6 +44,10 @@ export class App {
     this.start();
   }
 
+  forceUIRefresh(): void {
+    this.uiRenderer.forceFullRender();
+  }
+
   private start(): void {
     this.devMode.log('Game starting...');
     

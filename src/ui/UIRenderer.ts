@@ -27,6 +27,12 @@ export class UIRenderer {
     this.container = container;
   }
 
+  forceFullRender(): void {
+    this.lastRenderState = '';
+    this.isInitialized = false;
+    this.render();
+  }
+
   render(): void {
     const state = this.gameState.getState();
     
@@ -512,6 +518,7 @@ export class UIRenderer {
     this.container.querySelector('#reset-btn')?.addEventListener('click', () => {
       if (confirm('Are you sure you want to reset your progress?')) {
         this.gameState.resetGame();
+        this.forceFullRender();
       }
     });
   }
