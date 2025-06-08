@@ -83,8 +83,7 @@ export class UIRenderer {
       unlockedMachines: Array.from(state.unlockedMachines).sort(),
       unlockedStockControl: Array.from(state.unlockedStockControl).sort(),
       machineIds: Object.keys(state.machines).sort(),
-      personnelIds: Object.keys(state.stockControl.personnel).sort(),
-      totalClicks: state.totalClicks
+      personnelIds: Object.keys(state.stockControl.personnel).sort()
     };
     return JSON.stringify(hashData);
   }

@@ -45,7 +45,7 @@ export class CraftingPanel {
             <div class="craft-outputs">Makes: ${outputsText}</div>
             ${isCrafting ? `
               <div class="progress-bar">
-                <div class="progress-fill" style="width: ${progress * 100}%"></div>
+                <div class="progress-fill"></div>
               </div>
             ` : ''}
           </button>
@@ -107,10 +107,16 @@ export class CraftingPanel {
         if (progressBar && isCrafting) {
           const progressElement = progressBar as HTMLElement;
           
+          // Reset width to 0% before starting animation
+          progressElement.style.width = '0%';
+          
           // Only start animation if not already animating
           if (!progressElement.classList.contains('animating')) {
             const recipe = this.craftingSystem.getAvailableRecipes().find(r => r.id === recipeId);
             if (recipe && recipe.craftTime > 0) {
+              // Force a reflow to ensure the width reset takes effect
+              progressElement.offsetHeight;
+              
               progressElement.style.animationDuration = `${recipe.craftTime}ms`;
               progressElement.classList.add('animating');
             }
