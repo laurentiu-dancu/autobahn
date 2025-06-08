@@ -130,7 +130,7 @@ export class CraftingPanel {
         }
         
         // Update progress bar fill
-        const progressBar = btn.querySelector(`[data-recipe-progress="${recipe.id}"]`) as HTMLElement;
+        const progressBar = btn.querySelector(`[data-recipe-progress="${recipeId}"]`) as HTMLElement;
         if (progressBar) {
           progressBar.style.width = `${progress * 100}%`;
         }
