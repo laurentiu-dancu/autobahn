@@ -29,7 +29,7 @@ export class MachinesPanel {
         
         const costText = machine.cost.map(cost => {
           const resource = state.resources[cost.resourceId];
-          const symbol = cost.resourceId === 'marks' ? 'ℛℳ' : '';
+          const symbol = cost.resourceId === 'marks' ? '€' : '';
           return `${cost.amount}${symbol} ${resource?.name || cost.resourceId}`;
         }).join(', ');
 
@@ -60,7 +60,7 @@ export class MachinesPanel {
       const upgradeCostText = machine.upgradeCost.map(cost => {
         const resource = state.resources[cost.resourceId];
         const actualCost = cost.amount * machine.level;
-        const symbol = cost.resourceId === 'marks' ? 'ℛℳ' : '';
+        const symbol = cost.resourceId === 'marks' ? '€' : '';
         return `${actualCost}${symbol} ${resource?.name || cost.resourceId}`;
       }).join(', ');
 

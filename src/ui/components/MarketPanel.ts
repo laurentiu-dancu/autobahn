@@ -27,7 +27,7 @@ export class MarketPanel {
         // Get market price for this resource
         const marketItem = MARKET_ITEMS[resource.id];
         const price = marketItem?.buyPrice || marketItem?.sellPrice || 0;
-        const pricePrefix = price > 0 ? `${price}ℛℳ ` : '';
+        const pricePrefix = price > 0 ? `€${price} ` : '';
         
         return `
         <div class="resource-item-with-market">

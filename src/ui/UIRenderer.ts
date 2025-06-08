@@ -97,6 +97,7 @@ export class UIRenderer {
           <h1>🏭 Autobahn Workshop</h1>
           <div class="game-stats">
             <span id="marks-display">ℛℳ ${Math.floor(state.resources.marks.amount)}</span>
+            <span id="marks-display">€${Math.floor(state.resources.marks.amount)}</span>
             <button id="save-btn" class="save-btn">💾 Save</button>
             <button id="reset-btn" class="reset-btn">🔄 Reset</button>
           </div>
@@ -128,7 +129,7 @@ export class UIRenderer {
     // Update marks display
     const marksElement = this.container.querySelector('#marks-display');
     if (marksElement) {
-      marksElement.textContent = `ℛℳ ${Math.floor(state.resources.marks.amount)}`;
+      marksElement.textContent = `€${Math.floor(state.resources.marks.amount)}`;
     }
 
     // Update each panel's dynamic elements

@@ -39,9 +39,9 @@ export class StockControlPanel {
               ${!canHire ? 'disabled' : ''}
             >
               <div class="personnel-name">Hire ${template.name}</div>
-              <div class="personnel-cost">Cost: ${template.hiringCost}ℛℳ + ${template.monthlySalary}ℛℳ/10s</div>
+              <div class="personnel-cost">Cost: €${template.hiringCost} + €${template.monthlySalary}/10s</div>
               <div class="personnel-desc">${template.description}</div>
-              <div class="personnel-total">Total: ${totalCost}ℛℳ (includes first payment)</div>
+              <div class="personnel-total">Total: €${totalCost} (includes first payment)</div>
             </button>
           </div>
         `;
@@ -63,7 +63,7 @@ export class StockControlPanel {
             </button>
           </div>
           <div class="personnel-info">
-            <div>Salary: ${personnel.monthlySalary}ℛℳ/10s</div>
+            <div>Salary: €${personnel.monthlySalary}/10s</div>
             <div>Managing: ${rulesCount} rules</div>
             <div>Type: ${personnel.type}</div>
           </div>
@@ -123,7 +123,7 @@ export class StockControlPanel {
         
         ${totalMonthlyCost > 0 ? `
           <div class="cost-summary">
-            <strong>Operating Cost: ${totalMonthlyCost.toFixed(1)}ℛℳ/10s</strong>
+            <strong>Operating Cost: €${totalMonthlyCost.toFixed(1)}/10s</strong>
             <div class="cost-warning ${state.resources.marks.amount < totalMonthlyCost * 3 ? 'low-funds' : ''}">
               ${state.resources.marks.amount < totalMonthlyCost * 3 ? '⚠️ Low funds! Personnel will quit if unpaid.' : '✅ Sufficient funds'}
             </div>
