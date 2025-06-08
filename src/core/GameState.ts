@@ -14,16 +14,24 @@ export class GameStateManager {
     return {
       resources: { ...INITIAL_RESOURCES },
       machines: {},
+      stockControl: {
+        personnel: {},
+        rules: {},
+        lastSalaryPayment: Date.now()
+      },
       unlockedRecipes: new Set(['bendWireSpring', 'fileMetalBracket', 'cutLeatherGasket']),
       unlockedMachines: new Set(),
+      unlockedStockControl: new Set(),
       totalClicks: 0,
       totalProduced: {},
       totalSales: 0,
+      totalMarketTransactions: 0,
       gameStartTime: Date.now(),
       lastSaveTime: Date.now(),
       uiState: {
         discoveredResources: new Set(['marks']), // Always show marks
-        showMarket: false
+        showMarket: false,
+        showStockControl: false
       }
     };
   }
@@ -68,6 +76,11 @@ export class GameStateManager {
 
   recordSale(): void {
     this.state.totalSales++;
+    this.state.totalMarketTransactions++;
+  }
+
+  recordPurchase(): void {
+    this.state.totalMarketTransactions++;
   }
 
   addMachine(machineId: string, machine: any): void {
@@ -106,6 +119,7 @@ export class GameStateManager {
       ...this.state,
       unlockedRecipes: Array.from(this.state.unlockedRecipes),
       unlockedMachines: Array.from(this.state.unlockedMachines),
+      unlockedStockControl: Array.from(this.state.unlockedStockControl),
       uiState: {
         ...this.state.uiState,
         discoveredResources: Array.from(this.state.uiState.discoveredResources)
@@ -124,12 +138,20 @@ export class GameStateManager {
         ...parsed,
         unlockedRecipes: new Set(parsed.unlockedRecipes),
         unlockedMachines: new Set(parsed.unlockedMachines),
+        unlockedStockControl: new Set(parsed.unlockedStockControl || []),
+        stockControl: parsed.stockControl || {
+          personnel: {},
+          rules: {},
+          lastSalaryPayment: Date.now()
+        },
         uiState: {
           ...parsed.uiState,
-          discoveredResources: new Set(parsed.uiState?.discoveredResources || ['marks'])
+          discoveredResources: new Set(parsed.uiState?.discoveredResources || ['marks']),
+          showStockControl: parsed.uiState?.showStockControl || false
         },
         totalProduced: parsed.totalProduced || {},
-        totalSales: parsed.totalSales || 0
+        totalSales: parsed.totalSales || 0,
+        totalMarketTransactions: parsed.totalMarketTransactions || 0
       };
     } catch (error) {
       console.error('Failed to load game:', error);

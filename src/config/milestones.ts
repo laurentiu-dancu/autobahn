@@ -39,8 +39,32 @@ export const MILESTONES: Milestone[] = [
     description: 'Sell your first item',
     condition: (state) => state.totalSales > 0,
     reward: (state) => {
-      state.uiState.showFullMarket = true; // Reveal full market interface
+      // No longer needed - market is integrated
     },
     completed: false
+  },
+  {
+    id: 'tenMarketTransactions',
+    name: 'Market Experience',
+    description: 'Complete 10 market transactions',
+    condition: (state) => state.totalMarketTransactions >= 10,
+    reward: (state) => {
+      state.unlockedStockControl.add('procurementSpecialist');
+      state.unlockedStockControl.add('salesManager');
+      state.uiState.showStockControl = true;
+    },
+    completed: false
+  },
+  {
+    id: 'hireBasicSpecialists',
+    name: 'Basic Automation',
+    description: 'Hire both procurement specialist and sales manager',
+    condition: (state) => {
+      return state.stockControl.personnel.procurementSpecialist && 
+             state.stockControl.personnel.salesManager;
+    },
+    reward: (state) => {
+      state.unlockedStockControl.add('supplyChainCoordinator');
+    },
   }
 ];

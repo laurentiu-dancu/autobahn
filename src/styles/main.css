@@ -268,6 +268,218 @@ body {
   transform: translateY(-1px);
 }
 
+/* Stock Control */
+.stock-control-panel {
+  margin-top: 20px;
+}
+
+.cost-summary {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: rgba(139, 69, 19, 0.2);
+  border-radius: 4px;
+  border-left: 3px solid #8b4513;
+}
+
+.cost-warning {
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+.cost-warning.low-funds {
+  color: #ff6b6b;
+}
+
+.personnel-section {
+  margin-bottom: 15px;
+}
+
+.personnel-hire {
+  margin-bottom: 10px;
+}
+
+.hire-btn {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #8b4513;
+  border-radius: 6px;
+  background: rgba(139, 69, 19, 0.3);
+  color: #e8d5b7;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.hire-btn.available {
+  border-color: #32cd32;
+  background: rgba(50, 205, 50, 0.2);
+}
+
+.hire-btn.available:hover {
+  background: rgba(50, 205, 50, 0.4);
+}
+
+.hire-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.personnel-name {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.personnel-cost, .personnel-desc, .personnel-total {
+  font-size: 0.9rem;
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+
+.personnel-total {
+  color: #ffa500;
+  font-weight: bold;
+}
+
+.personnel-item {
+  margin-bottom: 15px;
+  padding: 12px;
+  border: 2px solid #8b4513;
+  border-radius: 6px;
+  background: rgba(139, 69, 19, 0.2);
+}
+
+.personnel-item.active {
+  border-color: #32cd32;
+  background: rgba(50, 205, 50, 0.1);
+}
+
+.personnel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.fire-btn {
+  padding: 4px 8px;
+  border: 1px solid #dc143c;
+  border-radius: 4px;
+  background: rgba(220, 20, 60, 0.3);
+  color: #e8d5b7;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+.fire-btn:hover {
+  background: rgba(220, 20, 60, 0.5);
+}
+
+.personnel-info {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.personnel-info div {
+  margin-bottom: 2px;
+}
+
+.quick-rules {
+  margin-bottom: 15px;
+}
+
+.quick-rule-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.quick-rule-btn {
+  padding: 8px 12px;
+  border: 1px solid #daa520;
+  border-radius: 4px;
+  background: rgba(218, 165, 32, 0.2);
+  color: #e8d5b7;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.quick-rule-btn:hover {
+  background: rgba(218, 165, 32, 0.4);
+}
+
+.rules-section {
+  margin-bottom: 15px;
+}
+
+.rule-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #8b4513;
+  border-radius: 4px;
+  background: rgba(139, 69, 19, 0.2);
+}
+
+.rule-item.enabled {
+  border-color: #32cd32;
+  background: rgba(50, 205, 50, 0.1);
+}
+
+.rule-item.disabled {
+  opacity: 0.6;
+}
+
+.rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.toggle-rule-btn {
+  padding: 2px 6px;
+  border: 1px solid #8b4513;
+  border-radius: 3px;
+  background: rgba(139, 69, 19, 0.3);
+  color: #e8d5b7;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+.toggle-rule-btn:hover {
+  background: rgba(139, 69, 19, 0.5);
+}
+
+.rule-info {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 5px;
+}
+
+.rule-info div {
+  margin-bottom: 2px;
+}
+
+.delete-rule-btn {
+  padding: 4px 8px;
+  border: 1px solid #dc143c;
+  border-radius: 3px;
+  background: rgba(220, 20, 60, 0.3);
+  color: #e8d5b7;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+.delete-rule-btn:hover {
+  background: rgba(220, 20, 60, 0.5);
+}
+
 /* Machines */
 .machine-build {
   margin-bottom: 15px;

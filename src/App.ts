@@ -3,6 +3,7 @@ import { CraftingSystem } from './core/CraftingSystem';
 import { AutomationManager } from './core/AutomationManager';
 import { MarketSystem } from './core/MarketSystem';
 import { SalvageSystem } from './core/SalvageSystem';
+import { StockControlSystem } from './core/StockControlSystem';
 import { UIRenderer } from './ui/UIRenderer';
 import { DevMode } from './core/DevMode';
 
@@ -12,6 +13,7 @@ export class App {
   private automationManager: AutomationManager;
   private marketSystem: MarketSystem;
   private salvageSystem: SalvageSystem;
+  private stockControlSystem: StockControlSystem;
   private uiRenderer: UIRenderer;
   private gameLoop: number = 0;
   private devMode: DevMode;
@@ -26,6 +28,7 @@ export class App {
     this.automationManager = new AutomationManager(this.gameState, this.craftingSystem);
     this.marketSystem = new MarketSystem(this.gameState);
     this.salvageSystem = new SalvageSystem(this.gameState);
+    this.stockControlSystem = new StockControlSystem(this.gameState, this.marketSystem);
     
     // Initialize UI
     this.uiRenderer = new UIRenderer(
@@ -34,6 +37,7 @@ export class App {
       this.automationManager,
       this.marketSystem,
       this.salvageSystem,
+      this.stockControlSystem,
       container
     );
 
@@ -74,6 +78,9 @@ export class App {
     
     // Update automation
     this.automationManager.updateMachines();
+    
+    // Update stock control
+    this.stockControlSystem.update();
     
     const updateTime = performance.now() - updateStart;
     

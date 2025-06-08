@@ -30,17 +30,47 @@ export interface Machine {
 export interface GameState {
   resources: Record<string, Resource>;
   machines: Record<string, Machine>;
+  stockControl: {
+    personnel: Record<string, StockControlPersonnel>;
+    rules: Record<string, StockControlRule>;
+    lastSalaryPayment: number;
+  };
   unlockedRecipes: Set<string>;
   unlockedMachines: Set<string>;
+  unlockedStockControl: Set<string>;
   totalClicks: number;
   totalProduced: Record<string, number>;
   totalSales: number;
+  totalMarketTransactions: number;
   gameStartTime: number;
   lastSaveTime: number;
   uiState: {
     discoveredResources: Set<string>;
     showMarket: boolean;
+    showStockControl: boolean;
   };
+}
+
+export interface StockControlPersonnel {
+  id: string;
+  name: string;
+  type: 'procurement' | 'sales' | 'coordinator';
+  monthlySalary: number; // marks per minute
+  hiringCost: number;
+  isActive: boolean;
+  hiredAt: number;
+  description: string;
+  capabilities: string[];
+}
+
+export interface StockControlRule {
+  id: string;
+  resourceId: string;
+  type: 'buy' | 'sell';
+  threshold: number;
+  quantity: number;
+  isEnabled: boolean;
+  managedBy: string; // personnel id
 }
 
 export interface MarketItem {
