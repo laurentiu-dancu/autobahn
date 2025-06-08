@@ -19,6 +19,7 @@ export class CraftingPanel {
     const recipeButtons = recipes.map(recipe => {
       const canCraft = this.craftingSystem.canCraft(recipe.id);
       const isCrafting = this.craftingSystem.isCrafting(recipe.id);
+      const progress = this.craftingSystem.getCraftProgress(recipe.id);
       
       const craftTimeText = recipe.craftTime > 0 ? ` (${recipe.craftTime / 1000}s)` : '';
       
@@ -40,15 +41,13 @@ export class CraftingPanel {
             ${!canCraft || isCrafting ? 'disabled' : ''}
           >
             <div class="craft-name">${recipe.name}${craftTimeText}</div>
-            <div class="craft-details" data-recipe-details="${recipe.id}">
-              <div class="craft-inputs" data-craft-text="${recipe.id}">Needs: ${inputsText}</div>
-              <div class="craft-outputs" data-craft-text="${recipe.id}">Makes: ${outputsText}</div>
-              ${recipe.craftTime > 0 ? `
-                <div class="progress-bar craft-progress-overlay" data-progress-bar="${recipe.id}" style="visibility: ${isCrafting ? 'visible' : 'hidden'};">
-                  <div class="progress-fill" data-recipe-progress="${recipe.id}"></div>
-                </div>
-              ` : ''}
-            </div>
+            <div class="craft-inputs">Needs: ${inputsText}</div>
+            <div class="craft-outputs">Makes: ${outputsText}</div>
+            ${recipe.craftTime > 0 && isCrafting ? `
+              <div class="progress-bar">
+                <div class="progress-fill" data-recipe-progress="${recipe.id}" style="width: ${progress * 100}%"></div>
+              </div>
+            ` : ''}
           </button>
         </div>
       `;
@@ -90,60 +89,27 @@ export class CraftingPanel {
       btn.addEventListener('click', (e) => {
         const recipeId = (e.target as HTMLElement).closest('[data-recipe]')?.getAttribute('data-recipe');
         if (recipeId) {
-          const success = this.craftingSystem.startCraft(recipeId);
-          if (success) {
-            // Immediately show progress bar and hide text
-            this.startProgressAnimation(container, recipeId);
-          }
+          this.craftingSystem.startCraft(recipeId);
         }
       });
     });
   }
 
-  private startProgressAnimation(container: HTMLElement, recipeId: string): void {
-    const progressBar = container.querySelector(`[data-progress-bar="${recipeId}"]`);
-    const progressFill = container.querySelector(`[data-recipe-progress="${recipeId}"]`) as HTMLElement;
-    const textElements = container.querySelectorAll(`[data-craft-text="${recipeId}"]`);
-    
-    if (progressBar && progressFill && textElements.length > 0) {
-      // Hide text (but keep space) and show progress bar
-      textElements.forEach(el => {
-        (el as HTMLElement).style.visibility = 'hidden';
-      });
-      (progressBar as HTMLElement).style.visibility = 'visible';
-      
-      // Get recipe for timing
-      const recipes = this.craftingSystem.getAvailableRecipes();
-      const recipe = recipes.find(r => r.id === recipeId);
-      
-      if (recipe && recipe.craftTime > 0) {
-        // Reset and start animation
-        progressFill.style.width = '0%';
-        progressFill.classList.remove('animating');
-        
-        // Force reflow
-        progressFill.offsetHeight;
-        
-        // Start animation
-        progressFill.style.animationDuration = `${recipe.craftTime}ms`;
-        progressFill.classList.add('animating');
-        
-        // Clean up after animation completes
-        setTimeout(() => {
-          progressFill.classList.remove('animating');
-          progressFill.style.width = '0%';
-          (progressBar as HTMLElement).style.visibility = 'hidden';
-          textElements.forEach(el => {
-            (el as HTMLElement).style.visibility = 'visible';
-          });
-        }, recipe.craftTime + 100); // Small buffer
-      }
-    }
-  }
-
   updateDynamicElements(container: HTMLElement): void {
-    // Update button states
+    // Update progress bars for active crafts
     const craftButtons = container.querySelectorAll('[data-recipe]');
+    craftButtons.forEach(btn => {
+      const recipeId = btn.getAttribute('data-recipe');
+      if (recipeId) {
+        const progress = this.craftingSystem.getCraftProgress(recipeId);
+        const progressBar = btn.querySelector(`[data-recipe-progress="${recipeId}"]`);
+        if (progressBar) {
+          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
+        }
+      }
+    });
+
+    // Update button states
     craftButtons.forEach(btn => {
       const recipeId = btn.getAttribute('data-recipe');
       if (recipeId) {
@@ -153,24 +119,6 @@ export class CraftingPanel {
         btn.classList.toggle('available', canCraft && !isCrafting);
         btn.classList.toggle('disabled', !canCraft || isCrafting);
         (btn as HTMLButtonElement).disabled = !canCraft || isCrafting;
-        
-        // Update visibility of text vs progress bar using visibility property
-        const progressBar = container.querySelector(`[data-progress-bar="${recipeId}"]`);
-        const textElements = container.querySelectorAll(`[data-craft-text="${recipeId}"]`);
-        
-        if (progressBar && textElements.length > 0) {
-          if (isCrafting) {
-            textElements.forEach(el => {
-              (el as HTMLElement).style.visibility = 'hidden';
-            });
-            (progressBar as HTMLElement).style.visibility = 'visible';
-          } else {
-            textElements.forEach(el => {
-              (el as HTMLElement).style.visibility = 'visible';
-            });
-            (progressBar as HTMLElement).style.visibility = 'hidden';
-          }
-        }
       }
     });
   }

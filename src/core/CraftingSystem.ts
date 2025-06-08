@@ -33,7 +33,7 @@ export class CraftingSystem {
     if (recipe.craftTime === 0) {
       this.completeCraft(recipeId);
     } else {
-      // For timed crafting (machines), use the timer
+      // For timed crafting, use the timer
       const craftEndTime = Date.now() + recipe.craftTime;
       this.activeCrafts.set(recipeId, craftEndTime);
 
@@ -63,8 +63,11 @@ export class CraftingSystem {
     if (!endTime) return 0;
 
     const recipe = RECIPES[recipeId];
-    const elapsed = Date.now() - (endTime - recipe.craftTime);
-    return Math.min(1, elapsed / recipe.craftTime);
+    if (!recipe || recipe.craftTime === 0) return 0;
+
+    const startTime = endTime - recipe.craftTime;
+    const elapsed = Date.now() - startTime;
+    return Math.min(1, Math.max(0, elapsed / recipe.craftTime));
   }
 
   isCrafting(recipeId: string): boolean {
