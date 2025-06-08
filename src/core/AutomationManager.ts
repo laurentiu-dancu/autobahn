@@ -30,11 +30,15 @@ export class AutomationManager {
     const machineTemplate = MACHINES[machineId];
     if (!this.gameState.spendResources(machineTemplate.cost)) return false;
 
+    // Check if we can afford the recipe inputs to determine initial state
+    const recipe = RECIPES[machineTemplate.recipeId];
+    const canAffordInputs = recipe ? this.gameState.canAfford(recipe.inputs) : false;
+
     const machine: Machine = {
       ...machineTemplate,
       lastProduction: Date.now(),
-      isActive: true,
-      status: 'running',
+      isActive: false, // Start machines as stopped
+      status: canAffordInputs ? 'paused' : 'waiting_resources',
       statusMessage: undefined
     };
 
@@ -77,14 +81,35 @@ export class AutomationManager {
     const state = this.gameState.getState();
     const machine = state.machines[machineId];
     if (machine) {
-      machine.isActive = !machine.isActive;
+      const wasActive = machine.isActive;
+      machine.isActive = !wasActive;
+      
       if (machine.isActive) {
-        machine.lastProduction = Date.now();
-        machine.status = 'running';
-        machine.statusMessage = undefined;
+        // Starting the machine - check if we have resources
+        const recipe = RECIPES[machine.recipeId];
+        if (recipe && this.gameState.canAfford(recipe.inputs)) {
+          machine.lastProduction = Date.now();
+          machine.status = 'running';
+          machine.statusMessage = undefined;
+        } else {
+          // No resources available - set to waiting
+          machine.status = 'waiting_resources';
+          const missingResources = recipe ? recipe.inputs
+            .filter(input => {
+              const available = state.resources[input.resourceId]?.amount || 0;
+              return available < input.amount;
+            })
+            .map(input => {
+              const resource = state.resources[input.resourceId];
+              const available = resource?.amount || 0;
+              return `${resource?.name || input.resourceId} (need ${input.amount}, have ${Math.floor(available)})`;
+            }) : [];
+          machine.statusMessage = missingResources.length > 0 ? `Waiting for: ${missingResources.join(', ')}` : 'Waiting for resources';
+        }
       } else {
-        machine.status = 'paused';
-        machine.statusMessage = 'Manually paused';
+        // Stopping the machine
+        machine.status = 'stopped';
+        machine.statusMessage = 'Manually stopped';
       }
     }
   }
@@ -94,10 +119,10 @@ export class AutomationManager {
     const now = Date.now();
 
     Object.values(state.machines).forEach(machine => {
-      // If machine is not active, ensure it's marked as paused
+      // If machine is not active, ensure it's marked as stopped
       if (!machine.isActive) {
-        machine.status = 'paused';
-        machine.statusMessage = 'Manually paused';
+        machine.status = 'stopped';
+        machine.statusMessage = 'Manually stopped';
         return;
       }
 
@@ -148,7 +173,7 @@ export class AutomationManager {
             // Reset production timer to start producing immediately
             machine.lastProduction = now - productionTime;
           }
-        } else if (machine.status !== 'running') {
+        } else if (machine.status !== 'running' && machine.status !== 'waiting_resources') {
           // Ensure running machines are marked as running
           machine.status = 'running';
           machine.statusMessage = undefined;
