@@ -69,7 +69,7 @@ export class MachinesPanel {
                         machine.status === 'waiting_resources' ? '🟡' : '🔴';
       const statusText = machine.status === 'running' ? 'Running' :
                         machine.status === 'waiting_resources' ? 'Waiting for Resources' : 
-                        machine.status === 'paused' ? 'Paused' : 'Stopped';
+                        'Paused';
       return `
         <div class="machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}" data-machine-id="${machineId}">
           <div class="machine-header">
