@@ -44,7 +44,7 @@ export class CraftingPanel {
               <div class="craft-inputs" data-craft-text="${recipe.id}">Needs: ${inputsText}</div>
               <div class="craft-outputs" data-craft-text="${recipe.id}">Makes: ${outputsText}</div>
               ${recipe.craftTime > 0 ? `
-                <div class="progress-bar" data-progress-bar="${recipe.id}" style="visibility: ${isCrafting ? 'visible' : 'hidden'}; position: ${isCrafting ? 'static' : 'absolute'};">
+                <div class="progress-bar craft-progress-overlay" data-progress-bar="${recipe.id}" style="visibility: ${isCrafting ? 'visible' : 'hidden'};">
                   <div class="progress-fill" data-recipe-progress="${recipe.id}"></div>
                 </div>
               ` : ''}
@@ -111,7 +111,6 @@ export class CraftingPanel {
         (el as HTMLElement).style.visibility = 'hidden';
       });
       (progressBar as HTMLElement).style.visibility = 'visible';
-      (progressBar as HTMLElement).style.position = 'static';
       
       // Get recipe for timing
       const recipes = this.craftingSystem.getAvailableRecipes();
@@ -134,7 +133,6 @@ export class CraftingPanel {
           progressFill.classList.remove('animating');
           progressFill.style.width = '0%';
           (progressBar as HTMLElement).style.visibility = 'hidden';
-          (progressBar as HTMLElement).style.position = 'absolute';
           textElements.forEach(el => {
             (el as HTMLElement).style.visibility = 'visible';
           });
@@ -166,13 +164,11 @@ export class CraftingPanel {
               (el as HTMLElement).style.visibility = 'hidden';
             });
             (progressBar as HTMLElement).style.visibility = 'visible';
-            (progressBar as HTMLElement).style.position = 'static';
           } else {
             textElements.forEach(el => {
               (el as HTMLElement).style.visibility = 'visible';
             });
             (progressBar as HTMLElement).style.visibility = 'hidden';
-            (progressBar as HTMLElement).style.position = 'absolute';
           }
         }
       }

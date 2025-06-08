@@ -255,6 +255,17 @@ body {
   position: relative; /* Allow absolute positioning of progress bar */
 }
 
+.craft-progress-overlay {
+  position: absolute !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: rgba(139, 69, 19, 0.9); /* Semi-transparent background to overlay text */
+  border-radius: 4px;
+  padding: 2px 0;
+}
+
 /* Salvage section */
 .salvage-section {
   margin-bottom: 15px;
