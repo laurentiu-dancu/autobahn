@@ -14,7 +14,7 @@ export const MACHINES: Record<string, Machine> = {
       { resourceId: 'metalBrackets', amount: 3 },
       { resourceId: 'marks', amount: 25 }
     ],
-    productionRate: 3000, // 3 seconds per item
+    productionRate: 0.75, // 75% of manual time (25% faster)
     isActive: false,
     lastProduction: 0,
     description: 'Automates wire spring production'
@@ -32,7 +32,7 @@ export const MACHINES: Record<string, Machine> = {
       { resourceId: 'wireSprings', amount: 8 },
       { resourceId: 'marks', amount: 35 }
     ],
-    productionRate: 4000, // 4 seconds per item
+    productionRate: 0.8, // 80% of manual time (20% faster)
     isActive: false,
     lastProduction: 0,
     description: 'Automates bracket filing and shaping'

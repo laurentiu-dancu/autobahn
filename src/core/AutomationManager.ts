@@ -67,7 +67,7 @@ export class AutomationManager {
     if (!this.gameState.spendResources(upgradeCost)) return false;
 
     machine.level++;
-    machine.productionRate = Math.max(1000, machine.productionRate * 0.85); // 15% faster each level, minimum 1 second
+    machine.productionRate = Math.max(0.2, machine.productionRate * 0.85); // 15% faster each level, minimum 20% of manual time
     return true;
   }
 
@@ -92,7 +92,7 @@ export class AutomationManager {
       const recipe = RECIPES[machine.recipeId];
       if (!recipe) return;
 
-      const productionTime = machine.productionRate; // Machine rate is now absolute time in ms
+      const productionTime = recipe.craftTime * machine.productionRate; // Machine rate is multiplier of manual time
       const timeSinceLastProduction = now - machine.lastProduction;
 
       if (timeSinceLastProduction >= productionTime) {
@@ -119,7 +119,7 @@ export class AutomationManager {
     const recipe = RECIPES[machine.recipeId];
     if (!recipe) return 0;
 
-    const productionTime = machine.productionRate;
+    const productionTime = recipe.craftTime * machine.productionRate;
     const elapsed = Date.now() - machine.lastProduction;
     return Math.min(1, elapsed / productionTime);
   }
