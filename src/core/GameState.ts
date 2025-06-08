@@ -142,7 +142,8 @@ export class GameStateManager {
             id,
             {
               ...machine,
-              status: machine.status || 'running',
+              // Migrate old 'paused' status to 'stopped'
+              status: machine.status === 'paused' ? 'stopped' : (machine.status || 'stopped'),
               statusMessage: machine.statusMessage || undefined
             }
           ])

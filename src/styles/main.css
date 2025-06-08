@@ -575,6 +575,14 @@ body {
   color: #ffa500;
 }
 
+.machine-item.machine-stopped {
+  border-color: #8b4513;
+  background: rgba(139, 69, 19, 0.1);
+}
+
+.machine-item.machine-stopped .machine-header h4 {
+  color: #8b4513;
+}
 .machine-header {
   display: flex;
   justify-content: space-between;

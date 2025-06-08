@@ -193,7 +193,7 @@ export class MachinesPanel {
         // Update toggle button text based on actual machine state
         const toggleBtn = item.querySelector('[data-toggle]');
         if (toggleBtn) {
-          toggleBtn.textContent = machine.isActive ? '⏸️ Pause' : '▶️ Start';
+          toggleBtn.textContent = machine.isActive ? '⏹️ Stop' : '▶️ Start';
         }
 
         // Show/hide progress bar based on machine status
