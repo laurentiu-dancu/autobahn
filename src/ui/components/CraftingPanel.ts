@@ -40,13 +40,15 @@ export class CraftingPanel {
             ${!canCraft || isCrafting ? 'disabled' : ''}
           >
             <div class="craft-name">${recipe.name}${craftTimeText}</div>
-            <div class="craft-inputs">Needs: ${inputsText}</div>
-            <div class="craft-outputs">Makes: ${outputsText}</div>
-            ${recipe.craftTime > 0 ? `
-              <div class="progress-bar" style="display: ${isCrafting ? 'block' : 'none'};">
-                <div class="progress-fill" data-recipe-progress="${recipe.id}"></div>
-              </div>
-            ` : ''}
+            <div class="craft-details" data-recipe-details="${recipe.id}">
+              <div class="craft-inputs" style="display: ${isCrafting ? 'none' : 'block'};">Needs: ${inputsText}</div>
+              <div class="craft-outputs" style="display: ${isCrafting ? 'none' : 'block'};">Makes: ${outputsText}</div>
+              ${recipe.craftTime > 0 ? `
+                <div class="progress-bar" style="display: ${isCrafting ? 'block' : 'none'};">
+                  <div class="progress-fill" data-recipe-progress="${recipe.id}"></div>
+                </div>
+              ` : ''}
+            </div>
           </button>
         </div>
       `;
@@ -90,7 +92,7 @@ export class CraftingPanel {
         if (recipeId) {
           const success = this.craftingSystem.startCraft(recipeId);
           if (success) {
-            // Immediately show progress bar and start animation
+            // Immediately show progress bar and hide text
             this.startProgressAnimation(container, recipeId);
           }
         }
@@ -99,11 +101,16 @@ export class CraftingPanel {
   }
 
   private startProgressAnimation(container: HTMLElement, recipeId: string): void {
+    const detailsContainer = container.querySelector(`[data-recipe-details="${recipeId}"]`);
     const progressBar = container.querySelector(`[data-recipe-progress="${recipeId}"]`)?.parentElement;
     const progressFill = container.querySelector(`[data-recipe-progress="${recipeId}"]`) as HTMLElement;
+    const inputsElement = detailsContainer?.querySelector('.craft-inputs') as HTMLElement;
+    const outputsElement = detailsContainer?.querySelector('.craft-outputs') as HTMLElement;
     
-    if (progressBar && progressFill) {
-      // Show the progress bar
+    if (progressBar && progressFill && inputsElement && outputsElement) {
+      // Hide text and show progress bar
+      inputsElement.style.display = 'none';
+      outputsElement.style.display = 'none';
       (progressBar as HTMLElement).style.display = 'block';
       
       // Get recipe for timing
@@ -127,6 +134,8 @@ export class CraftingPanel {
           progressFill.classList.remove('animating');
           progressFill.style.width = '0%';
           (progressBar as HTMLElement).style.display = 'none';
+          inputsElement.style.display = 'block';
+          outputsElement.style.display = 'block';
         }, recipe.craftTime + 100); // Small buffer
       }
     }
@@ -145,10 +154,22 @@ export class CraftingPanel {
         btn.classList.toggle('disabled', !canCraft || isCrafting);
         (btn as HTMLButtonElement).disabled = !canCraft || isCrafting;
         
-        // Update progress bar visibility
+        // Update visibility of text vs progress bar
+        const detailsContainer = container.querySelector(`[data-recipe-details="${recipeId}"]`);
         const progressBar = container.querySelector(`[data-recipe-progress="${recipeId}"]`)?.parentElement;
-        if (progressBar) {
-          (progressBar as HTMLElement).style.display = isCrafting ? 'block' : 'none';
+        const inputsElement = detailsContainer?.querySelector('.craft-inputs') as HTMLElement;
+        const outputsElement = detailsContainer?.querySelector('.craft-outputs') as HTMLElement;
+        
+        if (progressBar && inputsElement && outputsElement) {
+          if (isCrafting) {
+            inputsElement.style.display = 'none';
+            outputsElement.style.display = 'none';
+            (progressBar as HTMLElement).style.display = 'block';
+          } else {
+            inputsElement.style.display = 'block';
+            outputsElement.style.display = 'block';
+            (progressBar as HTMLElement).style.display = 'none';
+          }
         }
       }
     });

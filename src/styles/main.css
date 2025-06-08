@@ -251,6 +251,10 @@ body {
   color: #90ee90;
 }
 
+.craft-details {
+  min-height: 2.4em; /* Reserve space for 2 lines of text or progress bar */
+}
+
 /* Salvage section */
 .salvage-section {
   margin-bottom: 15px;
