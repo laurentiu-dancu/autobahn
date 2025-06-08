@@ -51,6 +51,7 @@ export class MachinesPanel {
     const activeMachines = builtMachines.map(([machineId, machine]) => {
       const canUpgrade = this.automationManager.canUpgradeMachine(machineId);
       const recipe = RECIPES[machine.recipeId];
+      const progress = this.automationManager.getMachineProgress(machineId);
       
       const currentSpeed = recipe ? ((recipe.craftTime * machine.productionRate) / 1000).toFixed(1) : '0';
       const manualSpeed = recipe ? (recipe.craftTime / 1000).toFixed(1) : '0';
@@ -70,8 +71,7 @@ export class MachinesPanel {
                         machine.status === 'waiting_resources' ? 'Waiting for Resources' : 
                         'Paused';
 
-      // Get actual progress from automation manager
-      const progress = this.automationManager.getMachineProgress(machineId);
+      const showProgress = machine.isActive && machine.status === 'running';
       
       return `
         <div class="machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}" data-machine-id="${machineId}">
@@ -92,11 +92,9 @@ export class MachinesPanel {
               ${machine.statusMessage ? `<div class="status-message">${machine.statusMessage}</div>` : ''}
             </div>
           </div>
-          ${machine.isActive && machine.status === 'running' ? `
-            <div class="progress-bar">
-              <div class="progress-fill" data-machine-progress="${machineId}" style="width: ${progress * 100}%"></div>
-            </div>
-          ` : ''}
+          <div class="progress-bar" data-machine-progress-container="${machineId}" style="display: ${showProgress ? 'block' : 'none'};">
+            <div class="progress-fill" data-machine-progress="${machineId}" style="width: ${progress * 100}%"></div>
+          </div>
           <button 
             class="upgrade-btn ${canUpgrade ? 'available' : 'disabled'}"
             data-upgrade="${machineId}"
@@ -198,17 +196,18 @@ export class MachinesPanel {
           toggleBtn.textContent = machine.isActive ? '⏸️ Pause' : '▶️ Start';
         }
 
+        // Show/hide progress bar based on machine status
+        const showProgress = machine.isActive && machine.status === 'running';
+        const progressContainer = item.querySelector(`[data-machine-progress-container="${machineId}"]`) as HTMLElement;
+        if (progressContainer) {
+          progressContainer.style.display = showProgress ? 'block' : 'none';
+        }
+
         // Update progress bar based on actual machine progress
         const progressFill = item.querySelector(`[data-machine-progress="${machineId}"]`) as HTMLElement;
         if (progressFill) {
           const progress = this.automationManager.getMachineProgress(machineId);
           progressFill.style.width = `${progress * 100}%`;
-        }
-
-        // Show/hide progress bar based on machine status
-        const progressBar = item.querySelector('.progress-bar') as HTMLElement;
-        if (progressBar) {
-          progressBar.style.display = (machine.isActive && machine.status === 'running') ? 'block' : 'none';
         }
       }
     });

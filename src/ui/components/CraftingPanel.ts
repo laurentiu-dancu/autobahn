@@ -43,8 +43,8 @@ export class CraftingPanel {
             <div class="craft-name">${recipe.name}${craftTimeText}</div>
             <div class="craft-inputs">Needs: ${inputsText}</div>
             <div class="craft-outputs">Makes: ${outputsText}</div>
-            ${recipe.craftTime > 0 && isCrafting ? `
-              <div class="progress-bar">
+            ${recipe.craftTime > 0 ? `
+              <div class="progress-bar" data-recipe-progress-container="${recipe.id}" style="display: ${isCrafting ? 'block' : 'none'};">
                 <div class="progress-fill" data-recipe-progress="${recipe.id}" style="width: ${progress * 100}%"></div>
               </div>
             ` : ''}
@@ -101,10 +101,19 @@ export class CraftingPanel {
     craftButtons.forEach(btn => {
       const recipeId = btn.getAttribute('data-recipe');
       if (recipeId) {
+        const isCrafting = this.craftingSystem.isCrafting(recipeId);
         const progress = this.craftingSystem.getCraftProgress(recipeId);
-        const progressBar = btn.querySelector(`[data-recipe-progress="${recipeId}"]`);
+        
+        // Show/hide progress bar container
+        const progressContainer = btn.querySelector(`[data-recipe-progress-container="${recipeId}"]`) as HTMLElement;
+        if (progressContainer) {
+          progressContainer.style.display = isCrafting ? 'block' : 'none';
+        }
+        
+        // Update progress bar fill
+        const progressBar = btn.querySelector(`[data-recipe-progress="${recipeId}"]`) as HTMLElement;
         if (progressBar) {
-          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
+          progressBar.style.width = `${progress * 100}%`;
         }
       }
     });
