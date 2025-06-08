@@ -135,15 +135,30 @@ export class MachinesPanel {
   }
 
   updateDynamicElements(container: HTMLElement): void {
-    // Update machine progress bars
+    // Update machine progress bars - use CSS animations for smooth progress
     const machineItems = container.querySelectorAll('.machine-item');
     machineItems.forEach(item => {
       const machineId = item.getAttribute('data-machine-id');
       if (machineId) {
-        const progress = this.automationManager.getMachineProgress(machineId);
+        const state = this.gameState.getState();
+        const machine = state.machines[machineId];
         const progressBar = item.querySelector('.progress-fill');
-        if (progressBar) {
-          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
+        
+        if (progressBar && machine && machine.isActive) {
+          const progressElement = progressBar as HTMLElement;
+          const recipe = require('../../config/recipes').RECIPES[machine.recipeId];
+          
+          if (recipe) {
+            const productionTime = recipe.craftTime * machine.productionRate;
+            const timeSinceLastProduction = Date.now() - machine.lastProduction;
+            const progress = Math.min(1, timeSinceLastProduction / productionTime);
+            
+            // Use smooth CSS transition for machine progress
+            progressElement.style.width = `${progress * 100}%`;
+          }
+        } else if (progressBar && (!machine || !machine.isActive)) {
+          // Reset progress bar when machine is inactive
+          (progressBar as HTMLElement).style.width = '0%';
         }
       }
     });

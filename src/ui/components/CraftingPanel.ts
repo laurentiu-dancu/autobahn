@@ -96,15 +96,30 @@ export class CraftingPanel {
   }
 
   updateDynamicElements(container: HTMLElement): void {
-    // Update progress bars
+    // Update progress bars - only update when crafting state changes
     const craftButtons = container.querySelectorAll('[data-recipe]');
     craftButtons.forEach(btn => {
       const recipeId = btn.getAttribute('data-recipe');
       if (recipeId) {
-        const progress = this.craftingSystem.getCraftProgress(recipeId);
+        const isCrafting = this.craftingSystem.isCrafting(recipeId);
         const progressBar = btn.querySelector('.progress-fill');
-        if (progressBar) {
-          (progressBar as HTMLElement).style.width = `${progress * 100}%`;
+        
+        if (progressBar && isCrafting) {
+          const progressElement = progressBar as HTMLElement;
+          
+          // Only start animation if not already animating
+          if (!progressElement.classList.contains('animating')) {
+            const recipe = this.craftingSystem.getAvailableRecipes().find(r => r.id === recipeId);
+            if (recipe && recipe.craftTime > 0) {
+              progressElement.style.animationDuration = `${recipe.craftTime}ms`;
+              progressElement.classList.add('animating');
+            }
+          }
+        } else if (progressBar && !isCrafting) {
+          // Reset progress bar when not crafting
+          const progressElement = progressBar as HTMLElement;
+          progressElement.classList.remove('animating');
+          progressElement.style.width = '0%';
         }
       }
     });
