@@ -78,12 +78,8 @@ export class GameStateManager {
     
     this.state.uiState.notifications.push(notification);
     
-    // Auto-remove after duration if specified
-    if (notification.duration) {
-      setTimeout(() => {
-        this.removeNotification(notification.id);
-      }, duration);
-    }
+    // Don't auto-remove here - let the UI handle it with progress bars
+    // This allows for proper visual feedback and prevents race conditions
   }
 
   removeNotification(notificationId: string): void {
