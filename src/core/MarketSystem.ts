@@ -24,7 +24,7 @@ export class MarketSystem {
 
     this.gameState.updateResource('marks', -totalCost);
     this.gameState.updateResource(resourceId, quantity);
-    this.gameState.recordPurchase();
+    this.gameState.recordPurchase(resourceId, quantity, totalCost);
     return true;
   }
 
@@ -43,7 +43,7 @@ export class MarketSystem {
 
     this.gameState.updateResource(resourceId, -quantity);
     this.gameState.updateResource('marks', totalValue);
-    this.gameState.recordSale();
+    this.gameState.recordSale(resourceId, quantity, totalValue);
     return true;
   }
 

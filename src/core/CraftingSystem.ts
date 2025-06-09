@@ -29,6 +29,9 @@ export class CraftingSystem {
 
     this.gameState.incrementClicks();
     
+    // Emit craft started event
+    this.gameState.getEventEmitter().emit('craftStarted', { recipeId });
+    
     // For instant crafting (craftTime = 0), complete immediately
     if (recipe.craftTime === 0) {
       this.completeCraft(recipeId);
@@ -53,6 +56,12 @@ export class CraftingSystem {
     
     recipe.outputs.forEach(output => {
       this.gameState.updateResource(output.resourceId, output.amount);
+    });
+
+    // Emit craft completed event
+    this.gameState.getEventEmitter().emit('craftCompleted', { 
+      recipeId, 
+      outputs: recipe.outputs 
     });
 
     this.gameState.checkMilestones();

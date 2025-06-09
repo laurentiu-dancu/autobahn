@@ -6,9 +6,15 @@ export const MILESTONES: Milestone[] = [
     name: 'First Wire Spring',
     description: 'Bend your first wire spring',
     condition: (state) => state.resources.wireSprings.amount >= 1,
-    reward: (state) => {
+    reward: (state, gameStateManager) => {
       state.unlockedRecipes.add('assembleSpringSet');
-      state.uiState.showMarket = true; // Reveal market after first craft
+      // Use the new method instead of direct assignment
+      if (gameStateManager && gameStateManager.setMarketVisibility) {
+        gameStateManager.setMarketVisibility(true);
+      } else {
+        // Fallback for backwards compatibility
+        state.uiState.showMarket = true;
+      }
     },
     completed: false
   },
@@ -48,10 +54,16 @@ export const MILESTONES: Milestone[] = [
     name: 'Market Experience',
     description: 'Complete 10 market transactions',
     condition: (state) => state.totalMarketTransactions >= 10,
-    reward: (state) => {
+    reward: (state, gameStateManager) => {
       state.unlockedStockControl.add('procurementSpecialist');
       state.unlockedStockControl.add('salesManager');
-      state.uiState.showStockControl = true;
+      // Use the new method instead of direct assignment
+      if (gameStateManager && gameStateManager.setStockControlVisibility) {
+        gameStateManager.setStockControlVisibility(true);
+      } else {
+        // Fallback for backwards compatibility
+        state.uiState.showStockControl = true;
+      }
     },
     completed: false
   },

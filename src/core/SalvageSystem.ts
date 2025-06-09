@@ -22,6 +22,12 @@ export class SalvageSystem {
 
     // Give the player the randomly found material
     this.gameState.updateResource(foundMaterial.resourceId, foundMaterial.amount);
+    
+    // Emit specific salvage event
+    this.gameState.getEventEmitter().emit('materialSalvaged', {
+      resourceId: foundMaterial.resourceId,
+      amount: foundMaterial.amount
+    });
 
     this.gameState.incrementClicks();
   }

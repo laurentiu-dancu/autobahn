@@ -29,6 +29,29 @@ export interface Machine {
   description: string;
 }
 
+export interface UIState {
+  discoveredResources: Set<string>;
+  showMarket: boolean;
+  showStockControl: boolean;
+  // New UI state properties for better state management
+  activePanel?: string;
+  notifications: UINotification[];
+  panelStates: {
+    [panelId: string]: {
+      expanded: boolean;
+      activeTab?: string;
+    };
+  };
+}
+
+export interface UINotification {
+  id: string;
+  message: string;
+  type: 'success' | 'warning' | 'error' | 'info';
+  timestamp: number;
+  duration?: number; // auto-dismiss after this many ms
+}
+
 export interface GameState {
   resources: Record<string, Resource>;
   machines: Record<string, Machine>;
@@ -46,11 +69,7 @@ export interface GameState {
   totalMarketTransactions: number;
   gameStartTime: number;
   lastSaveTime: number;
-  uiState: {
-    discoveredResources: Set<string>;
-    showMarket: boolean;
-    showStockControl: boolean;
-  };
+  uiState: UIState;
 }
 
 export interface StockControlPersonnel {
@@ -89,4 +108,68 @@ export interface Milestone {
   condition: (gameState: GameState) => boolean;
   reward: (gameState: GameState) => void;
   completed: boolean;
+}
+
+// UI Data interfaces for better type safety
+export interface UIResourceData {
+  id: string;
+  name: string;
+  amount: number;
+  displayAmount: string;
+  canBuy: boolean;
+  canSell: boolean;
+  buyPrice?: number;
+  sellPrice?: number;
+  isDiscovered: boolean;
+}
+
+export interface UICraftingData {
+  recipeId: string;
+  name: string;
+  description: string;
+  canCraft: boolean;
+  isCrafting: boolean;
+  progress: number;
+  craftTime: number;
+  inputs: { resourceId: string; name: string; amount: number; available: number }[];
+  outputs: { resourceId: string; name: string; amount: number }[];
+}
+
+export interface UIMachineData {
+  id: string;
+  name: string;
+  level: number;
+  isActive: boolean;
+  status: 'running' | 'waiting_resources' | 'stopped';
+  statusMessage?: string;
+  progress: number;
+  canUpgrade: boolean;
+  upgradeCost: { resourceId: string; name: string; amount: number }[];
+  efficiency: number;
+  currentSpeed: string;
+  manualSpeed: string;
+}
+
+export interface UIPersonnelData {
+  id: string;
+  name: string;
+  type: string;
+  monthlySalary: number;
+  hiringCost: number;
+  totalCost: number;
+  canHire: boolean;
+  isActive: boolean;
+  description: string;
+  capabilities: string[];
+  managedRulesCount: number;
+}
+
+export interface UIRuleData {
+  id: string;
+  resourceName: string;
+  type: 'buy' | 'sell';
+  threshold: number;
+  quantity: number;
+  isEnabled: boolean;
+  managerName: string;
 }

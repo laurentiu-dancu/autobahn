@@ -1,54 +1,41 @@
-import { GameStateManager } from '../../core/GameState';
-import { CraftingSystem } from '../../core/CraftingSystem';
-import { SalvageSystem } from '../../core/SalvageSystem';
+import { UICraftingData } from '../../core/types';
 
 export class CraftingPanel {
-  private gameState: GameStateManager;
-  private craftingSystem: CraftingSystem;
-  private salvageSystem: SalvageSystem;
+  constructor(
+    private actions: {
+      startCraft: (recipeId: string) => boolean;
+      salvageMaterials: () => void;
+    }
+  ) {}
 
-  constructor(gameState: GameStateManager, craftingSystem: CraftingSystem, salvageSystem: SalvageSystem) {
-    this.gameState = gameState;
-    this.craftingSystem = craftingSystem;
-    this.salvageSystem = salvageSystem;
-  }
-
-  render(): string {
-    const recipes = this.craftingSystem.getAvailableRecipes();
-    
-    const recipeButtons = recipes.map(recipe => {
-      const canCraft = this.craftingSystem.canCraft(recipe.id);
-      const isCrafting = this.craftingSystem.isCrafting(recipe.id);
-      const progress = this.craftingSystem.getCraftProgress(recipe.id);
-      
+  render(craftingData: UICraftingData[]): string {
+    const recipeButtons = craftingData.map(recipe => {
       const craftTimeText = recipe.craftTime > 0 ? ` (${recipe.craftTime / 1000}s)` : '';
       
-      const inputsText = recipe.inputs.map(input => {
-        const resource = this.gameState.getState().resources[input.resourceId];
-        return `${input.amount} ${resource?.name || input.resourceId}`;
-      }).join(', ');
+      const inputsText = recipe.inputs.map(input => 
+        `${input.amount} ${input.name}`
+      ).join(', ');
 
-      const outputsText = recipe.outputs.map(output => {
-        const resource = this.gameState.getState().resources[output.resourceId];
-        return `${output.amount} ${resource?.name || output.resourceId}`;
-      }).join(', ');
+      const outputsText = recipe.outputs.map(output => 
+        `${output.amount} ${output.name}`
+      ).join(', ');
 
       return `
         <div class="craft-item">
           <button 
-            class="craft-btn ${canCraft && !isCrafting ? 'available' : 'disabled'}" 
-            data-recipe="${recipe.id}"
-            ${!canCraft || isCrafting ? 'disabled' : ''}
+            class="craft-btn ${recipe.canCraft && !recipe.isCrafting ? 'available' : 'disabled'}" 
+            data-recipe="${recipe.recipeId}"
+            ${!recipe.canCraft || recipe.isCrafting ? 'disabled' : ''}
           >
             <div class="craft-content">
               <div class="craft-name">${recipe.name}${craftTimeText}</div>
-              <div class="craft-details ${isCrafting ? 'hidden' : ''}">
+              <div class="craft-details ${recipe.isCrafting ? 'hidden' : ''}">
                 <div class="craft-inputs">Needs: ${inputsText}</div>
                 <div class="craft-outputs">Makes: ${outputsText}</div>
               </div>
               <div class="progress-bar-container">
-                <div class="progress-bar ${isCrafting ? 'visible' : 'hidden'}">
-                  <div class="progress-fill" style="width: ${progress * 100}%"></div>
+                <div class="progress-bar ${recipe.isCrafting ? 'visible' : 'hidden'}">
+                  <div class="progress-fill" style="width: ${recipe.progress * 100}%"></div>
                 </div>
               </div>
             </div>
@@ -69,11 +56,12 @@ export class CraftingPanel {
         </button>
       </div>
     `;
+
     return `
       <div class="panel crafting-panel">
         <h3>🔨 Manual Crafting</h3>
         ${salvageButton}
-        ${recipes.length > 0 ? `
+        ${craftingData.length > 0 ? `
           <h4>Recipes</h4>
         ` : ''}
         <div class="crafting-list">
@@ -86,35 +74,31 @@ export class CraftingPanel {
   attachEventListeners(container: HTMLElement): void {
     // Salvage materials button
     container.querySelector('#salvage-materials-btn')?.addEventListener('click', () => {
-      this.salvageSystem.salvageMaterials();
+      this.actions.salvageMaterials();
     });
 
     container.querySelectorAll('[data-recipe]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const recipeId = (e.target as HTMLElement).closest('[data-recipe]')?.getAttribute('data-recipe');
         if (recipeId) {
-          this.craftingSystem.startCraft(recipeId);
+          this.actions.startCraft(recipeId);
         }
       });
     });
   }
 
-  updateDynamicElements(container: HTMLElement): void {
-    // Update progress bars
-    const craftButtons = container.querySelectorAll('[data-recipe]');
-    craftButtons.forEach(btn => {
-      const recipeId = btn.getAttribute('data-recipe');
-      if (recipeId) {
-        const isCrafting = this.craftingSystem.isCrafting(recipeId);
-        const progress = this.craftingSystem.getCraftProgress(recipeId);
-        
+  updateDynamicElements(container: HTMLElement, craftingData: UICraftingData[]): void {
+    // Update progress bars and button states
+    craftingData.forEach(recipe => {
+      const btn = container.querySelector(`[data-recipe="${recipe.recipeId}"]`);
+      if (btn) {
         // Update progress bar visibility and progress
         const progressBarContainer = btn.querySelector('.progress-bar');
         const craftDetails = btn.querySelector('.craft-details');
         const progressFill = btn.querySelector('.progress-fill');
         
         if (progressBarContainer && craftDetails) {
-          if (isCrafting) {
+          if (recipe.isCrafting) {
             progressBarContainer.classList.remove('hidden');
             progressBarContainer.classList.add('visible');
             craftDetails.classList.add('hidden');
@@ -126,21 +110,13 @@ export class CraftingPanel {
         }
         
         if (progressFill) {
-          (progressFill as HTMLElement).style.width = `${progress * 100}%`;
+          (progressFill as HTMLElement).style.width = `${recipe.progress * 100}%`;
         }
-      }
-    });
 
-    // Update button states
-    craftButtons.forEach(btn => {
-      const recipeId = btn.getAttribute('data-recipe');
-      if (recipeId) {
-        const canCraft = this.craftingSystem.canCraft(recipeId);
-        const isCrafting = this.craftingSystem.isCrafting(recipeId);
-        
-        btn.classList.toggle('available', canCraft && !isCrafting);
-        btn.classList.toggle('disabled', !canCraft || isCrafting);
-        (btn as HTMLButtonElement).disabled = !canCraft || isCrafting;
+        // Update button state
+        btn.classList.toggle('available', recipe.canCraft && !recipe.isCrafting);
+        btn.classList.toggle('disabled', !recipe.canCraft || recipe.isCrafting);
+        (btn as HTMLButtonElement).disabled = !recipe.canCraft || recipe.isCrafting;
       }
     });
   }

@@ -1,52 +1,42 @@
-import { GameStateManager } from '../../core/GameState';
-import { MarketSystem } from '../../core/MarketSystem';
-import { MARKET_ITEMS } from '../../config/marketItems';
+import { UIResourceData } from '../../core/types';
 
 export class MarketPanel {
-  private gameState: GameStateManager;
-  private marketSystem: MarketSystem;
+  constructor(
+    private actions: {
+      buyResource: (resourceId: string) => boolean;
+      sellResource: (resourceId: string) => boolean;
+    }
+  ) {}
 
-  constructor(gameState: GameStateManager, marketSystem: MarketSystem) {
-    this.gameState = gameState;
-    this.marketSystem = marketSystem;
-  }
-
-  render(): string {
-    const state = this.gameState.getState();
-    if (!state.uiState.showMarket) {
+  render(resourcesData: UIResourceData[], showMarket: boolean): string {
+    if (!showMarket) {
       return ''; // Don't show market until unlocked
     }
 
     // Define raw materials that can be bought
     const rawMaterials = ['wireStock', 'sheetMetal', 'leatherScraps', 'oil'];
 
-    // Get discovered resources for display
-    const discoveredResources = Object.values(state.resources)
-      .filter(resource => state.uiState.discoveredResources.has(resource.id) && resource.id !== 'marks') // Exclude marks from market display
-      .map(resource => {
-        // Get market price for this resource
-        const marketItem = MARKET_ITEMS[resource.id];
-        const price = marketItem?.buyPrice || marketItem?.sellPrice || 0;
-        const pricePrefix = price > 0 ? `€${price} ` : '';
-        
-        return `
+    const resourceItems = resourcesData.map(resource => {
+      const pricePrefix = resource.buyPrice || resource.sellPrice ? `€${resource.buyPrice || resource.sellPrice} ` : '';
+      
+      return `
         <div class="resource-item-with-market">
           <div class="resource-info">
             <span class="resource-name">${pricePrefix}${resource.name}</span>
-            <span class="resource-amount" data-resource-amount="${resource.id}">${Math.floor(resource.amount)}</span>
+            <span class="resource-amount" data-resource-amount="${resource.id}">${resource.displayAmount}</span>
           </div>
           <div class="resource-actions">
             ${rawMaterials.includes(resource.id) ? `
               <button 
-                class="inline-market-btn buy-btn ${this.marketSystem.canBuy(resource.id) ? 'available' : 'disabled'}"
+                class="inline-market-btn buy-btn ${resource.canBuy ? 'available' : 'disabled'}"
                 data-buy="${resource.id}"
-                ${!this.marketSystem.canBuy(resource.id) ? 'disabled' : ''}
+                ${!resource.canBuy ? 'disabled' : ''}
                 title="Buy ${resource.name}"
               >
                 +
               </button>
             ` : ''}
-            ${this.marketSystem.canSell(resource.id) ? `
+            ${resource.canSell ? `
               <button 
                 class="inline-market-btn sell-btn available"
                 data-sell="${resource.id}"
@@ -58,7 +48,7 @@ export class MarketPanel {
           </div>
         </div>
       `;
-      }).join('');
+    }).join('');
 
     return `
       <div class="panel market-panel">
@@ -66,7 +56,7 @@ export class MarketPanel {
         
         <div class="resources-section">
           <div class="resources-list">
-            ${discoveredResources}
+            ${resourceItems}
           </div>
         </div>
       </div>
@@ -79,7 +69,7 @@ export class MarketPanel {
       btn.addEventListener('click', (e) => {
         const resourceId = (e.target as HTMLElement).getAttribute('data-buy');
         if (resourceId) {
-          this.marketSystem.buy(resourceId);
+          this.actions.buyResource(resourceId);
         }
       });
     });
@@ -89,22 +79,18 @@ export class MarketPanel {
       btn.addEventListener('click', (e) => {
         const resourceId = (e.target as HTMLElement).getAttribute('data-sell');
         if (resourceId) {
-          this.marketSystem.sell(resourceId);
+          this.actions.sellResource(resourceId);
         }
       });
     });
   }
 
-  updateDynamicElements(container: HTMLElement): void {
-    const state = this.gameState.getState();
-    
+  updateDynamicElements(container: HTMLElement, resourcesData: UIResourceData[]): void {
     // Update resource amounts
-    Object.values(state.resources).forEach(resource => {
-      if (state.uiState.discoveredResources.has(resource.id) && resource.id !== 'marks') {
-        const amountElement = container.querySelector(`[data-resource-amount="${resource.id}"]`);
-        if (amountElement) {
-          amountElement.textContent = Math.floor(resource.amount).toString();
-        }
+    resourcesData.forEach(resource => {
+      const amountElement = container.querySelector(`[data-resource-amount="${resource.id}"]`);
+      if (amountElement) {
+        amountElement.textContent = resource.displayAmount;
       }
     });
 
@@ -113,10 +99,12 @@ export class MarketPanel {
     buyButtons.forEach(btn => {
       const resourceId = btn.getAttribute('data-buy');
       if (resourceId) {
-        const canBuy = this.marketSystem.canBuy(resourceId);
-        btn.classList.toggle('available', canBuy);
-        btn.classList.toggle('disabled', !canBuy);
-        (btn as HTMLButtonElement).disabled = !canBuy;
+        const resource = resourcesData.find(r => r.id === resourceId);
+        if (resource) {
+          btn.classList.toggle('available', resource.canBuy);
+          btn.classList.toggle('disabled', !resource.canBuy);
+          (btn as HTMLButtonElement).disabled = !resource.canBuy;
+        }
       }
     });
 
@@ -124,10 +112,12 @@ export class MarketPanel {
     sellButtons.forEach(btn => {
       const resourceId = btn.getAttribute('data-sell');
       if (resourceId) {
-        const canSell = this.marketSystem.canSell(resourceId);
-        btn.classList.toggle('available', canSell);
-        btn.classList.toggle('disabled', !canSell);
-        (btn as HTMLButtonElement).disabled = !canSell;
+        const resource = resourcesData.find(r => r.id === resourceId);
+        if (resource) {
+          btn.classList.toggle('available', resource.canSell);
+          btn.classList.toggle('disabled', !resource.canSell);
+          (btn as HTMLButtonElement).disabled = !resource.canSell;
+        }
       }
     });
   }

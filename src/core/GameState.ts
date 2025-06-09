@@ -1,4 +1,4 @@
-import { GameState } from './types';
+import { GameState, UINotification } from './types';
 import { INITIAL_RESOURCES } from '../config/resources';
 import { MILESTONES } from '../config/milestones';
 import { EventEmitter } from './EventEmitter';
@@ -38,13 +38,65 @@ export class GameStateManager {
       uiState: {
         discoveredResources: new Set(['marks']), // Always show marks
         showMarket: false,
-        showStockControl: false
+        showStockControl: false,
+        notifications: [],
+        panelStates: {}
       }
     };
   }
 
   getState(): GameState {
     return this.state;
+  }
+
+  // Enhanced UI state management methods
+  setMarketVisibility(visible: boolean): void {
+    if (this.state.uiState.showMarket !== visible) {
+      this.state.uiState.showMarket = visible;
+      this.eventEmitter.emit('marketVisibilityChanged', { visible });
+      this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+    }
+  }
+
+  setStockControlVisibility(visible: boolean): void {
+    if (this.state.uiState.showStockControl !== visible) {
+      this.state.uiState.showStockControl = visible;
+      this.eventEmitter.emit('stockControlVisibilityChanged', { visible });
+      this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+    }
+  }
+
+  addNotification(message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info', duration?: number): void {
+    const notification: UINotification = {
+      id: `notification_${Date.now()}_${Math.random()}`,
+      message,
+      type,
+      timestamp: Date.now(),
+      duration
+    };
+    
+    this.state.uiState.notifications.push(notification);
+    
+    // Auto-remove after duration if specified
+    if (duration) {
+      setTimeout(() => {
+        this.removeNotification(notification.id);
+      }, duration);
+    }
+  }
+
+  removeNotification(notificationId: string): void {
+    const index = this.state.uiState.notifications.findIndex(n => n.id === notificationId);
+    if (index > -1) {
+      this.state.uiState.notifications.splice(index, 1);
+    }
+  }
+
+  setPanelState(panelId: string, state: { expanded?: boolean; activeTab?: string }): void {
+    if (!this.state.uiState.panelStates[panelId]) {
+      this.state.uiState.panelStates[panelId] = { expanded: true };
+    }
+    Object.assign(this.state.uiState.panelStates[panelId], state);
   }
 
   updateResource(resourceId: string, amount: number): void {
@@ -61,13 +113,16 @@ export class GameStateManager {
       }
       
       // Discover resource if we have it or just ran out
+      const wasDiscovered = this.state.uiState.discoveredResources.has(resourceId);
       if (this.state.resources[resourceId].amount > 0 || (oldAmount > 0 && this.state.resources[resourceId].amount === 0)) {
-        this.state.uiState.discoveredResources.add(resourceId);
-        this.eventEmitter.emit('uiStateUpdated', { changes: ['discoveredResources'] });
+        if (!wasDiscovered) {
+          this.state.uiState.discoveredResources.add(resourceId);
+          this.eventEmitter.emit('resourceDiscovered', { resourceId });
+        }
       }
       
-      // Emit resource updated event
-      this.eventEmitter.emit('resourceUpdated', { resourceId, oldAmount, newAmount });
+      // Emit specific resource change event
+      this.eventEmitter.emit('resourceAmountChanged', { resourceId, oldAmount, newAmount });
       this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
     }
   }
@@ -87,20 +142,32 @@ export class GameStateManager {
     return true;
   }
 
-  recordSale(): void {
+  recordSale(resourceId: string, quantity: number, totalValue: number): void {
     this.state.totalSales++;
     this.state.totalMarketTransactions++;
+    this.eventEmitter.emit('marketTransactionCompleted', { 
+      type: 'sell', 
+      resourceId, 
+      quantity, 
+      totalValue 
+    });
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
-  recordPurchase(): void {
+  recordPurchase(resourceId: string, quantity: number, totalValue: number): void {
     this.state.totalMarketTransactions++;
+    this.eventEmitter.emit('marketTransactionCompleted', { 
+      type: 'buy', 
+      resourceId, 
+      quantity, 
+      totalValue 
+    });
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   addMachine(machineId: string, machine: any): void {
     this.state.machines[machineId] = { ...machine };
-    this.eventEmitter.emit('machineUpdated', { machineId, machine: this.state.machines[machineId] });
+    this.eventEmitter.emit('machineBuilt', { machineId, machine: this.state.machines[machineId] });
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
@@ -118,8 +185,7 @@ export class GameStateManager {
           milestoneId: milestone.id, 
           milestoneName: milestone.name 
         });
-        this.showNotification(`Milestone achieved: ${milestone.name}!`);
-        this.eventEmitter.emit('uiStateUpdated', { changes: ['milestones'] });
+        this.addNotification(`Milestone achieved: ${milestone.name}!`, 'success', 3000);
       }
     });
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
@@ -127,50 +193,82 @@ export class GameStateManager {
 
   updateMachine(machineId: string, updates: Partial<any>): void {
     if (this.state.machines[machineId]) {
+      const oldStatus = this.state.machines[machineId].status;
+      const oldActive = this.state.machines[machineId].isActive;
+      
       Object.assign(this.state.machines[machineId], updates);
-      this.eventEmitter.emit('machineUpdated', { machineId, machine: this.state.machines[machineId] });
+      
+      // Emit specific events for status and toggle changes
+      if (updates.status && oldStatus !== updates.status) {
+        this.eventEmitter.emit('machineStatusChanged', { 
+          machineId, 
+          oldStatus: oldStatus || 'stopped', 
+          newStatus: updates.status 
+        });
+      }
+      
+      if (updates.isActive !== undefined && oldActive !== updates.isActive) {
+        this.eventEmitter.emit('machineToggled', { 
+          machineId, 
+          isActive: updates.isActive 
+        });
+      }
+      
+      if (updates.level && updates.level > (this.state.machines[machineId].level || 1)) {
+        this.eventEmitter.emit('machineUpgraded', { 
+          machineId, 
+          newLevel: updates.level 
+        });
+      }
+      
       this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
     }
   }
 
   updatePersonnel(personnelId: string, personnel: any): void {
+    const wasHired = !!this.state.stockControl.personnel[personnelId];
     this.state.stockControl.personnel[personnelId] = personnel;
-    this.eventEmitter.emit('personnelUpdated', { personnelId, personnel });
+    
+    if (!wasHired) {
+      this.eventEmitter.emit('personnelHired', { personnelId, personnel });
+    }
+    
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   removePersonnel(personnelId: string): void {
     if (this.state.stockControl.personnel[personnelId]) {
       delete this.state.stockControl.personnel[personnelId];
-      this.eventEmitter.emit('personnelUpdated', { personnelId, personnel: null });
+      this.eventEmitter.emit('personnelFired', { personnelId });
       this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
     }
   }
 
   updateRule(ruleId: string, rule: any): void {
+    const wasEnabled = this.state.stockControl.rules[ruleId]?.isEnabled;
+    const isNew = !this.state.stockControl.rules[ruleId];
+    
     this.state.stockControl.rules[ruleId] = rule;
-    this.eventEmitter.emit('ruleUpdated', { ruleId, rule });
+    
+    if (isNew) {
+      this.eventEmitter.emit('ruleCreated', { ruleId, rule });
+    } else if (wasEnabled !== rule.isEnabled) {
+      this.eventEmitter.emit('ruleToggled', { ruleId, isEnabled: rule.isEnabled });
+    }
+    
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   removeRule(ruleId: string): void {
     if (this.state.stockControl.rules[ruleId]) {
       delete this.state.stockControl.rules[ruleId];
-      this.eventEmitter.emit('ruleUpdated', { ruleId, rule: null });
+      this.eventEmitter.emit('ruleDeleted', { ruleId });
       this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
     }
   }
 
   private showNotification(message: string): void {
-    // Simple notification system
-    const notification = document.createElement('div');
-    notification.className = 'notification';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-      notification.remove();
-    }, 3000);
+    this.addNotification(message, 'success', 3000);
   }
 
   saveGame(): void {
@@ -182,7 +280,8 @@ export class GameStateManager {
       unlockedStockControl: Array.from(this.state.unlockedStockControl),
       uiState: {
         ...this.state.uiState,
-        discoveredResources: Array.from(this.state.uiState.discoveredResources)
+        discoveredResources: Array.from(this.state.uiState.discoveredResources),
+        notifications: [] // Don't persist notifications
       }
     };
     localStorage.setItem(this.saveKey, JSON.stringify(saveData));
@@ -218,9 +317,11 @@ export class GameStateManager {
           lastSalaryPayment: Date.now()
         },
         uiState: {
-          ...parsed.uiState,
           discoveredResources: new Set(parsed.uiState?.discoveredResources || ['marks']),
-          showStockControl: parsed.uiState?.showStockControl || false
+          showMarket: parsed.uiState?.showMarket || false,
+          showStockControl: parsed.uiState?.showStockControl || false,
+          notifications: [], // Always start with empty notifications
+          panelStates: parsed.uiState?.panelStates || {}
         },
         totalProduced: parsed.totalProduced || {},
         totalSales: parsed.totalSales || 0,
@@ -236,7 +337,7 @@ export class GameStateManager {
     localStorage.removeItem(this.saveKey);
     this.state = this.createNewGame();
     // Trigger a notification that the game was reset
-    this.showNotification('Game reset successfully!');
+    this.addNotification('Game reset successfully!', 'success', 3000);
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 }

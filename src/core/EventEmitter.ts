@@ -1,11 +1,42 @@
 export interface GameEvents {
-  resourceUpdated: { resourceId: string; oldAmount: number; newAmount: number };
-  machineUpdated: { machineId: string; machine: any };
-  personnelUpdated: { personnelId: string; personnel: any };
-  ruleUpdated: { ruleId: string; rule: any };
+  // Resource events
+  resourceAmountChanged: { resourceId: string; oldAmount: number; newAmount: number };
+  resourceDiscovered: { resourceId: string };
+  
+  // Machine events
+  machineBuilt: { machineId: string; machine: any };
+  machineStatusChanged: { machineId: string; oldStatus: string; newStatus: string };
+  machineToggled: { machineId: string; isActive: boolean };
+  machineUpgraded: { machineId: string; newLevel: number };
+  
+  // Personnel events
+  personnelHired: { personnelId: string; personnel: any };
+  personnelFired: { personnelId: string };
+  
+  // Rule events
+  ruleCreated: { ruleId: string; rule: any };
+  ruleToggled: { ruleId: string; isEnabled: boolean };
+  ruleDeleted: { ruleId: string };
+  
+  // Market events
+  marketTransactionCompleted: { type: 'buy' | 'sell'; resourceId: string; quantity: number; totalValue: number };
+  
+  // UI visibility events
+  marketVisibilityChanged: { visible: boolean };
+  stockControlVisibilityChanged: { visible: boolean };
+  
+  // Milestone events
   milestoneCompleted: { milestoneId: string; milestoneName: string };
+  
+  // Crafting events
+  craftStarted: { recipeId: string };
+  craftCompleted: { recipeId: string; outputs: { resourceId: string; amount: number }[] };
+  
+  // Salvage events
+  materialSalvaged: { resourceId: string; amount: number };
+  
+  // General state events (kept for backwards compatibility)
   gameStateUpdated: { timestamp: number };
-  uiStateUpdated: { changes: string[] };
 }
 
 export type EventCallback<T = any> = (data: T) => void;
