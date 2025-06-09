@@ -13,9 +13,6 @@ export class MarketPanel {
       return ''; // Don't show market until unlocked
     }
 
-    // Define raw materials that can be bought
-    const rawMaterials = ['wireStock', 'sheetMetal', 'leatherScraps', 'oil'];
-
     const resourceItems = resourcesData.map(resource => {
       const pricePrefix = resource.buyPrice || resource.sellPrice ? `€${resource.buyPrice || resource.sellPrice} ` : '';
       
@@ -26,7 +23,7 @@ export class MarketPanel {
             <span class="resource-amount" data-resource-amount="${resource.id}">${resource.displayAmount}</span>
           </div>
           <div class="resource-actions">
-            ${rawMaterials.includes(resource.id) ? `
+            ${resource.buyPrice ? `
               <button 
                 class="inline-market-btn buy-btn ${resource.canBuy ? 'available' : 'disabled'}"
                 data-buy="${resource.id}"
