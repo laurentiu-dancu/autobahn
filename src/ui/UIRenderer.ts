@@ -214,11 +214,11 @@ export class UIRenderer {
             ${uiState.showAdvancedCrafting ? this.advancedCraftingPanel.render(craftingDataByTier.advanced) : ''}
             ${uiState.showAssemblySystems ? this.assemblySystemsPanel.render(craftingDataByTier.assembly) : ''}
             ${uiState.showAutomobileConstruction ? this.automobileConstructionPanel.render(craftingDataByTier.automobile) : ''}
-            ${this.stockControlPanel.render(this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData(), uiState.showStockControl)}
           </div>
           
           <div class="center-panel">
             ${this.machinesPanel.render(this.uiDataProvider.getMachinesData(), this.uiDataProvider.getAvailableMachinesData())}
+            ${this.stockControlPanel.render(this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData(), uiState.showStockControl)}
           </div>
           
           <div class="right-panel">
@@ -257,10 +257,10 @@ export class UIRenderer {
       if (uiState.showAutomobileConstruction) {
         this.automobileConstructionPanel.updateDynamicElements(leftPanel as HTMLElement, craftingDataByTier.automobile);
       }
-      this.stockControlPanel.updateDynamicElements(leftPanel as HTMLElement, this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData());
     }
     if (centerPanel) {
       this.machinesPanel.updateDynamicElements(centerPanel as HTMLElement, this.uiDataProvider.getMachinesData(), this.uiDataProvider.getAvailableMachinesData());
+      this.stockControlPanel.updateDynamicElements(centerPanel as HTMLElement, this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData());
     }
     if (rightPanel) {
       this.marketPanel.updateDynamicElements(rightPanel as HTMLElement, this.uiDataProvider.getResourcesData());
@@ -286,9 +286,9 @@ export class UIRenderer {
       if (uiState.showAutomobileConstruction) {
         this.automobileConstructionPanel.attachEventListeners(leftPanel as HTMLElement);
       }
-      this.stockControlPanel.attachEventListeners(leftPanel as HTMLElement);
     }
     if (centerPanel) this.machinesPanel.attachEventListeners(centerPanel as HTMLElement);
+    if (centerPanel) this.stockControlPanel.attachEventListeners(centerPanel as HTMLElement);
     if (rightPanel) this.marketPanel.attachEventListeners(rightPanel as HTMLElement);
 
     // Save button
