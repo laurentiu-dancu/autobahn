@@ -8,13 +8,7 @@ export const MILESTONES: Milestone[] = [
     condition: (state) => state.resources.wireSprings.amount >= 1,
     reward: (state, gameStateManager) => {
       state.unlockedRecipes.add('assembleSpringSet');
-      // Use the new method instead of direct assignment
-      if (gameStateManager && gameStateManager.setMarketVisibility) {
-        gameStateManager.setMarketVisibility(true);
-      } else {
-        // Fallback for backwards compatibility
-        state.uiState.showMarket = true;
-      }
+      // Market is already available from start, no need to unlock
     }
   },
   {
