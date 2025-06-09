@@ -47,7 +47,8 @@ export class UIDataProvider {
           sellPrice: marketItem?.sellPrice,
           isDiscovered: state.uiState.discoveredResources.has(resource.id)
         };
-      });
+      })
+      .sort((a, b) => (a.sellPrice || 0) - (b.sellPrice || 0));
   }
 
   // Crafting data for UI - organized by tier
@@ -60,39 +61,49 @@ export class UIDataProvider {
     const state = this.gameState.getState();
     const recipes = this.craftingSystem.getAvailableRecipes();
     
-    const craftingData = recipes.map(recipe => ({
-      recipeId: recipe.id,
-      name: recipe.name,
-      description: recipe.description,
-      canCraft: this.craftingSystem.canCraft(recipe.id),
-      isCrafting: this.craftingSystem.isCrafting(recipe.id),
-      progress: this.craftingSystem.getCraftProgress(recipe.id),
-      craftTime: recipe.craftTime,
-      tier: recipe.tier,
-      inputs: recipe.inputs.map(input => {
-        const resource = state.resources[input.resourceId];
-        return {
-          resourceId: input.resourceId,
-          name: resource?.name || input.resourceId,
-          amount: input.amount,
-          available: resource?.amount || 0
-        };
-      }),
-      outputs: recipe.outputs.map(output => {
-        const resource = state.resources[output.resourceId];
-        return {
-          resourceId: output.resourceId,
-          name: resource?.name || output.resourceId,
-          amount: output.amount
-        };
-      })
-    }));
+    // Get all machine recipe IDs
+    const automatedRecipeIds = new Set(
+      Object.values(state.machines).map(machine => machine.recipeId)
+    );
+    
+    const craftingData = recipes
+      .filter(recipe => !automatedRecipeIds.has(recipe.id)) // Filter out automated recipes
+      .map(recipe => ({
+        recipeId: recipe.id,
+        name: recipe.name,
+        description: recipe.description,
+        canCraft: this.craftingSystem.canCraft(recipe.id),
+        isCrafting: this.craftingSystem.isCrafting(recipe.id),
+        progress: this.craftingSystem.getCraftProgress(recipe.id),
+        craftTime: recipe.craftTime,
+        tier: recipe.tier,
+        inputs: recipe.inputs.map(input => {
+          const resource = state.resources[input.resourceId];
+          return {
+            resourceId: input.resourceId,
+            name: resource?.name || input.resourceId,
+            amount: input.amount,
+            available: resource?.amount || 0
+          };
+        }),
+        outputs: recipe.outputs.map(output => {
+          const resource = state.resources[output.resourceId];
+          return {
+            resourceId: output.resourceId,
+            name: resource?.name || output.resourceId,
+            amount: output.amount
+          };
+        })
+      }));
+
+    // Sort each tier by craft time
+    const sortByCraftTime = (a: UICraftingData, b: UICraftingData) => a.craftTime - b.craftTime;
 
     return {
-      basic: craftingData.filter(recipe => recipe.tier === 'basic'),
-      advanced: craftingData.filter(recipe => recipe.tier === 'advanced'),
-      assembly: craftingData.filter(recipe => recipe.tier === 'assembly'),
-      automobile: craftingData.filter(recipe => recipe.tier === 'automobile')
+      basic: craftingData.filter(recipe => recipe.tier === 'basic').sort(sortByCraftTime),
+      advanced: craftingData.filter(recipe => recipe.tier === 'advanced').sort(sortByCraftTime),
+      assembly: craftingData.filter(recipe => recipe.tier === 'assembly').sort(sortByCraftTime),
+      automobile: craftingData.filter(recipe => recipe.tier === 'automobile').sort(sortByCraftTime)
     };
   }
 
