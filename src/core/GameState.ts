@@ -288,6 +288,8 @@ export class GameStateManager {
       const parsed = JSON.parse(saveData);
       return {
         ...parsed,
+        // Merge saved resources with current INITIAL_RESOURCES to ensure all resources exist
+        resources: { ...INITIAL_RESOURCES, ...parsed.resources },
         // Ensure machines have status fields for backwards compatibility
         machines: Object.fromEntries(
           Object.entries(parsed.machines || {}).map(([id, machine]: [string, any]) => [
