@@ -25,6 +25,9 @@ export const MILESTONES: Milestone[] = [
       state.uiState.discoveredResources.add('coal');
       state.uiState.discoveredResources.add('glass');
       state.uiState.discoveredResources.add('fabric');
+      
+      // Unlock Advanced Crafting panel
+      state.uiState.showAdvancedCrafting = true;
     }
   },
   {
@@ -76,6 +79,9 @@ export const MILESTONES: Milestone[] = [
       // Unlock first assembly recipes
       state.unlockedRecipes.add('assembleWheel');
       state.unlockedRecipes.add('assembleFuelSystem');
+      
+      // Unlock Assembly Systems panel
+      state.uiState.showAssemblySystems = true;
     }
   },
   {
@@ -107,6 +113,9 @@ export const MILESTONES: Milestone[] = [
     reward: (state) => {
       // Unlock automobile construction
       state.unlockedRecipes.add('constructAutomobile');
+      
+      // Unlock Automobile Construction panel
+      state.uiState.showAutomobileConstruction = true;
     }
   },
   {

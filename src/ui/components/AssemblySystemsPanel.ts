@@ -1,18 +1,18 @@
 import { UICraftingData } from '../../core/types';
 
-export class CraftingPanel {
+export class AssemblySystemsPanel {
   constructor(
     private actions: {
       startCraft: (recipeId: string) => boolean;
-      salvageMaterials: () => void;
     }
   ) {}
 
   render(craftingData: UICraftingData[]): string {
-    // Filter to only show basic tier recipes
-    const basicRecipes = craftingData.filter(recipe => recipe.tier === 'basic');
-    
-    const recipeButtons = basicRecipes.map(recipe => {
+    if (craftingData.length === 0) {
+      return ''; // Don't render if no assembly recipes available
+    }
+
+    const recipeButtons = craftingData.map(recipe => {
       const craftTimeText = recipe.craftTime > 0 ? ` (${recipe.craftTime / 1000}s)` : '';
       
       const inputsText = recipe.inputs.map(input => 
@@ -47,26 +47,10 @@ export class CraftingPanel {
       `;
     }).join('');
 
-    // Salvage materials button - always available
-    const salvageButton = `
-      <div class="salvage-section">
-        <button 
-          id="salvage-materials-btn" 
-          class="craft-btn available"
-        >
-          <div class="craft-name">🔍 Salvage Materials</div>
-          <div class="craft-outputs">Find: 1 random material (Wire Stock, Sheet Metal, Leather Scraps, or Oil)</div>
-        </button>
-      </div>
-    `;
-
     return `
-      <div class="panel crafting-panel">
-        <h3>🔨 Basic Crafting</h3>
-        ${salvageButton}
-        ${basicRecipes.length > 0 ? `
-          <h4>Basic Components</h4>
-        ` : ''}
+      <div class="panel assembly-systems-panel">
+        <h3>🏭 Assembly Systems</h3>
+        <h4>Major Sub-Assemblies</h4>
         <div class="crafting-list">
           ${recipeButtons}
         </div>
@@ -75,11 +59,6 @@ export class CraftingPanel {
   }
 
   attachEventListeners(container: HTMLElement): void {
-    // Salvage materials button
-    container.querySelector('#salvage-materials-btn')?.addEventListener('click', () => {
-      this.actions.salvageMaterials();
-    });
-
     container.querySelectorAll('[data-recipe]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const recipeId = (e.target as HTMLElement).closest('[data-recipe]')?.getAttribute('data-recipe');
@@ -91,11 +70,8 @@ export class CraftingPanel {
   }
 
   updateDynamicElements(container: HTMLElement, craftingData: UICraftingData[]): void {
-    // Filter to only show basic tier recipes
-    const basicRecipes = craftingData.filter(recipe => recipe.tier === 'basic');
-    
     // Update progress bars and button states
-    basicRecipes.forEach(recipe => {
+    craftingData.forEach(recipe => {
       const btn = container.querySelector(`[data-recipe="${recipe.recipeId}"]`);
       if (btn) {
         // Update progress bar visibility and progress

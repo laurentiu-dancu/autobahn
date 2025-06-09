@@ -34,6 +34,9 @@ export interface UIState {
   discoveredResources: Set<string>;
   showMarket: boolean;
   showStockControl: boolean;
+  showAdvancedCrafting: boolean;
+  showAssemblySystems: boolean;
+  showAutomobileConstruction: boolean;
   // New UI state properties for better state management
   activePanel?: string;
   panelStates: {

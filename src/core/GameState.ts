@@ -43,6 +43,9 @@ export class GameStateManager {
         discoveredResources: new Set(['marks', 'wireStock', 'sheetMetal', 'leatherScraps', 'oil']), // Show salvageable resources from start
         showMarket: true, // Market available from start
         showStockControl: false,
+        showAdvancedCrafting: false,
+        showAssemblySystems: false,
+        showAutomobileConstruction: false,
         panelStates: {}
       }
     };
@@ -310,6 +313,9 @@ export class GameStateManager {
           discoveredResources: new Set(parsed.uiState?.discoveredResources || ['marks']),
           showMarket: parsed.uiState?.showMarket || false,
           showStockControl: parsed.uiState?.showStockControl || false,
+          showAdvancedCrafting: parsed.uiState?.showAdvancedCrafting || false,
+          showAssemblySystems: parsed.uiState?.showAssemblySystems || false,
+          showAutomobileConstruction: parsed.uiState?.showAutomobileConstruction || false,
           panelStates: parsed.uiState?.panelStates || {}
         },
         totalProduced: parsed.totalProduced || {},

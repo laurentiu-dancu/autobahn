@@ -248,6 +248,9 @@ export class UIDataProvider {
     return {
       showMarket: state.uiState.showMarket,
       showStockControl: state.uiState.showStockControl,
+      showAdvancedCrafting: state.uiState.showAdvancedCrafting,
+      showAssemblySystems: state.uiState.showAssemblySystems,
+      showAutomobileConstruction: state.uiState.showAutomobileConstruction,
       panelStates: state.uiState.panelStates,
       marksAmount: Math.floor(state.resources.marks.amount)
     };

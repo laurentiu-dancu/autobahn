@@ -6,6 +6,9 @@ import { SalvageSystem } from '../core/SalvageSystem';
 import { StockControlSystem } from '../core/StockControlSystem';
 import { UIDataProvider } from './UIDataProvider';
 import { CraftingPanel } from './components/CraftingPanel';
+import { AdvancedCraftingPanel } from './components/AdvancedCraftingPanel';
+import { AssemblySystemsPanel } from './components/AssemblySystemsPanel';
+import { AutomobileConstructionPanel } from './components/AutomobileConstructionPanel';
 import { MachinesPanel } from './components/MachinesPanel';
 import { MarketPanel } from './components/MarketPanel';
 import { StockControlPanel } from './components/StockControlPanel';
@@ -21,6 +24,9 @@ export class UIRenderer {
 
   // UI Components
   private craftingPanel: CraftingPanel;
+  private advancedCraftingPanel: AdvancedCraftingPanel;
+  private assemblySystemsPanel: AssemblySystemsPanel;
+  private automobileConstructionPanel: AutomobileConstructionPanel;
   private machinesPanel: MachinesPanel;
   private marketPanel: MarketPanel;
   private stockControlPanel: StockControlPanel;
@@ -49,6 +55,9 @@ export class UIRenderer {
 
     // Initialize UI components with action handlers
     this.craftingPanel = new CraftingPanel(this.createCraftingActions(craftingSystem, salvageSystem));
+    this.advancedCraftingPanel = new AdvancedCraftingPanel(this.createCraftingActions(craftingSystem, salvageSystem));
+    this.assemblySystemsPanel = new AssemblySystemsPanel(this.createCraftingActions(craftingSystem, salvageSystem));
+    this.automobileConstructionPanel = new AutomobileConstructionPanel(this.createCraftingActions(craftingSystem, salvageSystem));
     this.machinesPanel = new MachinesPanel(this.createMachineActions(automationManager));
     this.marketPanel = new MarketPanel(this.createMarketActions(marketSystem));
     this.stockControlPanel = new StockControlPanel(this.createStockControlActions(stockControlSystem));
@@ -172,6 +181,9 @@ export class UIRenderer {
     const hashData = {
       showMarket: uiState.showMarket,
       showStockControl: uiState.showStockControl,
+      showAdvancedCrafting: uiState.showAdvancedCrafting,
+      showAssemblySystems: uiState.showAssemblySystems,
+      showAutomobileConstruction: uiState.showAutomobileConstruction,
       resourceCount: this.uiDataProvider.getResourcesData().length,
       machineCount: this.uiDataProvider.getMachinesData().length,
       availableMachineCount: this.uiDataProvider.getAvailableMachinesData().length,
@@ -183,6 +195,7 @@ export class UIRenderer {
 
   private fullRender(): void {
     const uiState = this.uiDataProvider.getUIStateData();
+    const craftingDataByTier = this.uiDataProvider.getCraftingDataByTier();
     
     this.container.innerHTML = `
       <div class="game-container">
@@ -197,7 +210,10 @@ export class UIRenderer {
 
         <div class="game-content">
           <div class="left-panel">
-            ${this.craftingPanel.render(this.uiDataProvider.getCraftingData())}
+            ${this.craftingPanel.render(craftingDataByTier.basic)}
+            ${uiState.showAdvancedCrafting ? this.advancedCraftingPanel.render(craftingDataByTier.advanced) : ''}
+            ${uiState.showAssemblySystems ? this.assemblySystemsPanel.render(craftingDataByTier.assembly) : ''}
+            ${uiState.showAutomobileConstruction ? this.automobileConstructionPanel.render(craftingDataByTier.automobile) : ''}
             ${this.stockControlPanel.render(this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData(), uiState.showStockControl)}
           </div>
           
@@ -217,6 +233,7 @@ export class UIRenderer {
 
   private updateDynamicElements(): void {
     const uiState = this.uiDataProvider.getUIStateData();
+    const craftingDataByTier = this.uiDataProvider.getCraftingDataByTier();
     
     // Update marks display
     const marksElement = this.container.querySelector('#marks-display');
@@ -230,7 +247,16 @@ export class UIRenderer {
     const rightPanel = this.container.querySelector('.right-panel');
 
     if (leftPanel) {
-      this.craftingPanel.updateDynamicElements(leftPanel as HTMLElement, this.uiDataProvider.getCraftingData());
+      this.craftingPanel.updateDynamicElements(leftPanel as HTMLElement, craftingDataByTier.basic);
+      if (uiState.showAdvancedCrafting) {
+        this.advancedCraftingPanel.updateDynamicElements(leftPanel as HTMLElement, craftingDataByTier.advanced);
+      }
+      if (uiState.showAssemblySystems) {
+        this.assemblySystemsPanel.updateDynamicElements(leftPanel as HTMLElement, craftingDataByTier.assembly);
+      }
+      if (uiState.showAutomobileConstruction) {
+        this.automobileConstructionPanel.updateDynamicElements(leftPanel as HTMLElement, craftingDataByTier.automobile);
+      }
       this.stockControlPanel.updateDynamicElements(leftPanel as HTMLElement, this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData());
     }
     if (centerPanel) {
@@ -247,8 +273,19 @@ export class UIRenderer {
     const centerPanel = this.container.querySelector('.center-panel');
     const rightPanel = this.container.querySelector('.right-panel');
 
+    const uiState = this.uiDataProvider.getUIStateData();
+
     if (leftPanel) {
       this.craftingPanel.attachEventListeners(leftPanel as HTMLElement);
+      if (uiState.showAdvancedCrafting) {
+        this.advancedCraftingPanel.attachEventListeners(leftPanel as HTMLElement);
+      }
+      if (uiState.showAssemblySystems) {
+        this.assemblySystemsPanel.attachEventListeners(leftPanel as HTMLElement);
+      }
+      if (uiState.showAutomobileConstruction) {
+        this.automobileConstructionPanel.attachEventListeners(leftPanel as HTMLElement);
+      }
       this.stockControlPanel.attachEventListeners(leftPanel as HTMLElement);
     }
     if (centerPanel) this.machinesPanel.attachEventListeners(centerPanel as HTMLElement);
