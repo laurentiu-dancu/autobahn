@@ -29,6 +29,7 @@ export class GameStateManager {
       unlockedRecipes: new Set(['bendWireSpring', 'fileMetalBracket', 'cutLeatherGasket']),
       unlockedMachines: new Set(),
       unlockedStockControl: new Set(),
+      completedMilestones: new Set(),
       totalClicks: 0,
       totalProduced: {},
       totalSales: 0,
@@ -178,8 +179,8 @@ export class GameStateManager {
 
   checkMilestones(): void {
     MILESTONES.forEach(milestone => {
-      if (!milestone.completed && milestone.condition(this.state)) {
-        milestone.completed = true;
+      if (!this.state.completedMilestones.has(milestone.id) && milestone.condition(this.state)) {
+        this.state.completedMilestones.add(milestone.id);
         milestone.reward(this.state);
         this.eventEmitter.emit('milestoneCompleted', { 
           milestoneId: milestone.id, 
@@ -278,6 +279,7 @@ export class GameStateManager {
       unlockedRecipes: Array.from(this.state.unlockedRecipes),
       unlockedMachines: Array.from(this.state.unlockedMachines),
       unlockedStockControl: Array.from(this.state.unlockedStockControl),
+      completedMilestones: Array.from(this.state.completedMilestones),
       uiState: {
         ...this.state.uiState,
         discoveredResources: Array.from(this.state.uiState.discoveredResources),
@@ -311,6 +313,7 @@ export class GameStateManager {
         unlockedRecipes: new Set(parsed.unlockedRecipes),
         unlockedMachines: new Set(parsed.unlockedMachines),
         unlockedStockControl: new Set(parsed.unlockedStockControl || []),
+        completedMilestones: new Set(parsed.completedMilestones || []),
         stockControl: parsed.stockControl || {
           personnel: {},
           rules: {},

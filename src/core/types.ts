@@ -63,6 +63,7 @@ export interface GameState {
   unlockedRecipes: Set<string>;
   unlockedMachines: Set<string>;
   unlockedStockControl: Set<string>;
+  completedMilestones: Set<string>;
   totalClicks: number;
   totalProduced: Record<string, number>;
   totalSales: number;
@@ -107,7 +108,6 @@ export interface Milestone {
   description: string;
   condition: (gameState: GameState) => boolean;
   reward: (gameState: GameState) => void;
-  completed: boolean;
 }
 
 // UI Data interfaces for better type safety

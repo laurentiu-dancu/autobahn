@@ -15,8 +15,7 @@ export const MILESTONES: Milestone[] = [
         // Fallback for backwards compatibility
         state.uiState.showMarket = true;
       }
-    },
-    completed: false
+    }
   },
   {
     id: 'tenWireSprings',
@@ -25,8 +24,7 @@ export const MILESTONES: Milestone[] = [
     condition: (state) => state.totalProduced.wireSprings >= 10,
     reward: (state) => {
       state.unlockedMachines.add('wireBendingJig');
-    },
-    completed: false
+    }
   },
   {
     id: 'firstSpringAssembly',
@@ -36,8 +34,7 @@ export const MILESTONES: Milestone[] = [
     reward: (state) => {
       state.unlockedRecipes.add('buildRepairKit');
       state.unlockedMachines.add('filingStation');
-    },
-    completed: false
+    }
   },
   {
     id: 'firstSale',
@@ -46,8 +43,7 @@ export const MILESTONES: Milestone[] = [
     condition: (state) => state.totalSales > 0,
     reward: () => {
       // No longer needed - market is integrated
-    },
-    completed: false
+    }
   },
   {
     id: 'tenMarketTransactions',
@@ -64,8 +60,7 @@ export const MILESTONES: Milestone[] = [
         // Fallback for backwards compatibility
         state.uiState.showStockControl = true;
       }
-    },
-    completed: false
+    }
   },
   {
     id: 'hireBasicSpecialists',
@@ -77,7 +72,6 @@ export const MILESTONES: Milestone[] = [
     },
     reward: (state) => {
       state.unlockedStockControl.add('supplyChainCoordinator');
-    },
-    completed: false
+    }
   }
 ];
