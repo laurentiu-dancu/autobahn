@@ -102,6 +102,118 @@ export const MILESTONES: Milestone[] = [
     }
   },
 
+  // BASIC AUTOMATION MILESTONES
+  {
+    id: 'springProductionLine',
+    name: 'Spring Production Line',
+    description: 'Establish consistent spring production',
+    condition: (state) => (state.totalProduced.wireSprings || 0) >= 10,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('wireBendingJig');
+      gameStateManager?.addNotification('Wire Bending Jig unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'bracketProductionLine',
+    name: 'Bracket Production Line',
+    description: 'Establish consistent bracket production',
+    condition: (state) => (state.totalProduced.metalBrackets || 0) >= 10,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('filingStation');
+      gameStateManager?.addNotification('Filing Station unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'leatherProcessingAutomation',
+    name: 'Leather Processing Automation',
+    description: 'Scale up leather gasket production',
+    condition: (state) => (state.totalProduced.leatherGaskets || 0) >= 8,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('leatherCuttingStation');
+      gameStateManager?.addNotification('Leather Cutting Station unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'metalShapingAutomation',
+    name: 'Metal Shaping Automation',
+    description: 'Automate metal rod production',
+    condition: (state) => (state.totalProduced.metalRods || 0) >= 12,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('metalShapingPress');
+      gameStateManager?.addNotification('Metal Shaping Press unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'plateForgeAutomation',
+    name: 'Plate Forge Automation',
+    description: 'Automate metal plate production',
+    condition: (state) => (state.totalProduced.metalPlates || 0) >= 8,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('plateForge');
+      gameStateManager?.addNotification('Plate Forge unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'electricalWireAutomation',
+    name: 'Electrical Wire Automation',
+    description: 'Scale up electrical wire production',
+    condition: (state) => (state.totalProduced.electricalWire || 0) >= 6,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('electricalWireStation');
+      gameStateManager?.addNotification('Electrical Wire Station unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'rubberFormingAutomation',
+    name: 'Rubber Forming Automation',
+    description: 'Automate rubber tubing production',
+    condition: (state) => (state.totalProduced.rubberTubing || 0) >= 5,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('rubberFormingMachine');
+      gameStateManager?.addNotification('Rubber Forming Machine unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'glassShapingAutomation',
+    name: 'Glass Shaping Automation',
+    description: 'Automate glass lens production',
+    condition: (state) => (state.totalProduced.glassLenses || 0) >= 4,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('glassShapingKiln');
+      gameStateManager?.addNotification('Glass Shaping Kiln unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'fabricProcessingAutomation',
+    name: 'Fabric Processing Automation',
+    description: 'Automate fabric strip production',
+    condition: (state) => (state.totalProduced.fabricStrips || 0) >= 10,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('fabricCuttingTable');
+      gameStateManager?.addNotification('Fabric Cutting Table unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'woodworkingAutomation',
+    name: 'Woodworking Automation',
+    description: 'Automate wood plank production',
+    condition: (state) => (state.totalProduced.woodPlanks || 0) >= 8,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('woodworkingBench');
+      gameStateManager?.addNotification('Woodworking Bench unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'frameAssemblyAutomation',
+    name: 'Frame Assembly Automation',
+    description: 'Automate wood frame construction',
+    condition: (state) => (state.totalProduced.woodFrames || 0) >= 5,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('frameAssemblyJig');
+      gameStateManager?.addNotification('Frame Assembly Jig unlocked!', 'success', 3000);
+    }
+  },
+
   // ADVANCED CRAFTING TIER MILESTONES
   {
     id: 'engineComponentBasics',
@@ -187,6 +299,48 @@ export const MILESTONES: Milestone[] = [
     }
   },
 
+  // ADVANCED AUTOMATION MILESTONES
+  {
+    id: 'bearingManufacturing',
+    name: 'Bearing Manufacturing',
+    description: 'Scale up bearing production',
+    condition: (state) => (state.totalProduced.bearings || 0) >= 10,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('bearingManufacturingStation');
+      gameStateManager?.addNotification('Bearing Manufacturing Station unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'valveAssemblyAutomation',
+    name: 'Valve Assembly Automation',
+    description: 'Automate valve production',
+    condition: (state) => (state.totalProduced.valves || 0) >= 12,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('valveAssemblyStation');
+      gameStateManager?.addNotification('Valve Assembly Station unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'pistonManufacturing',
+    name: 'Piston Manufacturing',
+    description: 'Scale up piston production',
+    condition: (state) => (state.totalProduced.pistons || 0) >= 15,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('pistonPress');
+      gameStateManager?.addNotification('Piston Press unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'gearManufacturing',
+    name: 'Gear Manufacturing',
+    description: 'Scale up gear production',
+    condition: (state) => (state.totalProduced.gears || 0) >= 12,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('gearCuttingMachine');
+      gameStateManager?.addNotification('Gear Cutting Machine unlocked!', 'success', 3000);
+    }
+  },
+
   // ASSEMBLY SYSTEMS TIER MILESTONES
   {
     id: 'firstAssemblyCompletion',
@@ -233,6 +387,28 @@ export const MILESTONES: Milestone[] = [
     }
   },
 
+  // ASSEMBLY AUTOMATION MILESTONES
+  {
+    id: 'engineAssemblyAutomation',
+    name: 'Engine Assembly Automation',
+    description: 'Automate engine assembly process',
+    condition: (state) => (state.totalProduced.engineAssembly || 0) >= 3,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('engineAssemblyRig');
+      gameStateManager?.addNotification('Engine Assembly Rig unlocked!', 'success', 3000);
+    }
+  },
+  {
+    id: 'chassisAssemblyAutomation',
+    name: 'Chassis Assembly Automation',
+    description: 'Automate chassis assembly process',
+    condition: (state) => (state.totalProduced.chassisAssembly || 0) >= 3,
+    reward: (state, gameStateManager) => {
+      state.unlockedMachines.add('chassisAssemblyRig');
+      gameStateManager?.addNotification('Chassis Assembly Rig unlocked!', 'success', 3000);
+    }
+  },
+
   // AUTOMOBILE CONSTRUCTION TIER MILESTONES
   {
     id: 'firstAutomobile',
@@ -264,68 +440,6 @@ export const MILESTONES: Milestone[] = [
       state.resources.marks.amount += 1000;
       
       gameStateManager?.addNotification('Production line established! Logistics unlocked!', 'success', 4000);
-    }
-  },
-
-  // AUTOMATION MILESTONES
-  {
-    id: 'springProductionLine',
-    name: 'Spring Production Line',
-    description: 'Establish consistent spring production',
-    condition: (state) => (state.totalProduced.wireSprings || 0) >= 10,
-    reward: (state, gameStateManager) => {
-      state.unlockedMachines.add('wireBendingJig');
-      gameStateManager?.addNotification('Wire Bending Jig unlocked!', 'success', 3000);
-    }
-  },
-  {
-    id: 'bracketProductionLine',
-    name: 'Bracket Production Line',
-    description: 'Establish consistent bracket production',
-    condition: (state) => (state.totalProduced.metalBrackets || 0) >= 10,
-    reward: (state, gameStateManager) => {
-      state.unlockedMachines.add('filingStation');
-      gameStateManager?.addNotification('Filing Station unlocked!', 'success', 3000);
-    }
-  },
-  {
-    id: 'pistonManufacturing',
-    name: 'Piston Manufacturing',
-    description: 'Scale up piston production',
-    condition: (state) => (state.totalProduced.pistons || 0) >= 15,
-    reward: (state, gameStateManager) => {
-      state.unlockedMachines.add('pistonPress');
-      gameStateManager?.addNotification('Piston Press unlocked!', 'success', 3000);
-    }
-  },
-  {
-    id: 'gearManufacturing',
-    name: 'Gear Manufacturing',
-    description: 'Scale up gear production',
-    condition: (state) => (state.totalProduced.gears || 0) >= 12,
-    reward: (state, gameStateManager) => {
-      state.unlockedMachines.add('gearCuttingMachine');
-      gameStateManager?.addNotification('Gear Cutting Machine unlocked!', 'success', 3000);
-    }
-  },
-  {
-    id: 'engineAssemblyAutomation',
-    name: 'Engine Assembly Automation',
-    description: 'Automate engine assembly process',
-    condition: (state) => (state.totalProduced.engineAssembly || 0) >= 3,
-    reward: (state, gameStateManager) => {
-      state.unlockedMachines.add('engineAssemblyRig');
-      gameStateManager?.addNotification('Engine Assembly Rig unlocked!', 'success', 3000);
-    }
-  },
-  {
-    id: 'chassisAssemblyAutomation',
-    name: 'Chassis Assembly Automation',
-    description: 'Automate chassis assembly process',
-    condition: (state) => (state.totalProduced.chassisAssembly || 0) >= 3,
-    reward: (state, gameStateManager) => {
-      state.unlockedMachines.add('chassisAssemblyRig');
-      gameStateManager?.addNotification('Chassis Assembly Rig unlocked!', 'success', 3000);
     }
   },
 
