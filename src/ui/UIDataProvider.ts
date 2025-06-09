@@ -5,6 +5,7 @@ import { MarketSystem } from '../core/MarketSystem';
 import { StockControlSystem } from '../core/StockControlSystem';
 import { MARKET_ITEMS } from '../config/marketItems';
 import { RECIPES } from '../config/recipes';
+import { MACHINES } from '../config/machines';
 import { 
   UIResourceData, 
   UICraftingData, 
@@ -127,7 +128,7 @@ export class UIDataProvider {
     return availableMachines
       .filter(machineId => !state.machines[machineId])
       .map(machineId => {
-        const machineTemplate = require('../config/machines').MACHINES[machineId];
+        const machineTemplate = MACHINES[machineId];
         return {
           id: machineId,
           name: machineTemplate.name,

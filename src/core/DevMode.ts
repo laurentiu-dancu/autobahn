@@ -1,3 +1,6 @@
+import { RECIPES } from '../config/recipes';
+import { MACHINES } from '../config/machines';
+
 export class DevMode {
   private static instance: DevMode;
   private isEnabled: boolean = false;
@@ -299,12 +302,12 @@ export class DevMode {
     const state = this.gameState.getState();
     
     // Unlock all recipes
-    Object.keys(require('../config/gameConfig').RECIPES).forEach(recipeId => {
+    Object.keys(RECIPES).forEach(recipeId => {
       state.unlockedRecipes.add(recipeId);
     });
 
     // Unlock all machines
-    Object.keys(require('../config/gameConfig').MACHINES).forEach(machineId => {
+    Object.keys(MACHINES).forEach(machineId => {
       state.unlockedMachines.add(machineId);
     });
 
