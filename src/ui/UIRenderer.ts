@@ -220,8 +220,8 @@ export class UIRenderer {
   private renderNotifications(notifications: any[]): string {
     return notifications.map(notification => `
       <div class="notification notification-${notification.type}" data-notification-id="${notification.id}">
-        ${notification.message}
-        <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+        <span class="notification-message">${notification.message}</span>
+        <button class="notification-close" data-close-notification="${notification.id}">×</button>
       </div>
     `).join('');
   }
@@ -277,6 +277,21 @@ export class UIRenderer {
         this.gameState.resetGame();
         this.forceFullRender();
       }
+    });
+
+    // Notification close buttons
+    this.container.querySelectorAll('[data-close-notification]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const notificationId = (e.target as HTMLElement).getAttribute('data-close-notification');
+        if (notificationId) {
+          this.gameState.removeNotification(notificationId);
+          // Remove the notification element immediately for better UX
+          const notificationElement = this.container.querySelector(`[data-notification-id="${notificationId}"]`);
+          if (notificationElement) {
+            notificationElement.remove();
+          }
+        }
+      });
     });
   }
 }

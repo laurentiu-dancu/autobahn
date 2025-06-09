@@ -73,13 +73,13 @@ export class GameStateManager {
       message,
       type,
       timestamp: Date.now(),
-      duration
+      duration: duration || 5000 // Default to 5 seconds if not specified
     };
     
     this.state.uiState.notifications.push(notification);
     
     // Auto-remove after duration if specified
-    if (duration) {
+    if (notification.duration) {
       setTimeout(() => {
         this.removeNotification(notification.id);
       }, duration);
