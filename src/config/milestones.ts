@@ -7,15 +7,45 @@ export const MILESTONES: Milestone[] = [
     description: 'Bend your first wire spring',
     condition: (state) => state.resources.wireSprings.amount >= 1,
     reward: (state, gameStateManager) => {
-      // Unlock advanced crafting tier
+      // Unlock basic advanced crafting recipes immediately
       state.unlockedRecipes.add('machinePiston');
       state.unlockedRecipes.add('craftBearing');
       state.unlockedRecipes.add('assembleValve');
+      state.unlockedRecipes.add('craftSparkPlug');
       
       // Unlock new raw materials in market
       state.uiState.discoveredResources.add('wood');
       state.uiState.discoveredResources.add('rubber');
       state.uiState.discoveredResources.add('coal');
+      state.uiState.discoveredResources.add('glass');
+      state.uiState.discoveredResources.add('fabric');
+    }
+  },
+  {
+    id: 'basicComponentProduction',
+    name: 'Basic Component Production',
+    description: 'Produce 5 different basic components',
+    condition: (state) => {
+      const basicComponents = ['wireSprings', 'metalBrackets', 'metalRods', 'leatherGaskets', 'woodPlanks'];
+      const producedCount = basicComponents.filter(id => (state.totalProduced[id] || 0) >= 1).length;
+      return producedCount >= 5;
+    },
+    reward: (state) => {
+      // Unlock more basic crafting recipes
+      state.unlockedRecipes.add('makeElectricalWire');
+      state.unlockedRecipes.add('formRubberTubing');
+      state.unlockedRecipes.add('shapeGlassLens');
+      state.unlockedRecipes.add('cutFabricStrips');
+      state.unlockedRecipes.add('cutWoodPlanks');
+      state.unlockedRecipes.add('buildWoodFrame');
+      state.unlockedRecipes.add('shapeMetalRod');
+      state.unlockedRecipes.add('forgeMetalPlate');
+      
+      // Unlock more advanced crafting recipes
+      state.unlockedRecipes.add('machineGear');
+      state.unlockedRecipes.add('assembleClutchPlate');
+      state.unlockedRecipes.add('buildLeafSpring');
+      state.unlockedRecipes.add('forgeCrankshaft');
     }
   },
   {
@@ -27,18 +57,40 @@ export const MILESTONES: Milestone[] = [
       return advancedComponents.some(id => state.resources[id]?.amount >= 1);
     },
     reward: (state) => {
-      // Unlock assembly system recipes
+      // Unlock remaining advanced component recipes
+      state.unlockedRecipes.add('forgeAxle');
+      state.unlockedRecipes.add('craftBrakeShoe');
+      state.unlockedRecipes.add('formBodyPanel');
+      state.unlockedRecipes.add('upholsterSeat');
+      state.unlockedRecipes.add('buildDashboard');
+      state.unlockedRecipes.add('assembleBattery');
+      state.unlockedRecipes.add('buildHeadlight');
+      state.unlockedRecipes.add('assembleWiringHarness');
+      
+      // Unlock lead for batteries
+      state.uiState.discoveredResources.add('lead');
+      
+      // Unlock first assembly recipes
       state.unlockedRecipes.add('assembleWheel');
       state.unlockedRecipes.add('assembleFuelSystem');
-      
-      // Unlock more advanced components
-      state.unlockedRecipes.add('craftSparkPlug');
-      state.unlockedRecipes.add('machineGear');
-      state.unlockedRecipes.add('assembleClutchPlate');
-      
-      // Unlock new materials
-      state.uiState.discoveredResources.add('glass');
-      state.uiState.discoveredResources.add('fabric');
+    }
+  },
+  {
+    id: 'advancedProduction',
+    name: 'Advanced Production',
+    description: 'Produce 3 different advanced components',
+    condition: (state) => {
+      const advancedComponents = ['pistons', 'gears', 'bearings', 'valves', 'sparkPlugs', 'clutchPlates', 'leafSprings', 'axles', 'brakeShoes'];
+      const producedCount = advancedComponents.filter(id => (state.totalProduced[id] || 0) >= 1).length;
+      return producedCount >= 3;
+    },
+    reward: (state) => {
+      // Unlock all remaining assembly recipes
+      state.unlockedRecipes.add('assembleEngine');
+      state.unlockedRecipes.add('assembleTransmission');
+      state.unlockedRecipes.add('assembleChassis');
+      state.unlockedRecipes.add('assembleBody');
+      state.unlockedRecipes.add('assembleElectricalSystem');
     }
   },
   {
@@ -52,16 +104,6 @@ export const MILESTONES: Milestone[] = [
     reward: (state) => {
       // Unlock automobile construction
       state.unlockedRecipes.add('constructAutomobile');
-      
-      // Unlock all remaining assembly recipes
-      state.unlockedRecipes.add('assembleEngine');
-      state.unlockedRecipes.add('assembleTransmission');
-      state.unlockedRecipes.add('assembleChassis');
-      state.unlockedRecipes.add('assembleBody');
-      state.unlockedRecipes.add('assembleElectricalSystem');
-      
-      // Unlock remaining materials
-      state.uiState.discoveredResources.add('lead');
     }
   },
   {
@@ -83,26 +125,6 @@ export const MILESTONES: Milestone[] = [
     condition: (state) => state.totalProduced.wireSprings >= 10,
     reward: (state) => {
       state.unlockedMachines.add('wireBendingJig');
-    }
-  },
-  {
-    id: 'basicComponentProduction',
-    name: 'Basic Component Production',
-    description: 'Produce 5 different basic components',
-    condition: (state) => {
-      const basicComponents = ['wireSprings', 'metalBrackets', 'metalRods', 'leatherGaskets', 'woodPlanks'];
-      const producedCount = basicComponents.filter(id => (state.totalProduced[id] || 0) >= 1).length;
-      return producedCount >= 5;
-    },
-    reward: (state) => {
-      state.unlockedMachines.add('filingStation');
-      // Unlock more basic crafting recipes
-      state.unlockedRecipes.add('makeElectricalWire');
-      state.unlockedRecipes.add('formRubberTubing');
-      state.unlockedRecipes.add('shapeGlassLens');
-      state.unlockedRecipes.add('cutFabricStrips');
-      state.unlockedRecipes.add('cutWoodPlanks');
-      state.unlockedRecipes.add('buildWoodFrame');
     }
   },
   {
@@ -139,28 +161,6 @@ export const MILESTONES: Milestone[] = [
     },
     reward: (state) => {
       state.unlockedStockControl.add('supplyChainCoordinator');
-    }
-  },
-  {
-    id: 'advancedProduction',
-    name: 'Advanced Production',
-    description: 'Produce 3 different advanced components',
-    condition: (state) => {
-      const advancedComponents = ['pistons', 'gears', 'bearings', 'valves', 'sparkPlugs', 'clutchPlates', 'leafSprings', 'axles', 'brakeShoes'];
-      const producedCount = advancedComponents.filter(id => (state.totalProduced[id] || 0) >= 1).length;
-      return producedCount >= 3;
-    },
-    reward: (state) => {
-      // Unlock remaining advanced component recipes
-      state.unlockedRecipes.add('buildLeafSpring');
-      state.unlockedRecipes.add('forgeAxle');
-      state.unlockedRecipes.add('craftBrakeShoe');
-      state.unlockedRecipes.add('formBodyPanel');
-      state.unlockedRecipes.add('upholsterSeat');
-      state.unlockedRecipes.add('buildDashboard');
-      state.unlockedRecipes.add('assembleBattery');
-      state.unlockedRecipes.add('buildHeadlight');
-      state.unlockedRecipes.add('assembleWiringHarness');
     }
   }
 ];
