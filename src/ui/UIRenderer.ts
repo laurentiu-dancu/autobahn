@@ -56,19 +56,7 @@ export class UIRenderer {
   }
 
   private setupEventListeners(): void {
-    // Listen to game state events and trigger UI updates
-    this.eventEmitter.on('gameStateUpdated', () => {
-      this.render();
-    });
-    
-    this.eventEmitter.on('resourceUpdated', () => {
-      this.updateDynamicElements();
-    });
-    
-    this.eventEmitter.on('machineUpdated', () => {
-      this.updateDynamicElements();
-    });
-    
+    // Listen to game state events that require full UI rebuilds
     this.eventEmitter.on('uiStateUpdated', () => {
       // Force full render when UI state changes (new unlocks, etc.)
       this.forceFullRender();
