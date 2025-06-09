@@ -1,4 +1,5 @@
 import { UIResourceData } from '../../core/types';
+import { isMaterial } from '../../core/utils';
 
 export class MarketPanel {
   constructor(
@@ -13,39 +14,15 @@ export class MarketPanel {
       return ''; // Don't show market until unlocked
     }
 
-    const resourceItems = resourcesData.map(resource => {
-      const pricePrefix = resource.buyPrice || resource.sellPrice ? `€${resource.buyPrice || resource.sellPrice} ` : '';
-      
-      return `
-        <div class="resource-item-with-market">
-          <div class="resource-info">
-            <span class="resource-name">${pricePrefix}${resource.name}</span>
-            <span class="resource-amount" data-resource-amount="${resource.id}">${resource.displayAmount}</span>
-          </div>
-          <div class="resource-actions">
-            ${resource.buyPrice ? `
-              <button 
-                class="inline-market-btn buy-btn ${resource.canBuy ? 'available' : 'disabled'}"
-                data-buy="${resource.id}"
-                ${!resource.canBuy ? 'disabled' : ''}
-                title="Buy ${resource.name}"
-              >
-                +
-              </button>
-            ` : ''}
-            ${resource.canSell ? `
-              <button 
-                class="inline-market-btn sell-btn available"
-                data-sell="${resource.id}"
-                title="Sell ${resource.name}"
-              >
-                -
-              </button>
-            ` : ''}
-          </div>
-        </div>
-      `;
-    }).join('');
+    // Split resources into materials and parts
+    const materials = resourcesData.filter(resource => isMaterial(resource.id));
+    const parts = resourcesData.filter(resource => !isMaterial(resource.id));
+
+    const resourceItems = [
+      ...materials.map(resource => this.renderResourceItem(resource)),
+      '<div class="market-gap"></div>',
+      ...parts.map(resource => this.renderResourceItem(resource))
+    ].join('');
 
     return `
       <div class="panel market-panel">
@@ -55,6 +32,39 @@ export class MarketPanel {
           <div class="resources-list">
             ${resourceItems}
           </div>
+        </div>
+      </div>
+    `;
+  }
+
+  private renderResourceItem(resource: UIResourceData): string {
+    const pricePrefix = resource.buyPrice || resource.sellPrice ? `€${resource.buyPrice || resource.sellPrice} ` : '';
+    
+    return `
+      <div class="resource-item-with-market">
+        <div class="resource-info">
+          <span class="resource-name">${pricePrefix}${resource.name}</span>
+          <span class="resource-amount" data-resource-amount="${resource.id}">${resource.displayAmount}</span>
+        </div>
+        <div class="resource-actions">
+          ${isMaterial(resource.id) ? `
+            <button 
+              class="inline-market-btn buy-btn ${resource.canBuy ? 'available' : 'disabled'}"
+              data-buy="${resource.id}"
+              ${!resource.canBuy ? 'disabled' : ''}
+              title="Buy ${resource.name}"
+            >
+              +
+            </button>
+          ` : ''}
+          <button 
+            class="inline-market-btn sell-btn ${resource.canSell ? 'available' : 'disabled'}"
+            data-sell="${resource.id}"
+            ${!resource.canSell ? 'disabled' : ''}
+            title="Sell ${resource.name}"
+          >
+            -
+          </button>
         </div>
       </div>
     `;

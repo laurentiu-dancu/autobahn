@@ -13,6 +13,7 @@ import {
   UIPersonnelData, 
   UIRuleData 
 } from '../core/types';
+import { isMaterial } from '../core/utils';
 
 /**
  * UIDataProvider centralizes all data preparation for UI components.
@@ -45,7 +46,8 @@ export class UIDataProvider {
           canSell: this.marketSystem.canSell(resource.id),
           buyPrice: marketItem?.buyPrice,
           sellPrice: marketItem?.sellPrice,
-          isDiscovered: state.uiState.discoveredResources.has(resource.id)
+          isDiscovered: state.uiState.discoveredResources.has(resource.id),
+          type: isMaterial(resource.id) ? 'material' as const : 'part' as const
         };
       })
       .sort((a, b) => (a.sellPrice || 0) - (b.sellPrice || 0));
@@ -188,7 +190,7 @@ export class UIDataProvider {
     const activeRules = this.stockControlSystem.getActiveRules();
     
     const available = availablePersonnel
-      .filter(personnelId => !state.stockControl.personnel[personnelId])
+      .filter(personnelId => !state.stockControl.personnel[personnelId]?.isActive)
       .map(personnelId => {
         const template = this.stockControlSystem.getPersonnelTemplate(personnelId);
         if (!template) throw new Error(`Personnel template not found: ${personnelId}`);
@@ -239,16 +241,16 @@ export class UIDataProvider {
     
     return activeRules.map(rule => {
       const resource = state.resources[rule.resourceId];
-      const personnel = state.stockControl.personnel[rule.managedBy];
+      const personnel = rule.managedBy ? state.stockControl.personnel[rule.managedBy] : null;
       
       return {
         id: rule.id,
         resourceName: resource?.name || rule.resourceId,
-        type: rule.type,
+        type: rule.action,
         threshold: rule.threshold,
-        quantity: rule.quantity,
+        quantity: rule.quantity ?? 1,
         isEnabled: rule.isEnabled,
-        managerName: personnel?.name || 'Unknown'
+        managerName: personnel?.name || (rule.managedBy ? rule.managedBy : 'System')
       };
     });
   }

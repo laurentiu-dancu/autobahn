@@ -7,7 +7,6 @@ export class StockControlPanel {
       firePersonnel: (personnelId: string) => void;
       toggleRule: (ruleId: string) => void;
       deleteRule: (ruleId: string) => void;
-      createQuickRules: (ruleType: string) => void;
     }
   ) {}
 
@@ -84,21 +83,6 @@ export class StockControlPanel {
       `;
     }).join('');
 
-    // Quick rule creation for common resources
-    const quickRules = personnelData.active.length > 0 ? `
-      <div class="quick-rules">
-        <h4>Quick Rules</h4>
-        <div class="quick-rule-buttons">
-          <button class="quick-rule-btn" data-quick-rule="buy-materials">
-            Auto-buy Materials (when < 5)
-          </button>
-          <button class="quick-rule-btn" data-quick-rule="sell-products">
-            Auto-sell Products (when > 10)
-          </button>
-        </div>
-      </div>
-    ` : '';
-
     return `
       <div class="panel stock-control-panel">
         <h3>📊 Stock Control</h3>
@@ -125,8 +109,6 @@ export class StockControlPanel {
             ${activePersonnelDisplay}
           </div>
         ` : ''}
-        
-        ${quickRules}
         
         ${rulesDisplay ? `
           <div class="rules-section">
@@ -179,16 +161,6 @@ export class StockControlPanel {
         const ruleId = (e.target as HTMLElement).getAttribute('data-delete-rule');
         if (ruleId && confirm('Are you sure you want to delete this rule?')) {
           this.actions.deleteRule(ruleId);
-        }
-      });
-    });
-
-    // Quick rules
-    container.querySelectorAll('[data-quick-rule]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const ruleType = (e.target as HTMLElement).getAttribute('data-quick-rule');
-        if (ruleType) {
-          this.actions.createQuickRules(ruleType);
         }
       });
     });

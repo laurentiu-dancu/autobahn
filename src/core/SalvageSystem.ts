@@ -12,8 +12,7 @@ export class SalvageSystem {
     const possibleMaterials = [
       { resourceId: 'wireStock', amount: 1 },
       { resourceId: 'sheetMetal', amount: 1 },
-      { resourceId: 'leatherScraps', amount: 1 },
-      { resourceId: 'oil', amount: 1 }
+      { resourceId: 'leatherScraps', amount: 1 }
     ];
 
     // Randomly select one material to find

@@ -1,12 +1,30 @@
 import { GameStateManager } from './GameState';
 import { MarketSystem } from './MarketSystem';
 import { StockControlPersonnel, StockControlRule } from './types';
+import { isMaterial, isPart } from './utils';
 
 export class StockControlSystem {
   private gameState: GameStateManager;
   private marketSystem: MarketSystem;
   private lastUpdate: number = Date.now();
   private lastRuleExecution: number = 0;
+
+  private readonly personnelTemplates = {
+    procurementSpecialist: {
+      name: 'Material Buyer',
+      description: 'Automatically buys materials when stock is low',
+      capabilities: ['buy_materials'],
+      salary: 5,
+      upfrontCost: 20
+    },
+    salesManager: {
+      name: 'Parts Seller',
+      description: 'Automatically sells parts when stock is high',
+      capabilities: ['sell_parts'],
+      salary: 5,
+      upfrontCost: 30
+    }
+  };
 
   constructor(gameState: GameStateManager, marketSystem: MarketSystem) {
     this.gameState = gameState;
@@ -71,17 +89,15 @@ export class StockControlSystem {
   // Rule Management
   createRule(resourceId: string, type: 'buy' | 'sell', threshold: number, quantity: number, managedBy: string): string {
     const ruleId = `${type}_${resourceId}_${Date.now()}`;
-    
     const rule: StockControlRule = {
       id: ruleId,
       resourceId,
-      type,
+      action: type,
       threshold,
-      quantity,
       isEnabled: true,
-      managedBy
+      managedBy,
+      quantity
     };
-    
     this.gameState.updateRule(ruleId, rule);
     return ruleId;
   }
@@ -133,35 +149,19 @@ export class StockControlSystem {
 
   private executeRules(): void {
     const state = this.gameState.getState();
-    
-    // Only execute rules every 5 seconds to prevent spam
-    const now = Date.now();
-    if (!this.lastRuleExecution) this.lastRuleExecution = now;
-    if (now - this.lastRuleExecution < 5000) return;
-    this.lastRuleExecution = now;
-    
     Object.values(state.stockControl.rules).forEach(rule => {
       if (!rule.isEnabled) return;
-      
-      // Check if the personnel managing this rule is still active
-      const personnel = state.stockControl.personnel[rule.managedBy];
-      if (!personnel || !personnel.isActive) {
-        this.updateRule(rule.id, { ...rule, isEnabled: false });
-        return;
-      }
-      
-      const currentAmount = state.resources[rule.resourceId]?.amount || 0;
-      
-      if (rule.type === 'buy' && currentAmount < rule.threshold) {
-        // Try to buy
-        if (this.marketSystem.canBuy(rule.resourceId, rule.quantity)) {
-          this.marketSystem.buy(rule.resourceId, rule.quantity);
+
+      const resource = state.resources[rule.resourceId];
+      if (!resource) return;
+
+      if (rule.action === 'buy' && isMaterial(rule.resourceId)) {
+        if (resource.amount < rule.threshold) {
+          this.marketSystem.buy(rule.resourceId, 1);
         }
-      } else if (rule.type === 'sell' && currentAmount > rule.threshold) {
-        // Try to sell
-        const sellAmount = Math.min(rule.quantity, currentAmount - rule.threshold);
-        if (sellAmount > 0 && this.marketSystem.canSell(rule.resourceId, sellAmount)) {
-          this.marketSystem.sell(rule.resourceId, sellAmount);
+      } else if (rule.action === 'sell' && isPart(rule.resourceId)) {
+        if (resource.amount > rule.threshold) {
+          this.marketSystem.sell(rule.resourceId, 1);
         }
       }
     });
@@ -195,36 +195,25 @@ export class StockControlSystem {
     const templates: Record<string, StockControlPersonnel> = {
       procurementSpecialist: {
         id: 'procurementSpecialist',
-        name: 'Material Procurement Specialist',
+        name: 'Material Buyer',
         type: 'procurement',
         monthlySalary: 2, // marks per 10-second interval
         hiringCost: 50,
         isActive: false,
         hiredAt: 0,
-        description: 'Automatically purchases raw materials when inventory falls below set thresholds',
-        capabilities: ['Auto-buy raw materials', 'Inventory monitoring', 'Basic purchasing']
+        description: 'Automatically buys raw materials when inventory is low',
+        capabilities: ['Auto-buy raw materials', 'Inventory monitoring']
       },
       salesManager: {
         id: 'salesManager',
-        name: 'Sales Manager',
+        name: 'Parts Seller',
         type: 'sales',
         monthlySalary: 3,
         hiringCost: 50,
         isActive: false,
         hiredAt: 0,
-        description: 'Automatically sells finished products when inventory exceeds set thresholds',
-        capabilities: ['Auto-sell products', 'Inventory monitoring', 'Basic sales']
-      },
-      supplyChainCoordinator: {
-        id: 'supplyChainCoordinator',
-        name: 'Supply Chain Coordinator',
-        type: 'coordinator',
-        monthlySalary: 5,
-        hiringCost: 100,
-        isActive: false,
-        hiredAt: 0,
-        description: 'Advanced optimization of both buying and selling with profit margin analysis',
-        capabilities: ['Advanced optimization', 'Profit analysis', 'Full supply chain management']
+        description: 'Automatically sells finished parts when inventory is high',
+        capabilities: ['Auto-sell parts', 'Inventory monitoring']
       }
     };
     
@@ -234,5 +223,52 @@ export class StockControlSystem {
   getAvailablePersonnel(): string[] {
     const state = this.gameState.getState();
     return Array.from(state.unlockedStockControl);
+  }
+
+  // Remove quick configure option and automatically create rules for discovered resources
+  private createDefaultRules(resourceId: string): void {
+    const resource = this.gameState.getState().resources[resourceId];
+    if (!resource) return;
+
+    const ruleId = `auto_${resourceId}`;
+    const rule: StockControlRule = {
+      id: ruleId,
+      resourceId,
+      threshold: isMaterial(resourceId) ? 10 : 5,
+      action: isMaterial(resourceId) ? 'buy' : 'sell',
+      isEnabled: true,
+      managedBy: null
+    };
+    this.gameState.updateRule(ruleId, rule);
+  }
+
+  // Add a method to pause or stop trading for a resource
+  pauseRule(ruleId: string): void {
+    const rule = this.gameState.getState().stockControl.rules[ruleId];
+    if (rule) {
+      rule.isEnabled = false;
+      this.gameState.updateRule(ruleId, rule);
+    }
+  }
+
+  resumeRule(ruleId: string): void {
+    const rule = this.gameState.getState().stockControl.rules[ruleId];
+    if (rule) {
+      rule.isEnabled = true;
+      this.gameState.updateRule(ruleId, rule);
+    }
+  }
+
+  public initializeDefaultRulesForDiscoveredResources(): void {
+    const state = this.gameState.getState();
+    const discovered = state.uiState.discoveredResources;
+    Object.values(state.resources).forEach(resource => {
+      if (discovered.has(resource.id) && (isMaterial(resource.id) || isPart(resource.id))) {
+        const ruleId = `auto_${resource.id}`;
+        if (!state.stockControl.rules[ruleId]) {
+          this.createDefaultRules(resource.id);
+        }
+      }
+    });
   }
 }

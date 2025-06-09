@@ -71,42 +71,18 @@ export class DevMode {
 
     this.debugPanel = document.createElement('div');
     this.debugPanel.id = 'dev-panel';
+    this.debugPanel.className = 'dev-panel';
     this.debugPanel.innerHTML = `
-      <div class="dev-panel-header">
-        <h3>🔧 Dev Tools</h3>
-        <button id="dev-panel-toggle">−</button>
+      <h3>Dev Mode</h3>
+      <div class="dev-stats">
+        <div>Update Time: <span id="dev-update-time">0</span>ms</div>
+        <div>Render Time: <span id="dev-render-time">0</span>ms</div>
+        <div>FPS: <span id="dev-fps">0</span></div>
       </div>
-      <div class="dev-panel-content">
-        <div class="dev-section">
-          <h4>Quick Actions</h4>
-          <button id="dev-add-resources">Add Resources</button>
-          <button id="dev-add-money">Add 100 Marks</button>
-          <button id="dev-unlock-all">Unlock All</button>
-          <button id="dev-reset-ui">Reset UI State</button>
-        </div>
-        
-        <div class="dev-section">
-          <h4>Game State</h4>
-          <button id="dev-log-state">Log State</button>
-          <button id="dev-export-save">Export Save</button>
-          <button id="dev-import-save">Import Save</button>
-          <input type="file" id="dev-save-file" accept=".json" style="display: none;">
-        </div>
-        
-        <div class="dev-section">
-          <h4>Performance</h4>
-          <div id="dev-performance">
-            <div>FPS: <span id="dev-fps">--</span></div>
-            <div>Update Time: <span id="dev-update-time">--</span>ms</div>
-            <div>Render Time: <span id="dev-render-time">--</span>ms</div>
-          </div>
-        </div>
-        
-        <div class="dev-section">
-          <h4>Debug Log</h4>
-          <div id="dev-log" class="dev-log"></div>
-          <button id="dev-clear-log">Clear Log</button>
-        </div>
+      <div class="dev-controls">
+        <button id="dev-save">Save Game</button>
+        <button id="dev-load">Load Game</button>
+        <button id="dev-reset">Reset Game</button>
       </div>
     `;
 

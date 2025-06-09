@@ -2,6 +2,7 @@ export interface Resource {
   id: string;
   name: string;
   amount: number;
+  type: 'material' | 'part' | 'currency';
   description: string;
 }
 
@@ -83,11 +84,11 @@ export interface StockControlPersonnel {
 export interface StockControlRule {
   id: string;
   resourceId: string;
-  type: 'buy' | 'sell';
   threshold: number;
-  quantity: number;
+  action: 'buy' | 'sell';
   isEnabled: boolean;
-  managedBy: string; // personnel id
+  managedBy: string | null;
+  quantity?: number;
 }
 
 export interface MarketItem {
@@ -116,6 +117,7 @@ export interface UIResourceData {
   buyPrice?: number;
   sellPrice?: number;
   isDiscovered: boolean;
+  type: 'material' | 'part';  // New property to distinguish materials from parts
 }
 
 export interface UICraftingData {

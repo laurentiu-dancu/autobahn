@@ -98,31 +98,8 @@ export class UIRenderer {
           stockControlSystem.updateRule(ruleId, { ...rule, isEnabled: !rule.isEnabled });
         }
       },
-      deleteRule: (ruleId: string) => stockControlSystem.deleteRule(ruleId),
-      createQuickRules: (ruleType: string) => this.createQuickRules(stockControlSystem, ruleType)
+      deleteRule: (ruleId: string) => stockControlSystem.deleteRule(ruleId)
     };
-  }
-
-  private createQuickRules(stockControlSystem: StockControlSystem, ruleType: string): void {
-    const personnelData = this.uiDataProvider.getPersonnelData();
-    
-    if (ruleType === 'buy-materials') {
-      const procurementSpecialist = personnelData.active.find(p => p.type === 'procurement');
-      if (procurementSpecialist) {
-        const materials = ['wireStock', 'sheetMetal', 'leatherScraps', 'oil'];
-        materials.forEach(resourceId => {
-          stockControlSystem.createRule(resourceId, 'buy', 5, 5, procurementSpecialist.id);
-        });
-      }
-    } else if (ruleType === 'sell-products') {
-      const salesManager = personnelData.active.find(p => p.type === 'sales');
-      if (salesManager) {
-        const products = ['wireSprings', 'metalBrackets', 'leatherGaskets', 'springAssemblies', 'repairKits'];
-        products.forEach(resourceId => {
-          stockControlSystem.createRule(resourceId, 'sell', 10, 5, salesManager.id);
-        });
-      }
-    }
   }
 
   private setupEventListeners(): void {

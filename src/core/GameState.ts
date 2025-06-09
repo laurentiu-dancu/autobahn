@@ -1,19 +1,26 @@
-import { GameState, UINotification } from './types';
+import { GameState } from './types';
 import { INITIAL_RESOURCES } from '../config/resources';
 import { MILESTONES } from '../config/milestones';
 import { EventEmitter } from './EventEmitter';
 import { NotificationManager } from './NotificationManager';
+import { StockControlSystem } from './StockControlSystem';
+import { MarketSystem } from './MarketSystem';
 
 export class GameStateManager {
   private state: GameState;
   private saveKey = 'autobahn-save';
   private eventEmitter: EventEmitter;
   private notificationManager: NotificationManager;
+  private stockControlSystem: StockControlSystem;
 
   constructor() {
     this.eventEmitter = new EventEmitter();
     this.notificationManager = new NotificationManager();
     this.state = this.loadGame() || this.createNewGame();
+    // Initialize stock control system
+    this.stockControlSystem = new StockControlSystem(this, new MarketSystem(this));
+    // Ensure default rules are created for discovered resources
+    this.stockControlSystem.initializeDefaultRulesForDiscoveredResources();
   }
 
   getEventEmitter(): EventEmitter {
@@ -179,6 +186,10 @@ export class GameStateManager {
           milestoneName: milestone.name 
         });
         this.addNotification(`Milestone achieved: ${milestone.name}!`, 'success', 3000);
+        // If stock control is unlocked, initialize rules
+        if (milestone.id === 'marketExperience' || milestone.id === 'stockControlUnlocked') {
+          this.stockControlSystem.initializeDefaultRulesForDiscoveredResources();
+        }
       }
     });
     this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
