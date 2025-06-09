@@ -4,25 +4,25 @@ export const INITIAL_RESOURCES: Record<string, Resource> = {
   wireStock: {
     id: 'wireStock',
     name: 'Wire Stock',
-    amount: 5, // Hidden starter resource
+    amount: 0, // Start with 0
     description: 'Basic metal wire for springs and components'
   },
   sheetMetal: {
     id: 'sheetMetal',
     name: 'Sheet Metal',
-    amount: 3, // Hidden starter resource
+    amount: 0, // Start with 0
     description: 'Thin metal sheets for brackets'
   },
   leatherScraps: {
     id: 'leatherScraps',
     name: 'Leather Scraps',
-    amount: 2, // Hidden starter resource
+    amount: 0, // Start with 0
     description: 'Leather pieces for gaskets'
   },
   oil: {
     id: 'oil',
     name: 'Oil',
-    amount: 1, // Hidden starter resource
+    amount: 0, // Start with 0
     description: 'For lubrication and treatment'
   },
   wireSprings: {
@@ -58,7 +58,7 @@ export const INITIAL_RESOURCES: Record<string, Resource> = {
   marks: {
     id: 'marks',
     name: 'Marks',
-    amount: 0, // Start with no money to encourage immediate crafting
+    amount: 0, // Start with 0 marks
     description: 'Currency for trading'
   }
 };

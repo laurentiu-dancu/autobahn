@@ -40,8 +40,8 @@ export class GameStateManager {
       gameStartTime: Date.now(),
       lastSaveTime: Date.now(),
       uiState: {
-        discoveredResources: new Set(['marks']), // Always show marks
-        showMarket: false,
+        discoveredResources: new Set(['marks', 'wireStock', 'sheetMetal', 'leatherScraps', 'oil']), // Show salvageable resources from start
+        showMarket: true, // Market available from start
         showStockControl: false,
         panelStates: {}
       }
