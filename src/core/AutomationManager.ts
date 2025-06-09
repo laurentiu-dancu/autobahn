@@ -69,8 +69,11 @@ export class AutomationManager {
 
     if (!this.gameState.spendResources(upgradeCost)) return false;
 
-    machine.level++;
-    machine.productionRate = Math.max(0.5, machine.productionRate * 0.85); // 15% faster each level, minimum 50% of manual time (2x faster max)
+    const updates = {
+      level: machine.level + 1,
+      productionRate: Math.max(0.5, machine.productionRate * 0.85) // 15% faster each level, minimum 50% of manual time (2x faster max)
+    };
+    this.gameState.updateMachine(machineId, updates);
     return true;
   }
 
@@ -79,18 +82,17 @@ export class AutomationManager {
     const machine = state.machines[machineId];
     if (machine) {
       const wasActive = machine.isActive;
-      machine.isActive = !wasActive;
+      const updates: any = { isActive: !wasActive };
       
-      if (machine.isActive) {
+      if (!wasActive) {
         // Starting the machine - check if we have resources
         const recipe = RECIPES[machine.recipeId];
         if (recipe && this.gameState.canAfford(recipe.inputs)) {
-          machine.lastProduction = Date.now();
-          machine.status = 'running';
-          machine.statusMessage = undefined;
+          updates.lastProduction = Date.now();
+          updates.status = 'running';
+          updates.statusMessage = undefined;
         } else {
           // No resources available - set to waiting
-          machine.status = 'waiting_resources';
           const missingResources = recipe ? recipe.inputs
             .filter(input => {
               const available = state.resources[input.resourceId]?.amount || 0;
@@ -101,13 +103,16 @@ export class AutomationManager {
               const available = resource?.amount || 0;
               return `${resource?.name || input.resourceId} (need ${input.amount}, have ${Math.floor(available)})`;
             }) : [];
-          machine.statusMessage = missingResources.length > 0 ? `Waiting for: ${missingResources.join(', ')}` : 'Waiting for resources';
+          updates.status = 'waiting_resources';
+          updates.statusMessage = missingResources.length > 0 ? `Waiting for: ${missingResources.join(', ')}` : 'Waiting for resources';
         }
       } else {
         // Stopping the machine
-        machine.status = 'stopped';
-        machine.statusMessage = 'Manually stopped';
+        updates.status = 'stopped';
+        updates.statusMessage = 'Manually stopped';
       }
+      
+      this.gameState.updateMachine(machineId, updates);
     }
   }
 
@@ -116,10 +121,19 @@ export class AutomationManager {
     const now = Date.now();
 
     Object.values(state.machines).forEach(machine => {
+      let updates: any = {};
+      let hasUpdates = false;
+      
       // If machine is not active, ensure it's marked as stopped
       if (!machine.isActive) {
-        machine.status = 'stopped';
-        machine.statusMessage = 'Manually stopped';
+        if (machine.status !== 'stopped' || machine.statusMessage !== 'Manually stopped') {
+          updates.status = 'stopped';
+          updates.statusMessage = 'Manually stopped';
+          hasUpdates = true;
+        }
+        if (hasUpdates) {
+          this.gameState.updateMachine(machine.id, updates);
+        }
         return;
       }
 
@@ -140,9 +154,10 @@ export class AutomationManager {
             this.gameState.updateResource(output.resourceId, output.amount);
           });
 
-          machine.lastProduction = now;
-          machine.status = 'running';
-          machine.statusMessage = undefined;
+          updates.lastProduction = now;
+          updates.status = 'running';
+          updates.statusMessage = undefined;
+          hasUpdates = true;
           this.gameState.checkMilestones();
         } else {
           // Can't afford inputs - update status to waiting
@@ -157,24 +172,33 @@ export class AutomationManager {
               return `${resource?.name || input.resourceId} (need ${input.amount}, have ${Math.floor(available)})`;
             });
           
-          machine.status = 'waiting_resources';
-          machine.statusMessage = `Waiting for: ${missingResources.join(', ')}`;
+          if (machine.status !== 'waiting_resources') {
+            updates.status = 'waiting_resources';
+            updates.statusMessage = `Waiting for: ${missingResources.join(', ')}`;
+            hasUpdates = true;
+          }
         }
       } else {
         // Machine is still in production cycle
         if (machine.status === 'waiting_resources') {
           // Check if we now have resources available
           if (this.gameState.canAfford(recipe.inputs)) {
-            machine.status = 'running';
-            machine.statusMessage = undefined;
+            updates.status = 'running';
+            updates.statusMessage = undefined;
+            hasUpdates = true;
             // Reset production timer to start producing immediately
-            machine.lastProduction = now - productionTime;
+            updates.lastProduction = now - productionTime;
           }
         } else if (machine.status !== 'running' && machine.status !== 'waiting_resources') {
           // Ensure running machines are marked as running
-          machine.status = 'running';
-          machine.statusMessage = undefined;
+          updates.status = 'running';
+          updates.statusMessage = undefined;
+          hasUpdates = true;
         }
+      }
+      
+      if (hasUpdates) {
+        this.gameState.updateMachine(machine.id, updates);
       }
     });
   }

@@ -84,18 +84,14 @@ export class App {
     
     const updateTime = performance.now() - updateStart;
     
-    const renderStart = performance.now();
-    // Re-render UI
-    this.uiRenderer.render();
-    
-    const renderTime = performance.now() - renderStart;
-    
     // Update dev mode performance metrics
     if (this.devMode.isDevMode()) {
       const updateTimeElement = document.querySelector('#dev-update-time');
-      const renderTimeElement = document.querySelector('#dev-render-time');
       if (updateTimeElement) updateTimeElement.textContent = updateTime.toFixed(2);
-      if (renderTimeElement) renderTimeElement.textContent = renderTime.toFixed(2);
+      
+      // Render time is now handled by the event system, so we'll show 0 or remove this metric
+      const renderTimeElement = document.querySelector('#dev-render-time');
+      if (renderTimeElement) renderTimeElement.textContent = '0.00';
     }
   }
 

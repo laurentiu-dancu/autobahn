@@ -50,7 +50,7 @@ export class StockControlSystem {
       hiredAt: Date.now()
     };
     
-    state.stockControl.personnel[personnelId] = personnel;
+    this.gameState.updatePersonnel(personnelId, personnel);
     return true;
   }
 
@@ -60,17 +60,16 @@ export class StockControlSystem {
       // Disable all rules managed by this personnel
       Object.values(state.stockControl.rules).forEach(rule => {
         if (rule.managedBy === personnelId) {
-          rule.isEnabled = false;
+          this.updateRule(rule.id, { ...rule, isEnabled: false });
         }
       });
       
-      delete state.stockControl.personnel[personnelId];
+      this.gameState.removePersonnel(personnelId);
     }
   }
 
   // Rule Management
   createRule(resourceId: string, type: 'buy' | 'sell', threshold: number, quantity: number, managedBy: string): string {
-    const state = this.gameState.getState();
     const ruleId = `${type}_${resourceId}_${Date.now()}`;
     
     const rule: StockControlRule = {
@@ -83,7 +82,7 @@ export class StockControlSystem {
       managedBy
     };
     
-    state.stockControl.rules[ruleId] = rule;
+    this.gameState.updateRule(ruleId, rule);
     return ruleId;
   }
 
@@ -91,13 +90,13 @@ export class StockControlSystem {
     const state = this.gameState.getState();
     const rule = state.stockControl.rules[ruleId];
     if (rule) {
-      Object.assign(rule, updates);
+      const updatedRule = { ...rule, ...updates };
+      this.gameState.updateRule(ruleId, updatedRule);
     }
   }
 
   deleteRule(ruleId: string): void {
-    const state = this.gameState.getState();
-    delete state.stockControl.rules[ruleId];
+    this.gameState.removeRule(ruleId);
   }
 
   // System Updates
@@ -147,7 +146,7 @@ export class StockControlSystem {
       // Check if the personnel managing this rule is still active
       const personnel = state.stockControl.personnel[rule.managedBy];
       if (!personnel || !personnel.isActive) {
-        rule.isEnabled = false;
+        this.updateRule(rule.id, { ...rule, isEnabled: false });
         return;
       }
       

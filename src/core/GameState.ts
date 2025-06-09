@@ -1,13 +1,20 @@
 import { GameState } from './types';
 import { INITIAL_RESOURCES } from '../config/resources';
 import { MILESTONES } from '../config/milestones';
+import { EventEmitter } from './EventEmitter';
 
 export class GameStateManager {
   private state: GameState;
   private saveKey = 'autobahn-save';
+  private eventEmitter: EventEmitter;
 
   constructor() {
+    this.eventEmitter = new EventEmitter();
     this.state = this.loadGame() || this.createNewGame();
+  }
+
+  getEventEmitter(): EventEmitter {
+    return this.eventEmitter;
   }
 
   private createNewGame(): GameState {
@@ -46,6 +53,7 @@ export class GameStateManager {
       this.state.resources[resourceId].amount = Math.max(0, 
         this.state.resources[resourceId].amount + amount
       );
+      const newAmount = this.state.resources[resourceId].amount;
       
       // Track production
       if (amount > 0) {
@@ -55,7 +63,12 @@ export class GameStateManager {
       // Discover resource if we have it or just ran out
       if (this.state.resources[resourceId].amount > 0 || (oldAmount > 0 && this.state.resources[resourceId].amount === 0)) {
         this.state.uiState.discoveredResources.add(resourceId);
+        this.eventEmitter.emit('uiStateUpdated', { changes: ['discoveredResources'] });
       }
+      
+      // Emit resource updated event
+      this.eventEmitter.emit('resourceUpdated', { resourceId, oldAmount, newAmount });
+      this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
     }
   }
 
@@ -77,18 +90,23 @@ export class GameStateManager {
   recordSale(): void {
     this.state.totalSales++;
     this.state.totalMarketTransactions++;
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   recordPurchase(): void {
     this.state.totalMarketTransactions++;
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   addMachine(machineId: string, machine: any): void {
     this.state.machines[machineId] = { ...machine };
+    this.eventEmitter.emit('machineUpdated', { machineId, machine: this.state.machines[machineId] });
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   incrementClicks(): void {
     this.state.totalClicks++;
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   checkMilestones(): void {
@@ -96,9 +114,51 @@ export class GameStateManager {
       if (!milestone.completed && milestone.condition(this.state)) {
         milestone.completed = true;
         milestone.reward(this.state);
+        this.eventEmitter.emit('milestoneCompleted', { 
+          milestoneId: milestone.id, 
+          milestoneName: milestone.name 
+        });
         this.showNotification(`Milestone achieved: ${milestone.name}!`);
+        this.eventEmitter.emit('uiStateUpdated', { changes: ['milestones'] });
       }
     });
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+  }
+
+  updateMachine(machineId: string, updates: Partial<any>): void {
+    if (this.state.machines[machineId]) {
+      Object.assign(this.state.machines[machineId], updates);
+      this.eventEmitter.emit('machineUpdated', { machineId, machine: this.state.machines[machineId] });
+      this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+    }
+  }
+
+  updatePersonnel(personnelId: string, personnel: any): void {
+    this.state.stockControl.personnel[personnelId] = personnel;
+    this.eventEmitter.emit('personnelUpdated', { personnelId, personnel });
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+  }
+
+  removePersonnel(personnelId: string): void {
+    if (this.state.stockControl.personnel[personnelId]) {
+      delete this.state.stockControl.personnel[personnelId];
+      this.eventEmitter.emit('personnelUpdated', { personnelId, personnel: null });
+      this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+    }
+  }
+
+  updateRule(ruleId: string, rule: any): void {
+    this.state.stockControl.rules[ruleId] = rule;
+    this.eventEmitter.emit('ruleUpdated', { ruleId, rule });
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+  }
+
+  removeRule(ruleId: string): void {
+    if (this.state.stockControl.rules[ruleId]) {
+      delete this.state.stockControl.rules[ruleId];
+      this.eventEmitter.emit('ruleUpdated', { ruleId, rule: null });
+      this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
+    }
   }
 
   private showNotification(message: string): void {
@@ -126,6 +186,7 @@ export class GameStateManager {
       }
     };
     localStorage.setItem(this.saveKey, JSON.stringify(saveData));
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   private loadGame(): GameState | null {
@@ -176,5 +237,6 @@ export class GameStateManager {
     this.state = this.createNewGame();
     // Trigger a notification that the game was reset
     this.showNotification('Game reset successfully!');
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 }

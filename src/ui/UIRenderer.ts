@@ -8,6 +8,7 @@ import { CraftingPanel } from './components/CraftingPanel';
 import { MachinesPanel } from './components/MachinesPanel';
 import { MarketPanel } from './components/MarketPanel';
 import { StockControlPanel } from './components/StockControlPanel';
+import { EventEmitter } from '../core/EventEmitter';
 
 export class UIRenderer {
   private gameState: GameStateManager;
@@ -19,6 +20,7 @@ export class UIRenderer {
   private container: HTMLElement;
   private lastRenderState: string = '';
   private isInitialized: boolean = false;
+  private eventEmitter: EventEmitter;
 
   // UI Components
   private craftingPanel: CraftingPanel;
@@ -42,12 +44,40 @@ export class UIRenderer {
     this.salvageSystem = salvageSystem;
     this.stockControlSystem = stockControlSystem;
     this.container = container;
+    this.eventEmitter = gameState.getEventEmitter();
 
     // Initialize UI components
     this.craftingPanel = new CraftingPanel(gameState, craftingSystem, salvageSystem);
     this.machinesPanel = new MachinesPanel(gameState, automationManager);
     this.marketPanel = new MarketPanel(gameState, marketSystem);
     this.stockControlPanel = new StockControlPanel(gameState, stockControlSystem);
+    
+    this.setupEventListeners();
+  }
+
+  private setupEventListeners(): void {
+    // Listen to game state events and trigger UI updates
+    this.eventEmitter.on('gameStateUpdated', () => {
+      this.render();
+    });
+    
+    this.eventEmitter.on('resourceUpdated', () => {
+      this.updateDynamicElements();
+    });
+    
+    this.eventEmitter.on('machineUpdated', () => {
+      this.updateDynamicElements();
+    });
+    
+    this.eventEmitter.on('uiStateUpdated', () => {
+      // Force full render when UI state changes (new unlocks, etc.)
+      this.forceFullRender();
+    });
+    
+    this.eventEmitter.on('milestoneCompleted', (data) => {
+      // Force full render when milestones are completed as they might unlock new UI elements
+      this.forceFullRender();
+    });
   }
 
   forceFullRender(): void {
