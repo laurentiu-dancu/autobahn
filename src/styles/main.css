@@ -737,6 +737,7 @@ body {
   flex-direction: column;
   gap: 10px;
   max-width: 350px;
+  pointer-events: none;
 }
 
 .notification {
@@ -747,13 +748,16 @@ body {
   border-radius: 6px;
   border: 2px solid #2e7d32;
   font-weight: bold;
-  animation: slideIn 0.3s ease;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   overflow: hidden;
+  pointer-events: auto;
+  max-height: 200px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
 }
 
 .notification-content {
@@ -797,19 +801,11 @@ body {
   position: absolute;
   bottom: 0;
   left: 0;
-  height: 3px;
+  height: 4px;
   background: rgba(255, 255, 255, 0.3);
-  transition: width linear;
+  width: 100%;
   z-index: 1;
-}
-
-.notification-progress.animate {
-  animation: notificationProgress linear forwards;
-}
-
-@keyframes notificationProgress {
-  from { width: 100%; }
-  to { width: 0%; }
+  transition: width linear;
 }
 
 .notification-success {
@@ -830,17 +826,6 @@ body {
 .notification-info {
   background: linear-gradient(135deg, #1976d2 0%, #2196f3 100%);
   border-color: #1976d2;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
 }
 
 /* Responsive design */
