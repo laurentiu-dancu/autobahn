@@ -29,6 +29,7 @@ export class GameStateManager {
         rules: {},
         lastSalaryPayment: Date.now()
       },
+      // Start with only the three basic recipes
       unlockedRecipes: new Set(['bendWireSpring', 'fileMetalBracket', 'cutLeatherGasket']),
       unlockedMachines: new Set(),
       unlockedStockControl: new Set(),
@@ -172,7 +173,7 @@ export class GameStateManager {
     MILESTONES.forEach(milestone => {
       if (!this.state.completedMilestones.has(milestone.id) && milestone.condition(this.state)) {
         this.state.completedMilestones.add(milestone.id);
-        milestone.reward(this.state);
+        milestone.reward(this.state, this);
         this.eventEmitter.emit('milestoneCompleted', { 
           milestoneId: milestone.id, 
           milestoneName: milestone.name 
