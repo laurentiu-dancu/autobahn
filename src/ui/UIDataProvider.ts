@@ -229,7 +229,6 @@ export class UIDataProvider {
     return {
       showMarket: state.uiState.showMarket,
       showStockControl: state.uiState.showStockControl,
-      notifications: state.uiState.notifications,
       panelStates: state.uiState.panelStates,
       marksAmount: Math.floor(state.resources.marks.amount)
     };

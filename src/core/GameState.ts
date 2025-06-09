@@ -2,14 +2,17 @@ import { GameState, UINotification } from './types';
 import { INITIAL_RESOURCES } from '../config/resources';
 import { MILESTONES } from '../config/milestones';
 import { EventEmitter } from './EventEmitter';
+import { NotificationManager } from './NotificationManager';
 
 export class GameStateManager {
   private state: GameState;
   private saveKey = 'autobahn-save';
   private eventEmitter: EventEmitter;
+  private notificationManager: NotificationManager;
 
   constructor() {
     this.eventEmitter = new EventEmitter();
+    this.notificationManager = new NotificationManager();
     this.state = this.loadGame() || this.createNewGame();
   }
 
@@ -40,7 +43,6 @@ export class GameStateManager {
         discoveredResources: new Set(['marks']), // Always show marks
         showMarket: false,
         showStockControl: false,
-        notifications: [],
         panelStates: {}
       }
     };
@@ -67,26 +69,16 @@ export class GameStateManager {
     }
   }
 
-  addNotification(message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info', duration?: number): void {
-    const notification: UINotification = {
-      id: `notification_${Date.now()}_${Math.random()}`,
-      message,
-      type,
-      timestamp: Date.now(),
-      duration: duration || 5000 // Default to 5 seconds if not specified
-    };
-    
-    this.state.uiState.notifications.push(notification);
-    
-    // Don't auto-remove here - let the UI handle it with progress bars
-    // This allows for proper visual feedback and prevents race conditions
+  addNotification(message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info', duration: number = 5000): string {
+    return this.notificationManager.addNotification(message, type, duration);
   }
 
   removeNotification(notificationId: string): void {
-    const index = this.state.uiState.notifications.findIndex(n => n.id === notificationId);
-    if (index > -1) {
-      this.state.uiState.notifications.splice(index, 1);
-    }
+    this.notificationManager.removeNotification(notificationId);
+  }
+
+  getNotificationManager(): NotificationManager {
+    return this.notificationManager;
   }
 
   setPanelState(panelId: string, state: { expanded?: boolean; activeTab?: string }): void {
@@ -279,7 +271,6 @@ export class GameStateManager {
       uiState: {
         ...this.state.uiState,
         discoveredResources: Array.from(this.state.uiState.discoveredResources),
-        notifications: [] // Don't persist notifications
       }
     };
     localStorage.setItem(this.saveKey, JSON.stringify(saveData));
@@ -319,7 +310,6 @@ export class GameStateManager {
           discoveredResources: new Set(parsed.uiState?.discoveredResources || ['marks']),
           showMarket: parsed.uiState?.showMarket || false,
           showStockControl: parsed.uiState?.showStockControl || false,
-          notifications: [], // Always start with empty notifications
           panelStates: parsed.uiState?.panelStates || {}
         },
         totalProduced: parsed.totalProduced || {},

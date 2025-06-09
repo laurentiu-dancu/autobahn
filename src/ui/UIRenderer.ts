@@ -302,33 +302,7 @@ export class UIRenderer {
   }
   
   private startNotificationProgressAnimations(): void {
-    const state = this.gameState.getState();
-    
-    state.uiState.notifications.forEach(notification => {
-      if (notification.duration) {
-        const progressElement = this.container.querySelector(`[data-notification-progress="${notification.id}"]`) as HTMLElement;
-        if (progressElement) {
-          // Calculate remaining time
-          const elapsed = Date.now() - notification.timestamp;
-          const remaining = Math.max(0, notification.duration - elapsed);
-          
-          if (remaining > 0) {
-            // Set the animation duration to the remaining time
-            progressElement.style.animationDuration = `${remaining}ms`;
-            progressElement.classList.add('animate');
-            
-            // Auto-remove when animation completes
-            setTimeout(() => {
-              this.gameState.removeNotification(notification.id);
-              this.updateNotifications();
-            }, remaining);
-          } else {
-            // Notification should have already expired, remove it
-            this.gameState.removeNotification(notification.id);
-          }
-        }
-      }
-    });
+    // Notifications are now handled by NotificationManager
   }
   
   private updateNotifications(): void {

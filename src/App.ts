@@ -101,6 +101,10 @@ export class App {
 
   destroy(): void {
     this.devMode.log('Game shutting down...');
+    
+    // Clean up notification manager
+    this.gameState.getNotificationManager().destroy();
+    
     if (this.gameLoop) {
       clearInterval(this.gameLoop);
     }

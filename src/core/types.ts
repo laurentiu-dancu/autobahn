@@ -35,21 +35,12 @@ export interface UIState {
   showStockControl: boolean;
   // New UI state properties for better state management
   activePanel?: string;
-  notifications: UINotification[];
   panelStates: {
     [panelId: string]: {
       expanded: boolean;
       activeTab?: string;
     };
   };
-}
-
-export interface UINotification {
-  id: string;
-  message: string;
-  type: 'success' | 'warning' | 'error' | 'info';
-  timestamp: number;
-  duration?: number; // auto-dismiss after this many ms
 }
 
 export interface GameState {
