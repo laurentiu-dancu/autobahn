@@ -50,12 +50,17 @@ export class UIDataProvider {
       });
   }
 
-  // Crafting data for UI
-  getCraftingData(): UICraftingData[] {
+  // Crafting data for UI - organized by tier
+  getCraftingDataByTier(): {
+    basic: UICraftingData[],
+    advanced: UICraftingData[],
+    assembly: UICraftingData[],
+    automobile: UICraftingData[]
+  } {
     const state = this.gameState.getState();
     const recipes = this.craftingSystem.getAvailableRecipes();
     
-    return recipes.map(recipe => ({
+    const craftingData = recipes.map(recipe => ({
       recipeId: recipe.id,
       name: recipe.name,
       description: recipe.description,
@@ -63,6 +68,7 @@ export class UIDataProvider {
       isCrafting: this.craftingSystem.isCrafting(recipe.id),
       progress: this.craftingSystem.getCraftProgress(recipe.id),
       craftTime: recipe.craftTime,
+      tier: recipe.tier,
       inputs: recipe.inputs.map(input => {
         const resource = state.resources[input.resourceId];
         return {
@@ -81,6 +87,19 @@ export class UIDataProvider {
         };
       })
     }));
+
+    return {
+      basic: craftingData.filter(recipe => recipe.tier === 'basic'),
+      advanced: craftingData.filter(recipe => recipe.tier === 'advanced'),
+      assembly: craftingData.filter(recipe => recipe.tier === 'assembly'),
+      automobile: craftingData.filter(recipe => recipe.tier === 'automobile')
+    };
+  }
+
+  // Legacy method for backward compatibility
+  getCraftingData(): UICraftingData[] {
+    const tierData = this.getCraftingDataByTier();
+    return [...tierData.basic, ...tierData.advanced, ...tierData.assembly, ...tierData.automobile];
   }
 
   // Machine data for UI

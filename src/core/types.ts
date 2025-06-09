@@ -12,6 +12,7 @@ export interface Recipe {
   outputs: { resourceId: string; amount: number }[];
   craftTime: number; // in milliseconds
   description: string;
+  tier: 'basic' | 'advanced' | 'assembly' | 'automobile'; // New tier system
 }
 
 export interface Machine {
@@ -98,7 +99,7 @@ export interface Milestone {
   name: string;
   description: string;
   condition: (gameState: GameState) => boolean;
-  reward: (gameState: GameState) => void;
+  reward: (gameState: GameState, gameStateManager?: any) => void;
 }
 
 // UI Data interfaces for better type safety
@@ -122,6 +123,7 @@ export interface UICraftingData {
   isCrafting: boolean;
   progress: number;
   craftTime: number;
+  tier: 'basic' | 'advanced' | 'assembly' | 'automobile';
   inputs: { resourceId: string; name: string; amount: number; available: number }[];
   outputs: { resourceId: string; name: string; amount: number }[];
 }

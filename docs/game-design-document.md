@@ -1,8 +1,8 @@
-# Game Design Document: Autobahn (MVP)
+# Game Design Document: Autobahn (Supply Chain Expansion)
 
-**Title:** Autobahn (MVP)  
+**Title:** Autobahn (Supply Chain Expansion)  
 **Author:** Development Team  
-**Version:** 1.3 (Current Implementation)  
+**Version:** 2.0 (Supply Chain Update)  
 **Date:** January 2025  
 
 ---
@@ -10,351 +10,364 @@
 ## Table of Contents
 
 1. [Introduction](#1-introduction)
-   - 1.1. [Game Concept (MVP)](#11-game-concept-mvp)
+   - 1.1. [Game Concept (Expanded)](#11-game-concept-expanded)
    - 1.2. [Target Audience](#12-target-audience)
-   - 1.3. [Core Gameplay Loop (MVP)](#13-core-gameplay-loop-mvp)
-   - 1.4. [Theme & Setting (MVP)](#14-theme--setting-mvp)
+   - 1.3. [Core Gameplay Loop (Expanded)](#13-core-gameplay-loop-expanded)
+   - 1.4. [Theme & Setting](#14-theme--setting)
    - 1.5. [Anti-Softlock Design](#15-anti-softlock-design)
-2. [Core Mechanics (MVP)](#2-core-mechanics-mvp)
+2. [Core Mechanics (Expanded)](#2-core-mechanics-expanded)
    - 2.1. [Player Actions](#21-player-actions)
    - 2.2. [Resource Management](#22-resource-management)
-   - 2.3. [Automation Systems](#23-automation-systems)
-   - 2.4. [Progression Systems](#24-progression-systems)
+   - 2.3. [Crafting Systems](#23-crafting-systems)
+   - 2.4. [Automation Systems](#24-automation-systems)
    - 2.5. [Progressive Disclosure](#25-progressive-disclosure)
-3. [Game Systems (MVP)](#3-game-systems-mvp)
-   - 3.1. [Economy & Balancing](#31-economy--balancing)
-   - 3.2. [Milestone System](#32-milestone-system)
-   - 3.3. [Stock Control System](#33-stock-control-system)
-   - 3.4. [Notification System](#34-notification-system)
-4. [User Interface (UI) / User Experience (UX) (MVP)](#4-user-interface-ui--user-experience-ux-mvp)
-   - 4.1. [UI Philosophy](#41-ui-philosophy)
-   - 4.2. [Key Screens & Panels](#42-key-screens--panels)
-   - 4.3. [Visual & Audio Feedback](#43-visual--audio-feedback)
-   - 4.4. [Progressive UI Revelation](#44-progressive-ui-revelation)
-5. [Art & Audio (MVP)](#5-art--audio-mvp)
-   - 5.1. [Art Style](#51-art-style)
-   - 5.2. [Sound Design](#52-sound-design)
-6. [Technical Considerations (MVP)](#6-technical-considerations-mvp)
-   - 6.1. [Platform](#61-platform)
-   - 6.2. [Implementation & Architecture](#62-implementation--architecture)
+3. [Supply Chain Design](#3-supply-chain-design)
+   - 3.1. [Raw Materials](#31-raw-materials)
+   - 3.2. [Basic Components](#32-basic-components)
+   - 3.3. [Advanced Components](#33-advanced-components)
+   - 3.4. [Assembly Systems](#34-assembly-systems)
+   - 3.5. [Automobile Construction](#35-automobile-construction)
+4. [Game Systems](#4-game-systems)
+   - 4.1. [Economy & Balancing](#41-economy--balancing)
+   - 4.2. [Milestone System](#42-milestone-system)
+   - 4.3. [Stock Control System](#43-stock-control-system)
+   - 4.4. [Notification System](#44-notification-system)
+5. [User Interface (UI) / User Experience (UX)](#5-user-interface-ui--user-experience-ux)
+   - 5.1. [UI Philosophy](#51-ui-philosophy)
+   - 5.2. [Key Screens & Panels](#52-key-screens--panels)
+   - 5.3. [Visual & Audio Feedback](#53-visual--audio-feedback)
+   - 5.4. [Progressive UI Revelation](#54-progressive-ui-revelation)
+6. [Art & Audio](#6-art--audio)
+   - 6.1. [Art Style](#61-art-style)
+   - 6.2. [Sound Design](#62-sound-design)
+7. [Technical Considerations](#7-technical-considerations)
+   - 7.1. [Platform](#71-platform)
+   - 7.2. [Implementation & Architecture](#72-implementation--architecture)
 
 ---
 
 ## 1. Introduction
 
-### 1.1. Game Concept (MVP)
+### 1.1. Game Concept (Expanded)
 
-"Autobahn" (MVP) is a browser-based incremental idle game where players begin with no resources and must salvage materials from their garage workshop to manually craft basic automotive components. The game features a pure bootstrap approach: players start with zero resources but have immediate access to the "Salvage Materials" action and can see the market from the beginning, providing clear visibility into what materials can be found and their value.
+"Autobahn" is a browser-based incremental idle game where players begin with salvageable materials and progress through an increasingly complex supply chain to ultimately manufacture complete early 1900s automobiles. The game features a comprehensive crafting progression from basic materials through intermediate components to advanced assemblies, culminating in automobile production.
 
-The game emphasizes realistic early automobile manufacturing, beginning with the most basic components that a single person could reasonably produce and sell, progressing through automation and eventually sophisticated stock control systems.
+The game emphasizes realistic early automobile manufacturing, beginning with salvageable workshop materials and progressing through three distinct crafting tiers: Basic Crafting (simple components), Advanced Crafting (complex assemblies), and Automobile Construction (final vehicle assembly).
 
 ### 1.2. Target Audience
 
-Players who enjoy the core loop of incremental games: manual input leading to automation, resource management, and satisfying progression through efficiency gains. Fans of industrial and historical themes will particularly appreciate the early 20th century automobile manufacturing setting.
+Players who enjoy deep incremental progression, complex supply chain management, and industrial themes. The expanded crafting system appeals to players who appreciate intricate dependency trees and long-term progression goals.
 
-### 1.3. Core Gameplay Loop (MVP)
+### 1.3. Core Gameplay Loop (Expanded)
 
-Players start with zero resources but immediate access to salvage and market systems. The salvage action provides random basic materials that can be crafted into automotive parts and sold for profit. As the player progresses, automation becomes available, eventually leading to sophisticated stock control systems.
+**Extended Loop:** Salvage Materials → Basic Crafting → Advanced Crafting → Assembly Systems → Automobile Construction → Market Sales → Resource Accumulation → Automation → Stock Control
 
-**Core Loop:** Salvage Materials → Manual Crafting → Market Sales → Resource Accumulation → Automation → Stock Control
+The progression now spans multiple crafting tiers, each with increasing complexity and value, leading to the ultimate goal of automobile production.
 
-### 1.4. Theme & Setting (MVP)
+### 1.4. Theme & Setting
 
-The game is set in the very early 20th century (1900-1910), focusing on a garage-based automotive parts business. The player starts as an individual craftsperson with access to salvageable workshop materials, making simple automotive components that were commonly produced by small workshops and sold to early automobile manufacturers.
+Set in early 20th century (1900-1910) automotive manufacturing, focusing on the transition from simple workshop crafting to complex industrial assembly. Players experience the evolution from individual craftsperson to automobile manufacturer.
 
 ### 1.5. Anti-Softlock Design
 
-The "Salvage Materials" action serves as the primary anti-softlock mechanism. This action is always available, requires no resources, has no time cost, and provides one random basic raw material per click. This ensures players can always recover from any resource-depleted state and continue progressing, even when starting from zero.
+The "Salvage Materials" action remains the primary anti-softlock mechanism, providing access to basic raw materials. Market availability expands as recipes unlock, ensuring players can always acquire necessary materials for progression.
 
-## 2. Core Mechanics (MVP)
+## 2. Core Mechanics (Expanded)
 
 ### 2.1. Player Actions
 
-- **Salvage Materials (Primary Action):** Always-available action that provides one random basic raw material (Wire Stock, Sheet Metal, Leather Scraps, or Oil) per click. Serves as the fundamental anti-softlock mechanism and provides immediate player engagement from zero resources.
-
-- **Manual Crafting:** Transform materials into automotive components through timed crafting actions (1.5-8 seconds). Available recipes: Wire Springs, Metal Brackets, Leather Gaskets, Spring Assemblies, and Repair Kits.
-
-- **Integrated Market Trading:** Buy raw materials and sell finished products through inline market controls integrated directly into the resource display. Available from game start.
-
-- **Building & Upgrading:** Construct and improve automated machines within the workshop (Wire Bending Jig, Filing Station).
-
-- **Stock Control Management:** Hire personnel to manage automated buying and selling rules, reducing manual market interaction.
+- **Salvage Materials:** Always-available action providing random basic raw materials
+- **Basic Crafting:** Transform raw materials into simple components (1.5-8 seconds)
+- **Advanced Crafting:** Combine basic components into complex assemblies (10-30 seconds)
+- **Automobile Construction:** Assemble complete vehicles from major sub-assemblies (60-300 seconds)
+- **Integrated Market Trading:** Buy/sell materials and components
+- **Building & Upgrading:** Construct automated production machines
+- **Stock Control Management:** Automated trading and inventory management
 
 ### 2.2. Resource Management
 
-#### Basic Raw Materials:
-- **Wire Stock:** Basic metal wire for springs and small components (starting: 0, salvageable, visible from start)
-- **Sheet Metal:** Thin metal sheets for brackets and simple parts (starting: 0, salvageable, visible from start)
-- **Leather Scraps:** For gaskets and simple seals (starting: 0, salvageable, visible from start)
-- **Oil:** For lubrication and treatment (starting: 0, salvageable, visible from start)
+#### Salvageable Raw Materials:
+- **Wire Stock:** Basic metal wire (salvageable, market available)
+- **Sheet Metal:** Thin metal sheets (salvageable, market available)
+- **Leather Scraps:** For gaskets and upholstery (salvageable, market available)
+- **Oil:** For lubrication and rubber production (salvageable, market available)
 
-#### Basic Processed Components:
-- **Wire Springs:** Hand-bent springs for various automotive uses
-- **Metal Brackets:** Filed and shaped mounting brackets
-- **Leather Gaskets:** Cut gaskets for sealing
+#### Market-Only Raw Materials:
+- **Wood:** For body frames and interior components
+- **Rubber:** For tires and sealing (derived from oil processing)
+- **Glass:** For lights and gauges
+- **Lead:** For batteries and electrical components
+- **Fabric:** For upholstery and electrical insulation
+- **Coal:** For fuel and heat treatment processes
 
-#### Intermediate Parts:
-- **Spring Assemblies:** Multiple springs combined for suspension
-- **Automotive Repair Kits:** Complete sets of common replacement parts
+#### Basic Components (Basic Crafting):
+- **Wire Springs:** Hand-bent springs
+- **Metal Brackets:** Filed and shaped brackets
+- **Leather Gaskets:** Cut sealing gaskets
+- **Metal Rods:** Shaped structural components
+- **Rubber Tubing:** Processed rubber for fuel/electrical lines
+- **Glass Lenses:** Shaped glass for lights
+- **Fabric Strips:** Cut fabric for various uses
 
-#### Currency:
-- **Marks:** In-game currency earned from selling parts and used for purchasing materials and automation (starting: 0)
+#### Advanced Components (Advanced Crafting):
+- **Gears:** Precision-machined transmission components
+- **Bearings:** Smooth-running mechanical supports
+- **Spark Plugs:** Electrical ignition components
+- **Valves:** Flow control mechanisms
+- **Pistons:** Engine internal components
+- **Crankshafts:** Engine power transmission
+- **Clutch Plates:** Power engagement mechanisms
+- **Brake Shoes:** Stopping mechanism components
 
-### 2.3. Automation Systems
+#### Assembly Systems:
+- **Engine Assembly:** Complete power unit
+- **Transmission Assembly:** Power transfer system
+- **Chassis Assembly:** Vehicle foundation
+- **Body Assembly:** Vehicle shell and interior
+- **Wheel Assembly:** Complete wheel units
+- **Electrical System:** Wiring and components
+- **Fuel System:** Fuel storage and delivery
 
-#### Production Automation:
-- **Wire Bending Jig:** Automates wire spring production (2x slower than manual, upgradeable)
-- **Filing Station:** Automates bracket filing and shaping (2x slower than manual, upgradeable)
+#### Final Product:
+- **Automobile:** Complete early 1900s vehicle
 
-Each machine:
-- Has three states: Running (🟢), Waiting for Resources (🟡), Stopped (🔴)
-- Starts in stopped state when built
-- Can be manually started/stopped
-- Automatically transitions to "waiting for resources" when inputs are unavailable
-- Can be upgraded to improve efficiency (15% faster per level, max 2x faster than manual)
-- Shows real-time progress bars when running
+### 2.3. Crafting Systems
 
-#### Stock Control Systems:
-- **Material Procurement Specialist:** Automated purchasing of raw materials (€2/10s salary)
-- **Sales Manager:** Automated selling of finished products (€3/10s salary)
-- **Supply Chain Coordinator:** Advanced optimization of both buying and selling (€5/10s salary)
+#### Basic Crafting (1.5-8 seconds):
+Simple transformations of raw materials into basic components. Focuses on individual skill and hand tools.
 
-Personnel require ongoing salaries and will quit if unpaid, providing risk/reward balance.
+#### Advanced Crafting (10-30 seconds):
+Complex assembly of basic components into sophisticated parts requiring precision and multiple steps.
 
-### 2.4. Progression Systems
+#### Automobile Construction (60-300 seconds):
+Final assembly of major sub-systems into complete vehicles. Represents the pinnacle of manufacturing complexity.
 
-- **Milestone-Based Unlocks:** New crafting recipes, machines, and stock control options unlock based on production milestones and market activity.
-- **Part Complexity Tree:** More complex parts require simpler parts as components, creating natural progression.
-- **Stock Control Evolution:** Market automation systems unlock after demonstrating trading proficiency.
+### 2.4. Automation Systems
+
+Automation becomes available for each crafting tier as players progress:
+- **Basic Machines:** Automate simple component production
+- **Advanced Machines:** Handle complex assembly processes
+- **Assembly Lines:** Manage automobile construction workflows
 
 ### 2.5. Progressive Disclosure
 
-The game reveals systems and UI elements based on player progress:
-- **Salvage Materials** button and **Market** are immediately visible and functional
-- **Stock Control panels** unlock after reaching trading volume milestones
-- **Advanced automation** becomes available as production scales up
-- **Resources appear** in the UI when first discovered through crafting or when depleted to zero
+The game reveals crafting tiers and components based on player progress:
+- **Basic Crafting:** Available from start
+- **Advanced Crafting:** Unlocks after basic component milestones
+- **Automobile Construction:** Unlocks after advanced assembly milestones
 
-## 3. Game Systems (MVP)
+## 3. Supply Chain Design
 
-### 3.1. Economy & Balancing
+### 3.1. Raw Materials
 
-- **Zero-Start Economy:** Players begin with no resources, making the salvage action essential for bootstrapping the economy.
-- **Market Transparency:** Market prices and available materials are visible from the start, providing clear goals and value understanding.
-- **Profit Margins:** Balanced to make manual crafting profitable initially, with automation providing efficiency gains.
-- **Stock Control Economics:** Automated trading systems introduce ongoing costs that must be balanced against efficiency gains.
+#### Salvageable Materials (Always Available):
+- **Wire Stock** (€2): Basic metal wire for springs and electrical
+- **Sheet Metal** (€3): Thin metal for brackets and body panels
+- **Leather Scraps** (€1): For gaskets and upholstery
+- **Oil** (€4): For lubrication and rubber processing
 
-### 3.2. Milestone System
+#### Market Materials (Unlock with Recipes):
+- **Wood** (€5): Structural material for frames and interior
+- **Rubber** (€6): Processed material for tires and sealing
+- **Glass** (€8): Transparent material for lights and gauges
+- **Lead** (€10): Heavy metal for batteries and weights
+- **Fabric** (€3): Textile for upholstery and insulation
+- **Coal** (€2): Fuel for heat treatment and processing
 
-Current milestone progression:
-1. **First Wire Spring** → Unlocks Spring Assembly crafting
-2. **Spring Production (10 wire springs)** → Unlocks Wire Bending Jig
-3. **First Assembly** → Unlocks Repair Kit crafting + Filing Station
-4. **First Sale** → Market integration milestone (now redundant as market is available from start)
-5. **Market Experience (10 transactions)** → Unlocks basic stock control personnel
-6. **Basic Automation** → Unlocks advanced Supply Chain Coordinator
+### 3.2. Basic Components
 
-### 3.3. Stock Control System
+#### Wire-Based Components:
+- **Wire Springs** (2s): 1 Wire Stock → 1 Wire Springs (€3)
+- **Electrical Wire** (3s): 1 Wire Stock + 1 Rubber → 1 Electrical Wire (€8)
 
-**Implementation Overview:**
-The Stock Control System allows players to hire trading personnel who manage market transactions automatically based on configured rules. Personnel require ongoing salaries (paid every 10 seconds) and will quit if unpaid.
+#### Metal Components:
+- **Metal Brackets** (3s): 1 Sheet Metal → 1 Metal Brackets (€5)
+- **Metal Rods** (4s): 1 Sheet Metal → 1 Metal Rods (€6)
+- **Metal Plates** (5s): 2 Sheet Metal → 1 Metal Plates (€8)
 
-**Personnel Types:**
+#### Processed Materials:
+- **Leather Gaskets** (1.5s): 1 Leather Scraps → 1 Leather Gaskets (€2)
+- **Rubber Tubing** (4s): 1 Rubber → 1 Rubber Tubing (€8)
+- **Glass Lenses** (6s): 1 Glass → 1 Glass Lenses (€10)
+- **Fabric Strips** (2s): 1 Fabric → 2 Fabric Strips (€2 each)
 
-*Material Procurement Specialist:*
-- **Role:** Automatically purchases raw materials when inventory falls below thresholds
-- **Salary:** €2 per 10-second interval
-- **Hiring Cost:** €50 + first payment
-- **Capabilities:** Auto-buy raw materials, inventory monitoring
+#### Wood Components:
+- **Wood Planks** (3s): 1 Wood → 2 Wood Planks (€3 each)
+- **Wood Frames** (8s): 2 Wood Planks + 2 Metal Brackets → 1 Wood Frames (€15)
 
-*Sales Manager:*
-- **Role:** Automatically sells finished products when inventory exceeds thresholds
-- **Salary:** €3 per 10-second interval
-- **Hiring Cost:** €50 + first payment
-- **Capabilities:** Auto-sell products, inventory monitoring
+### 3.3. Advanced Components
 
-*Supply Chain Coordinator:*
-- **Role:** Advanced optimization of both buying and selling
-- **Salary:** €5 per 10-second interval
-- **Hiring Cost:** €100 + first payment
-- **Unlock:** Requires hiring both basic specialists first
-- **Capabilities:** Advanced optimization, profit analysis, full supply chain management
+#### Engine Components:
+- **Pistons** (15s): 2 Metal Rods + 1 Metal Plates → 1 Pistons (€25)
+- **Crankshaft** (20s): 3 Metal Rods + 2 Bearings → 1 Crankshaft (€40)
+- **Valves** (12s): 1 Metal Rods + 1 Wire Springs → 1 Valves (€15)
+- **Spark Plugs** (10s): 1 Metal Rods + 1 Electrical Wire → 1 Spark Plugs (€20)
 
-**Rule Management:**
-- Quick rule creation for common scenarios (auto-buy materials when < 5, auto-sell products when > 10)
-- Individual rule management with enable/disable toggles
-- Rules automatically disabled when managing personnel are fired
-- Rules execute every 5 seconds to prevent spam
+#### Transmission Components:
+- **Gears** (18s): 2 Metal Plates + 1 Coal → 1 Gears (€30)
+- **Bearings** (8s): 1 Metal Rods + 1 Oil → 1 Bearings (€12)
+- **Clutch Plates** (14s): 2 Metal Plates + 1 Fabric Strips → 1 Clutch Plates (€25)
 
-**Economic Mechanics:**
-- Salaries deducted every 10 seconds of real-time gameplay
-- Warning system when funds drop below 3 payment cycles
-- Automatic termination when funds reach zero
-- Rehiring requires full hiring cost again
+#### Chassis Components:
+- **Leaf Springs** (16s): 3 Wire Springs + 2 Metal Brackets → 1 Leaf Springs (€20)
+- **Axles** (22s): 2 Metal Rods + 2 Bearings → 1 Axles (€35)
+- **Brake Shoes** (10s): 1 Metal Plates + 1 Leather Gaskets → 1 Brake Shoes (€15)
 
-### 3.4. Notification System
+#### Body Components:
+- **Body Panels** (12s): 2 Metal Plates + 1 Metal Brackets → 1 Body Panels (€20)
+- **Seats** (18s): 1 Wood Frames + 2 Fabric Strips + 1 Leather Gaskets → 1 Seats (€25)
+- **Dashboard** (15s): 1 Wood Planks + 2 Glass Lenses → 1 Dashboard (€30)
 
-**Multi-Notification Support:**
-The notification system supports multiple simultaneous notifications without conflicts:
-- Each notification has a unique ID and independent lifecycle
-- Notifications stack vertically in the top-right corner
-- Support for different types: success, warning, error, info
+#### Electrical Components:
+- **Batteries** (25s): 2 Lead + 1 Rubber Tubing → 1 Batteries (€45)
+- **Headlights** (14s): 1 Glass Lenses + 1 Metal Brackets + 1 Electrical Wire → 1 Headlights (€35)
+- **Wiring Harness** (20s): 5 Electrical Wire + 2 Rubber Tubing → 1 Wiring Harness (€50)
 
-**Visual Features:**
-- Smooth slide-in animation from the right
-- Progress bar showing remaining time
-- Manual close button with hover effects
-- Smooth slide-out animation when dismissed or expired
-- Color-coded by notification type
+### 3.4. Assembly Systems
 
-**Technical Implementation:**
-- State-based notification management
-- Automatic cleanup after duration expires
-- Manual dismissal capability
-- No interference between multiple notifications
+#### Engine Assembly (45s):
+- **Inputs:** 4 Pistons + 1 Crankshaft + 8 Valves + 4 Spark Plugs + 2 Metal Plates
+- **Output:** 1 Engine Assembly (€200)
 
-## 4. User Interface (UI) / User Experience (UX) (MVP)
+#### Transmission Assembly (35s):
+- **Inputs:** 6 Gears + 4 Bearings + 2 Clutch Plates + 1 Metal Plates
+- **Output:** 1 Transmission Assembly (€150)
 
-### 4.1. UI Philosophy
+#### Chassis Assembly (40s):
+- **Inputs:** 1 Wood Frames + 2 Leaf Springs + 2 Axles + 4 Brake Shoes + 4 Metal Brackets
+- **Output:** 1 Chassis Assembly (€180)
 
-**Immediate Clarity:** The "Salvage Materials" button and market are immediately visible, showing players exactly what they can do and what materials are available.
+#### Body Assembly (30s):
+- **Inputs:** 6 Body Panels + 2 Seats + 1 Dashboard + 2 Wood Frames
+- **Output:** 1 Body Assembly (€160)
 
-**Integrated Market Controls:** Buy/sell buttons are integrated directly alongside resource displays, making market interaction fluid and contextual.
+#### Wheel Assembly (20s):
+- **Inputs:** 1 Metal Rods + 8 Wire Springs + 1 Rubber Tubing
+- **Output:** 1 Wheel Assembly (€25)
 
-**Progressive Revelation:** The UI starts with essential systems visible, with advanced panels appearing only when relevant.
+#### Electrical System (25s):
+- **Inputs:** 1 Batteries + 2 Headlights + 1 Wiring Harness + 2 Electrical Wire
+- **Output:** 1 Electrical System (€140)
 
-### 4.2. Key Screens & Panels
+#### Fuel System (15s):
+- **Inputs:** 1 Metal Plates + 2 Rubber Tubing + 1 Valves
+- **Output:** 1 Fuel System (€35)
 
-- **Main Workshop View:** Three-column layout with crafting, automation, and resources/market
-- **Integrated Resource & Market Panel:** Each resource displays quantity alongside inline buy/sell controls, visible from start
-- **Crafting Panel:** Shows salvage action prominently, followed by available recipes with progress bars
-- **Automation Panel:** Machine building, status monitoring, and upgrade options
-- **Stock Control Panel:** Personnel hiring, rule management, and cost monitoring
-- **Notification Area:** Top-right corner for system messages and feedback
+### 3.5. Automobile Construction
 
-### 4.3. Visual & Audio Feedback
+#### Complete Automobile (180s):
+- **Inputs:** 1 Engine Assembly + 1 Transmission Assembly + 1 Chassis Assembly + 1 Body Assembly + 4 Wheel Assembly + 1 Electrical System + 1 Fuel System
+- **Output:** 1 Automobile (€1000)
 
-- **Rich Notification System:** Multi-notification support with progress bars, animations, and type-specific styling
-- **Inline Market Feedback:** Immediate visual feedback for buy/sell actions
-- **Machine Status Indicators:** Color-coded status (🟢 Running, 🟡 Waiting, 🔴 Stopped) with detailed status messages
-- **Progress Indicators:** Real-time progress bars for crafting and machine production
-- **Stock Control Status:** Clear indicators showing active automation rules and personnel status
+## 4. Game Systems
 
-### 4.4. Progressive UI Revelation
+### 4.1. Economy & Balancing
 
-- **Salvage Materials** button and **Market** visible immediately
-- **Stock control options** unlock after trading milestones
-- **Advanced automation panels** appear as systems become available
-- **Resources appear** dynamically when discovered or depleted
+#### Pricing Strategy:
+- **Raw Materials:** €1-10 based on rarity and processing complexity
+- **Basic Components:** €2-15 with 20-50% markup over materials
+- **Advanced Components:** €12-50 with 30-60% markup over inputs
+- **Assemblies:** €25-200 with 40-70% markup over components
+- **Automobile:** €1000 with 50% markup over assemblies
 
-## 5. Art & Audio (MVP)
+#### Time Progression:
+- **Basic Crafting:** 1.5-8 seconds for immediate engagement
+- **Advanced Crafting:** 10-30 seconds for meaningful progression
+- **Assembly Systems:** 15-45 seconds for significant investment
+- **Automobile Construction:** 180 seconds for ultimate achievement
 
-### 5.1. Art Style
+### 4.2. Milestone System
 
-- **Text-Only Interface:** No images, icons, or graphics in MVP
-- **Typography:** Courier New monospace font for industrial feel
-- **Color Scheme:** Dark gradient background with blue/green accents and high contrast for readability
-- **Layout:** Clean, functional three-column grid layout emphasizing usability
-- **Notification Design:** Gradient backgrounds with smooth animations and progress indicators
+#### Expanded Milestone Progression:
+1. **First Wire Spring** → Unlocks Advanced Crafting tier
+2. **First Advanced Component** → Unlocks Assembly Systems
+3. **First Assembly** → Unlocks Automobile Construction
+4. **First Automobile** → Unlocks advanced automation
+5. **Production Milestones** → Unlock specialized machines and personnel
 
-### 5.2. Sound Design
+### 4.3. Stock Control System
 
-- **No Audio Assets:** Silent gameplay for MVP
-- **Visual Feedback:** All feedback provided through notifications, text messages, and visual indicators
+Enhanced to handle the complex supply chain with specialized personnel for different crafting tiers and assembly management.
 
-## 6. Technical Considerations (MVP)
+### 4.4. Notification System
 
-### 6.1. Platform
+Expanded to provide feedback on complex crafting chains and milestone achievements across all tiers.
 
-Browser-based game ensuring maximum accessibility across devices and operating systems.
+## 5. User Interface (UI) / User Experience (UX)
 
-### 6.2. Implementation & Architecture
+### 5.1. UI Philosophy
 
-- **Language:** TypeScript for type safety and maintainable code
-- **Build System:** Vite for fast development and efficient bundling
-- **Architecture:** Modular design with clear separation of concerns:
-  - `GameState.ts` - Central state management with progressive disclosure logic
-  - `CraftingSystem.ts` - Recipe and production logic with timed crafting
-  - `AutomationManager.ts` - Machine logic with status management
-  - `MarketSystem.ts` - Trading and economy logic with integrated controls
-  - `StockControlSystem.ts` - Automated trading and inventory management with personnel
-  - `SalvageSystem.ts` - Material salvaging mechanics
-  - `NotificationManager.ts` - Multi-notification system with animations and state management
-  - `UIRenderer.ts` - Progressive UI revelation with optimized rendering
-  - `UIDataProvider.ts` - Centralized data preparation for UI components
-  - `DevMode.ts` - Development tools and debugging features
-- **State Management:** Client-side state with localStorage persistence
-- **No Backend:** Fully client-side implementation for MVP
-- **Performance:** Optimized rendering with state change detection and dynamic element updates
-- **Event System:** Comprehensive event emitter for decoupled system communication
+**Tiered Complexity:** The UI reveals crafting tiers progressively, maintaining clarity while accommodating increased complexity.
 
----
+### 5.2. Key Screens & Panels
 
-## Current Implementation Status
+- **Basic Crafting Panel:** Simple component production
+- **Advanced Crafting Panel:** Complex component assembly
+- **Assembly Systems Panel:** Major sub-assembly construction
+- **Automobile Construction Panel:** Final vehicle assembly
+- **Enhanced Market Panel:** Expanded material and component trading
+- **Automation Panel:** Multi-tier machine management
+- **Stock Control Panel:** Complex supply chain automation
 
-### ✅ Fully Implemented
-1. **Zero-Start Bootstrap System** - Players start with 0 resources and must salvage to begin
-2. **Immediate Market Visibility** - Market and salvageable resources visible from game start
-3. **Multi-Notification System** - Robust notification system supporting multiple simultaneous notifications
-4. **Salvage Materials System** - Always-available resource generation with random material selection
-5. **Integrated Market Controls** - Inline buy/sell buttons with resource display
-6. **Core Crafting Mechanic** - Five recipes with timed crafting and progress bars
-7. **Progressive UI Disclosure** - Systems reveal as needed based on player progress
-8. **Basic Production Automation** - Two machines with status management and upgrades
-9. **Stock Control System** - Three personnel types with salary management and rule automation
-10. **Save/Load System** - LocalStorage persistence with backwards compatibility
-11. **Milestone System** - Six milestones driving progression
-12. **Dev Mode** - Comprehensive debugging tools with performance monitoring
-13. **Event-Driven Architecture** - Comprehensive event system for system communication
-14. **Modular UI Components** - Separated UI components with centralized data provider
+### 5.3. Visual & Audio Feedback
 
-### 🔧 Implementation Details
-- **Starting Resources:** All resources start at 0, requiring salvage to bootstrap economy
-- **Market Transparency:** Market visible from start with all salvageable resources shown
-- **Machine States:** Three-state system (Running/Waiting/Stopped) with intelligent state transitions
-- **Stock Control Timing:** Personnel salaries paid every 10 seconds, rules execute every 5 seconds
-- **UI Optimization:** State-based rendering with dynamic element updates for performance
-- **Notification System:** Multi-notification support with progress bars, animations, and type-specific styling
-- **Progressive Discovery:** Resources appear in UI when discovered through crafting or depletion
+Enhanced notification system for complex crafting chains and major milestone achievements.
 
----
+### 5.4. Progressive UI Revelation
 
-## Key Changes from Previous Version
+- **Basic Crafting:** Available from start
+- **Advanced Crafting:** Unlocks with first advanced component milestone
+- **Assembly Systems:** Unlocks with first assembly milestone
+- **Automobile Construction:** Unlocks with automobile construction milestone
 
-### Major System Updates:
-1. **Zero-Start Economy:** All resources now start at 0, making salvage essential for bootstrapping
-2. **Immediate Market Access:** Market and salvageable resources visible from game start for clarity
-3. **Robust Notification System:** Complete overhaul supporting multiple simultaneous notifications
-4. **Event-Driven Architecture:** Comprehensive event system for better system decoupling
-5. **Modular UI Architecture:** Separated UI components with centralized data provider
+## 6. Art & Audio
 
-### Technical Improvements:
-1. **Multi-Notification Support:** Independent notification lifecycles with animations and progress bars
-2. **Enhanced State Management:** Better event-driven state updates and UI synchronization
-3. **Improved UI Architecture:** Modular components with clear separation of concerns
-4. **Better Progressive Disclosure:** More intuitive revelation of game systems
-5. **Enhanced Dev Mode Integration:** Better debugging and development tools
+### 6.1. Art Style
 
-### Game Balance Changes:
-1. **Bootstrap Clarity:** Players immediately understand what they can salvage and its value
-2. **Reduced Confusion:** Market visibility eliminates guesswork about salvage rewards
-3. **Cleaner Progression:** Milestone system updated to reflect immediate market access
-4. **Better Feedback:** Rich notification system provides clear player feedback
+Maintains text-only interface with enhanced visual hierarchy for multiple crafting tiers.
+
+### 6.2. Sound Design
+
+Silent gameplay with visual feedback through enhanced notification system.
+
+## 7. Technical Considerations
+
+### 7.1. Platform
+
+Browser-based game ensuring accessibility across devices.
+
+### 7.2. Implementation & Architecture
+
+Enhanced modular design to accommodate:
+- **Expanded Recipe System:** Multiple crafting tiers with complex dependencies
+- **Enhanced UI Components:** Separate panels for each crafting tier
+- **Advanced Automation:** Multi-tier machine management
+- **Complex Supply Chain:** Enhanced stock control for intricate material flows
 
 ---
 
-## Future Considerations
+## Implementation Priority
 
-### Potential Enhancements:
-1. **Additional Crafting Recipes:** More complex automotive components
-2. **Advanced Automation:** More sophisticated machine types
-3. **Market Dynamics:** Price fluctuations and supply/demand mechanics
-4. **Research System:** Technology upgrades and efficiency improvements
-5. **Achievement System:** Additional progression tracking and rewards
+### Phase 1: Core Expansion
+1. **New Raw Materials:** Add market-only materials with unlock conditions
+2. **Basic Components:** Expand basic crafting with new recipes
+3. **UI Structure:** Create separate panels for crafting tiers
 
-### Technical Debt:
-1. **Performance Optimization:** Further rendering optimizations for larger game states
-2. **Save System Enhancement:** Versioning and migration system for save compatibility
-3. **Error Handling:** More robust error handling and recovery mechanisms
-4. **Accessibility:** Screen reader support and keyboard navigation
-5. **Mobile Optimization:** Touch-friendly interface improvements
+### Phase 2: Advanced Systems
+1. **Advanced Components:** Implement complex assembly recipes
+2. **Assembly Systems:** Create major sub-assembly crafting
+3. **Enhanced Automation:** Multi-tier machine support
+
+### Phase 3: Automobile Construction
+1. **Final Assembly:** Implement automobile construction system
+2. **Enhanced Milestones:** Complex progression tracking
+3. **Advanced Stock Control:** Supply chain automation
+
+### Phase 4: Polish & Balance
+1. **Economic Balancing:** Fine-tune pricing and timing
+2. **UI Enhancement:** Optimize user experience for complexity
+3. **Performance Optimization:** Handle increased game state complexity
+
+---
+
+This expanded design maintains the core appeal of the original game while adding significant depth and complexity through a comprehensive supply chain that culminates in automobile production. The tiered crafting system provides clear progression goals while the ultimate automobile construction offers a meaningful long-term objective.
