@@ -218,12 +218,19 @@ export class UIRenderer {
   }
 
   private renderNotifications(notifications: any[]): string {
-    return notifications.map(notification => `
+    if (notifications.length === 0) return '';
+    
+    const notificationElements = notifications.map(notification => `
       <div class="notification notification-${notification.type}" data-notification-id="${notification.id}">
-        <span class="notification-message">${notification.message}</span>
-        <button class="notification-close" data-close-notification="${notification.id}">×</button>
+        <div class="notification-content">
+          <span class="notification-message">${notification.message}</span>
+          <button class="notification-close" data-close-notification="${notification.id}">×</button>
+        </div>
+        ${notification.duration ? `<div class="notification-progress" data-notification-progress="${notification.id}"></div>` : ''}
       </div>
     `).join('');
+    
+    return `<div class="notifications-container">${notificationElements}</div>`;
   }
 
   private updateDynamicElements(): void {
@@ -285,13 +292,64 @@ export class UIRenderer {
         const notificationId = (e.target as HTMLElement).getAttribute('data-close-notification');
         if (notificationId) {
           this.gameState.removeNotification(notificationId);
-          // Remove the notification element immediately for better UX
-          const notificationElement = this.container.querySelector(`[data-notification-id="${notificationId}"]`);
-          if (notificationElement) {
-            notificationElement.remove();
-          }
+          this.updateNotifications();
         }
       });
     });
+    
+    // Start progress animations for notifications with duration
+    this.startNotificationProgressAnimations();
+  }
+  
+  private startNotificationProgressAnimations(): void {
+    const state = this.gameState.getState();
+    
+    state.uiState.notifications.forEach(notification => {
+      if (notification.duration) {
+        const progressElement = this.container.querySelector(`[data-notification-progress="${notification.id}"]`) as HTMLElement;
+        if (progressElement) {
+          // Calculate remaining time
+          const elapsed = Date.now() - notification.timestamp;
+          const remaining = Math.max(0, notification.duration - elapsed);
+          
+          if (remaining > 0) {
+            // Set the animation duration to the remaining time
+            progressElement.style.animationDuration = `${remaining}ms`;
+            progressElement.classList.add('animate');
+            
+            // Auto-remove when animation completes
+            setTimeout(() => {
+              this.gameState.removeNotification(notification.id);
+              this.updateNotifications();
+            }, remaining);
+          } else {
+            // Notification should have already expired, remove it
+            this.gameState.removeNotification(notification.id);
+          }
+        }
+      }
+    });
+  }
+  
+  private updateNotifications(): void {
+    const notificationsContainer = this.container.querySelector('.notifications-container');
+    if (notificationsContainer) {
+      const uiState = this.uiDataProvider.getUIStateData();
+      notificationsContainer.innerHTML = this.renderNotifications(uiState.notifications).replace('<div class="notifications-container">', '').replace('</div>', '');
+      
+      // Re-attach event listeners for new notifications
+      notificationsContainer.querySelectorAll('[data-close-notification]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const notificationId = (e.target as HTMLElement).getAttribute('data-close-notification');
+          if (notificationId) {
+            this.gameState.removeNotification(notificationId);
+            this.updateNotifications();
+          }
+        });
+      });
+      
+      // Start progress animations for new notifications
+      this.startNotificationProgressAnimations();
+    }
   }
 }
