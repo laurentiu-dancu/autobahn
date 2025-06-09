@@ -2,7 +2,7 @@
 
 **Title:** Autobahn (MVP)  
 **Author:** Development Team  
-**Version:** 1.2 (Current Implementation)  
+**Version:** 1.3 (Current Implementation)  
 **Date:** January 2025  
 
 ---
@@ -25,6 +25,7 @@
    - 3.1. [Economy & Balancing](#31-economy--balancing)
    - 3.2. [Milestone System](#32-milestone-system)
    - 3.3. [Stock Control System](#33-stock-control-system)
+   - 3.4. [Notification System](#34-notification-system)
 4. [User Interface (UI) / User Experience (UX) (MVP)](#4-user-interface-ui--user-experience-ux-mvp)
    - 4.1. [UI Philosophy](#41-ui-philosophy)
    - 4.2. [Key Screens & Panels](#42-key-screens--panels)
@@ -43,7 +44,7 @@
 
 ### 1.1. Game Concept (MVP)
 
-"Autobahn" (MVP) is a browser-based incremental idle game where players begin by salvaging materials from their garage workshop and manually crafting basic automotive components. The game features a hybrid starting approach: players begin with small amounts of basic materials (Wire Stock, Sheet Metal, Leather Scraps, Oil) but can always generate more through the "Salvage Materials" action. This ensures immediate engagement while providing a reliable fallback mechanism.
+"Autobahn" (MVP) is a browser-based incremental idle game where players begin with no resources and must salvage materials from their garage workshop to manually craft basic automotive components. The game features a pure bootstrap approach: players start with zero resources but have immediate access to the "Salvage Materials" action and can see the market from the beginning, providing clear visibility into what materials can be found and their value.
 
 The game emphasizes realistic early automobile manufacturing, beginning with the most basic components that a single person could reasonably produce and sell, progressing through automation and eventually sophisticated stock control systems.
 
@@ -53,27 +54,27 @@ Players who enjoy the core loop of incremental games: manual input leading to au
 
 ### 1.3. Core Gameplay Loop (MVP)
 
-Players start with small amounts of basic materials and an always-available "Salvage Materials" action. These materials can be crafted into simple automotive parts and sold for profit. As the player progresses, market systems are revealed and automation becomes available, eventually leading to sophisticated stock control systems.
+Players start with zero resources but immediate access to salvage and market systems. The salvage action provides random basic materials that can be crafted into automotive parts and sold for profit. As the player progresses, automation becomes available, eventually leading to sophisticated stock control systems.
 
 **Core Loop:** Salvage Materials → Manual Crafting → Market Sales → Resource Accumulation → Automation → Stock Control
 
 ### 1.4. Theme & Setting (MVP)
 
-The game is set in the very early 20th century (1900-1910), focusing on a garage-based automotive parts business. The player starts as an individual craftsperson with basic materials and the ability to salvage more from their workshop, making simple automotive components that were commonly produced by small workshops and sold to early automobile manufacturers.
+The game is set in the very early 20th century (1900-1910), focusing on a garage-based automotive parts business. The player starts as an individual craftsperson with access to salvageable workshop materials, making simple automotive components that were commonly produced by small workshops and sold to early automobile manufacturers.
 
 ### 1.5. Anti-Softlock Design
 
-The "Salvage Materials" action serves as the primary anti-softlock mechanism. This action is always available, requires no resources, has no time cost, and provides one random basic raw material per click. Combined with the starting materials, this ensures players can always recover from any resource-depleted state and continue progressing.
+The "Salvage Materials" action serves as the primary anti-softlock mechanism. This action is always available, requires no resources, has no time cost, and provides one random basic raw material per click. This ensures players can always recover from any resource-depleted state and continue progressing, even when starting from zero.
 
 ## 2. Core Mechanics (MVP)
 
 ### 2.1. Player Actions
 
-- **Salvage Materials (Primary Action):** Always-available action that provides one random basic raw material (Wire Stock, Sheet Metal, Leather Scraps, or Oil) per click. Serves as the fundamental anti-softlock mechanism and provides immediate player engagement.
+- **Salvage Materials (Primary Action):** Always-available action that provides one random basic raw material (Wire Stock, Sheet Metal, Leather Scraps, or Oil) per click. Serves as the fundamental anti-softlock mechanism and provides immediate player engagement from zero resources.
 
 - **Manual Crafting:** Transform materials into automotive components through timed crafting actions (1.5-8 seconds). Available recipes: Wire Springs, Metal Brackets, Leather Gaskets, Spring Assemblies, and Repair Kits.
 
-- **Integrated Market Trading:** Buy raw materials and sell finished products through inline market controls integrated directly into the resource display.
+- **Integrated Market Trading:** Buy raw materials and sell finished products through inline market controls integrated directly into the resource display. Available from game start.
 
 - **Building & Upgrading:** Construct and improve automated machines within the workshop (Wire Bending Jig, Filing Station).
 
@@ -82,10 +83,10 @@ The "Salvage Materials" action serves as the primary anti-softlock mechanism. Th
 ### 2.2. Resource Management
 
 #### Basic Raw Materials:
-- **Wire Stock:** Basic metal wire for springs and small components (starting: 5, salvageable)
-- **Sheet Metal:** Thin metal sheets for brackets and simple parts (starting: 3, salvageable)
-- **Leather Scraps:** For gaskets and simple seals (starting: 2, salvageable)
-- **Oil:** For lubrication and treatment (starting: 1, salvageable)
+- **Wire Stock:** Basic metal wire for springs and small components (starting: 0, salvageable, visible from start)
+- **Sheet Metal:** Thin metal sheets for brackets and simple parts (starting: 0, salvageable, visible from start)
+- **Leather Scraps:** For gaskets and simple seals (starting: 0, salvageable, visible from start)
+- **Oil:** For lubrication and treatment (starting: 0, salvageable, visible from start)
 
 #### Basic Processed Components:
 - **Wire Springs:** Hand-bent springs for various automotive uses
@@ -128,28 +129,28 @@ Personnel require ongoing salaries and will quit if unpaid, providing risk/rewar
 
 ### 2.5. Progressive Disclosure
 
-The game reveals systems and UI elements only when they become relevant:
-- **Salvage Materials** button is immediately visible and functional
-- **Market controls** appear inline with resources after first craft
+The game reveals systems and UI elements based on player progress:
+- **Salvage Materials** button and **Market** are immediately visible and functional
 - **Stock Control panels** unlock after reaching trading volume milestones
 - **Advanced automation** becomes available as production scales up
+- **Resources appear** in the UI when first discovered through crafting or when depleted to zero
 
 ## 3. Game Systems (MVP)
 
 ### 3.1. Economy & Balancing
 
-- **Baseline Resource Generation:** The "Salvage Materials" action provides constant, slow baseline resource generation, ensuring recovery from any depleted state.
-- **Market Integration:** Inline buy/sell controls integrated directly into resource display make trading fluid and immediate.
+- **Zero-Start Economy:** Players begin with no resources, making the salvage action essential for bootstrapping the economy.
+- **Market Transparency:** Market prices and available materials are visible from the start, providing clear goals and value understanding.
 - **Profit Margins:** Balanced to make manual crafting profitable initially, with automation providing efficiency gains.
 - **Stock Control Economics:** Automated trading systems introduce ongoing costs that must be balanced against efficiency gains.
 
 ### 3.2. Milestone System
 
 Current milestone progression:
-1. **First Wire Spring** → Unlocks Spring Assembly crafting + Market visibility
+1. **First Wire Spring** → Unlocks Spring Assembly crafting
 2. **Spring Production (10 wire springs)** → Unlocks Wire Bending Jig
 3. **First Assembly** → Unlocks Repair Kit crafting + Filing Station
-4. **First Sale** → Market integration milestone
+4. **First Sale** → Market integration milestone (now redundant as market is available from start)
 5. **Market Experience (10 transactions)** → Unlocks basic stock control personnel
 6. **Basic Automation** → Unlocks advanced Supply Chain Coordinator
 
@@ -191,27 +192,49 @@ The Stock Control System allows players to hire trading personnel who manage mar
 - Automatic termination when funds reach zero
 - Rehiring requires full hiring cost again
 
+### 3.4. Notification System
+
+**Multi-Notification Support:**
+The notification system supports multiple simultaneous notifications without conflicts:
+- Each notification has a unique ID and independent lifecycle
+- Notifications stack vertically in the top-right corner
+- Support for different types: success, warning, error, info
+
+**Visual Features:**
+- Smooth slide-in animation from the right
+- Progress bar showing remaining time
+- Manual close button with hover effects
+- Smooth slide-out animation when dismissed or expired
+- Color-coded by notification type
+
+**Technical Implementation:**
+- State-based notification management
+- Automatic cleanup after duration expires
+- Manual dismissal capability
+- No interference between multiple notifications
+
 ## 4. User Interface (UI) / User Experience (UX) (MVP)
 
 ### 4.1. UI Philosophy
 
-**Immediate Engagement:** The "Salvage Materials" button is prominently displayed and immediately clickable, providing instant feedback and resource generation.
+**Immediate Clarity:** The "Salvage Materials" button and market are immediately visible, showing players exactly what they can do and what materials are available.
 
 **Integrated Market Controls:** Buy/sell buttons are integrated directly alongside resource displays, making market interaction fluid and contextual.
 
-**Progressive Revelation:** The UI starts simple, showing only what the player can immediately use, with new panels appearing only when relevant.
+**Progressive Revelation:** The UI starts with essential systems visible, with advanced panels appearing only when relevant.
 
 ### 4.2. Key Screens & Panels
 
 - **Main Workshop View:** Three-column layout with crafting, automation, and resources/market
-- **Integrated Resource & Market Panel:** Each resource displays quantity alongside inline buy/sell controls
+- **Integrated Resource & Market Panel:** Each resource displays quantity alongside inline buy/sell controls, visible from start
 - **Crafting Panel:** Shows salvage action prominently, followed by available recipes with progress bars
 - **Automation Panel:** Machine building, status monitoring, and upgrade options
 - **Stock Control Panel:** Personnel hiring, rule management, and cost monitoring
+- **Notification Area:** Top-right corner for system messages and feedback
 
 ### 4.3. Visual & Audio Feedback
 
-- **Text-Based Feedback:** Clear messages for successful actions, resource changes, and milestones
+- **Rich Notification System:** Multi-notification support with progress bars, animations, and type-specific styling
 - **Inline Market Feedback:** Immediate visual feedback for buy/sell actions
 - **Machine Status Indicators:** Color-coded status (🟢 Running, 🟡 Waiting, 🔴 Stopped) with detailed status messages
 - **Progress Indicators:** Real-time progress bars for crafting and machine production
@@ -219,10 +242,10 @@ The Stock Control System allows players to hire trading personnel who manage mar
 
 ### 4.4. Progressive UI Revelation
 
-- **Salvage Materials** button visible immediately
-- **Market controls** appear after first craft
+- **Salvage Materials** button and **Market** visible immediately
 - **Stock control options** unlock after trading milestones
 - **Advanced automation panels** appear as systems become available
+- **Resources appear** dynamically when discovered or depleted
 
 ## 5. Art & Audio (MVP)
 
@@ -230,13 +253,14 @@ The Stock Control System allows players to hire trading personnel who manage mar
 
 - **Text-Only Interface:** No images, icons, or graphics in MVP
 - **Typography:** Courier New monospace font for industrial feel
-- **Color Scheme:** Brown/orange industrial theme with high contrast for readability
+- **Color Scheme:** Dark gradient background with blue/green accents and high contrast for readability
 - **Layout:** Clean, functional three-column grid layout emphasizing usability
+- **Notification Design:** Gradient backgrounds with smooth animations and progress indicators
 
 ### 5.2. Sound Design
 
 - **No Audio Assets:** Silent gameplay for MVP
-- **Text Feedback:** All feedback provided through clear text messages and visual indicators
+- **Visual Feedback:** All feedback provided through notifications, text messages, and visual indicators
 
 ## 6. Technical Considerations (MVP)
 
@@ -255,47 +279,82 @@ Browser-based game ensuring maximum accessibility across devices and operating s
   - `MarketSystem.ts` - Trading and economy logic with integrated controls
   - `StockControlSystem.ts` - Automated trading and inventory management with personnel
   - `SalvageSystem.ts` - Material salvaging mechanics
+  - `NotificationManager.ts` - Multi-notification system with animations and state management
   - `UIRenderer.ts` - Progressive UI revelation with optimized rendering
+  - `UIDataProvider.ts` - Centralized data preparation for UI components
   - `DevMode.ts` - Development tools and debugging features
 - **State Management:** Client-side state with localStorage persistence
 - **No Backend:** Fully client-side implementation for MVP
 - **Performance:** Optimized rendering with state change detection and dynamic element updates
+- **Event System:** Comprehensive event emitter for decoupled system communication
 
 ---
 
 ## Current Implementation Status
 
 ### ✅ Fully Implemented
-1. **Salvage Materials System** - Always-available resource generation with random material selection
-2. **Integrated Market Controls** - Inline buy/sell buttons with resource display
-3. **Core Crafting Mechanic** - Five recipes with timed crafting and progress bars
-4. **Progressive UI Disclosure** - Systems reveal as needed based on player progress
-5. **Basic Production Automation** - Two machines with status management and upgrades
-6. **Stock Control System** - Three personnel types with salary management and rule automation
-7. **Save/Load System** - LocalStorage persistence with backwards compatibility
-8. **Milestone System** - Six milestones driving progression
-9. **Dev Mode** - Comprehensive debugging tools with performance monitoring
+1. **Zero-Start Bootstrap System** - Players start with 0 resources and must salvage to begin
+2. **Immediate Market Visibility** - Market and salvageable resources visible from game start
+3. **Multi-Notification System** - Robust notification system supporting multiple simultaneous notifications
+4. **Salvage Materials System** - Always-available resource generation with random material selection
+5. **Integrated Market Controls** - Inline buy/sell buttons with resource display
+6. **Core Crafting Mechanic** - Five recipes with timed crafting and progress bars
+7. **Progressive UI Disclosure** - Systems reveal as needed based on player progress
+8. **Basic Production Automation** - Two machines with status management and upgrades
+9. **Stock Control System** - Three personnel types with salary management and rule automation
+10. **Save/Load System** - LocalStorage persistence with backwards compatibility
+11. **Milestone System** - Six milestones driving progression
+12. **Dev Mode** - Comprehensive debugging tools with performance monitoring
+13. **Event-Driven Architecture** - Comprehensive event system for system communication
+14. **Modular UI Components** - Separated UI components with centralized data provider
 
 ### 🔧 Implementation Details
-- **Starting Resources:** Players begin with small amounts of basic materials (5 Wire Stock, 3 Sheet Metal, 2 Leather Scraps, 1 Oil, 0 Marks)
+- **Starting Resources:** All resources start at 0, requiring salvage to bootstrap economy
+- **Market Transparency:** Market visible from start with all salvageable resources shown
 - **Machine States:** Three-state system (Running/Waiting/Stopped) with intelligent state transitions
 - **Stock Control Timing:** Personnel salaries paid every 10 seconds, rules execute every 5 seconds
 - **UI Optimization:** State-based rendering with dynamic element updates for performance
-- **Progressive Discovery:** Resources appear in UI only when discovered through crafting or depletion
+- **Notification System:** Multi-notification support with progress bars, animations, and type-specific styling
+- **Progressive Discovery:** Resources appear in UI when discovered through crafting or depletion
 
 ---
 
 ## Key Changes from Previous Version
 
-### Updated Systems:
-1. **Starting Resources:** Clarified hybrid approach with both starting materials and salvage action
-2. **Machine Status System:** Implemented three-state system with intelligent transitions
-3. **Stock Control Implementation:** Detailed personnel system with salary mechanics
-4. **UI Architecture:** Optimized rendering system with state change detection
-5. **Milestone Progression:** Documented actual milestone conditions and rewards
+### Major System Updates:
+1. **Zero-Start Economy:** All resources now start at 0, making salvage essential for bootstrapping
+2. **Immediate Market Access:** Market and salvageable resources visible from game start for clarity
+3. **Robust Notification System:** Complete overhaul supporting multiple simultaneous notifications
+4. **Event-Driven Architecture:** Comprehensive event system for better system decoupling
+5. **Modular UI Architecture:** Separated UI components with centralized data provider
 
 ### Technical Improvements:
-1. **Performance Optimization:** Efficient rendering with minimal DOM manipulation
-2. **State Management:** Robust save/load with backwards compatibility
-3. **Dev Mode Integration:** Comprehensive debugging and development tools
-4. **Modular Architecture:** Clean separation of concerns across all systems
+1. **Multi-Notification Support:** Independent notification lifecycles with animations and progress bars
+2. **Enhanced State Management:** Better event-driven state updates and UI synchronization
+3. **Improved UI Architecture:** Modular components with clear separation of concerns
+4. **Better Progressive Disclosure:** More intuitive revelation of game systems
+5. **Enhanced Dev Mode Integration:** Better debugging and development tools
+
+### Game Balance Changes:
+1. **Bootstrap Clarity:** Players immediately understand what they can salvage and its value
+2. **Reduced Confusion:** Market visibility eliminates guesswork about salvage rewards
+3. **Cleaner Progression:** Milestone system updated to reflect immediate market access
+4. **Better Feedback:** Rich notification system provides clear player feedback
+
+---
+
+## Future Considerations
+
+### Potential Enhancements:
+1. **Additional Crafting Recipes:** More complex automotive components
+2. **Advanced Automation:** More sophisticated machine types
+3. **Market Dynamics:** Price fluctuations and supply/demand mechanics
+4. **Research System:** Technology upgrades and efficiency improvements
+5. **Achievement System:** Additional progression tracking and rewards
+
+### Technical Debt:
+1. **Performance Optimization:** Further rendering optimizations for larger game states
+2. **Save System Enhancement:** Versioning and migration system for save compatibility
+3. **Error Handling:** More robust error handling and recovery mechanisms
+4. **Accessibility:** Screen reader support and keyboard navigation
+5. **Mobile Optimization:** Touch-friendly interface improvements
