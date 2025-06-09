@@ -209,28 +209,10 @@ export class UIRenderer {
             ${this.marketPanel.render(this.uiDataProvider.getResourcesData(), uiState.showMarket)}
           </div>
         </div>
-        
-        ${this.renderNotifications(uiState.notifications)}
       </div>
     `;
 
     this.attachEventListeners();
-  }
-
-  private renderNotifications(notifications: any[]): string {
-    if (notifications.length === 0) return '';
-    
-    const notificationElements = notifications.map(notification => `
-      <div class="notification notification-${notification.type}" data-notification-id="${notification.id}">
-        <div class="notification-content">
-          <span class="notification-message">${notification.message}</span>
-          <button class="notification-close" data-close-notification="${notification.id}">×</button>
-        </div>
-        ${notification.duration ? `<div class="notification-progress" data-notification-progress="${notification.id}"></div>` : ''}
-      </div>
-    `).join('');
-    
-    return `<div class="notifications-container">${notificationElements}</div>`;
   }
 
   private updateDynamicElements(): void {
@@ -285,45 +267,5 @@ export class UIRenderer {
         this.forceFullRender();
       }
     });
-
-    // Notification close buttons
-    this.container.querySelectorAll('[data-close-notification]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const notificationId = (e.target as HTMLElement).getAttribute('data-close-notification');
-        if (notificationId) {
-          this.gameState.removeNotification(notificationId);
-          this.updateNotifications();
-        }
-      });
-    });
-    
-    // Start progress animations for notifications with duration
-    this.startNotificationProgressAnimations();
-  }
-  
-  private startNotificationProgressAnimations(): void {
-    // Notifications are now handled by NotificationManager
-  }
-  
-  private updateNotifications(): void {
-    const notificationsContainer = this.container.querySelector('.notifications-container');
-    if (notificationsContainer) {
-      const uiState = this.uiDataProvider.getUIStateData();
-      notificationsContainer.innerHTML = this.renderNotifications(uiState.notifications).replace('<div class="notifications-container">', '').replace('</div>', '');
-      
-      // Re-attach event listeners for new notifications
-      notificationsContainer.querySelectorAll('[data-close-notification]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const notificationId = (e.target as HTMLElement).getAttribute('data-close-notification');
-          if (notificationId) {
-            this.gameState.removeNotification(notificationId);
-            this.updateNotifications();
-          }
-        });
-      });
-      
-      // Start progress animations for new notifications
-      this.startNotificationProgressAnimations();
-    }
   }
 }
