@@ -13,6 +13,12 @@ export const MILESTONES: Milestone[] = [
       state.unlockedRecipes.add('assembleValve');
       state.unlockedRecipes.add('craftSparkPlug');
       
+      // Unlock additional basic crafting recipes needed for progression
+      state.unlockedRecipes.add('shapeMetalRod');
+      state.unlockedRecipes.add('cutWoodPlanks');
+      state.unlockedRecipes.add('makeElectricalWire');
+      state.unlockedRecipes.add('formRubberTubing');
+      
       // Unlock new raw materials in market
       state.uiState.discoveredResources.add('wood');
       state.uiState.discoveredResources.add('rubber');
@@ -26,20 +32,17 @@ export const MILESTONES: Milestone[] = [
     name: 'Basic Component Production',
     description: 'Produce 5 different basic components',
     condition: (state) => {
-      const basicComponents = ['wireSprings', 'metalBrackets', 'metalRods', 'leatherGaskets', 'woodPlanks'];
+      // Use components that are actually available after first milestone
+      const basicComponents = ['wireSprings', 'metalBrackets', 'leatherGaskets', 'metalRods', 'electricalWire'];
       const producedCount = basicComponents.filter(id => (state.totalProduced[id] || 0) >= 1).length;
       return producedCount >= 5;
     },
     reward: (state) => {
-      // Unlock more basic crafting recipes
-      state.unlockedRecipes.add('makeElectricalWire');
-      state.unlockedRecipes.add('formRubberTubing');
+      // Unlock remaining basic crafting recipes
+      state.unlockedRecipes.add('forgeMetalPlate');
       state.unlockedRecipes.add('shapeGlassLens');
       state.unlockedRecipes.add('cutFabricStrips');
-      state.unlockedRecipes.add('cutWoodPlanks');
       state.unlockedRecipes.add('buildWoodFrame');
-      state.unlockedRecipes.add('shapeMetalRod');
-      state.unlockedRecipes.add('forgeMetalPlate');
       
       // Unlock more advanced crafting recipes
       state.unlockedRecipes.add('machineGear');
