@@ -5,7 +5,7 @@ export class MachinesPanel {
     private actions: {
       buildMachine: (machineId: string) => boolean;
       toggleMachine: (machineId: string) => void;
-      upgradeMachine: (machineId: string) => boolean;
+      upgradeMachine: (machineId: string) => void;
     }
   ) {}
 
@@ -53,31 +53,38 @@ export class MachinesPanel {
       return `
         <div class="machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}" data-machine-id="${machine.id}">
           <div class="machine-header">
-            <h4>${machine.name} (Level ${machine.level})</h4>
-            <button 
-              class="toggle-btn" 
-              data-toggle="${machine.id}"
-            >
-              ${machine.isActive ? '⏸️ Pause' : '▶️ Start'}
-            </button>
-          </div>
-          <div class="machine-info">
-            <div>Speed: ${machine.currentSpeed}s (Manual: ${machine.manualSpeed}s) - ${machine.efficiency}% efficiency</div>
-            <div class="machine-status">
-              <span class="status-indicator">${statusIcon} ${statusText}</span>
-              ${machine.statusMessage ? `<div class="status-message">${machine.statusMessage}</div>` : ''}
+            <div class="machine-header-left">
+              <h4>${machine.name} (Level ${machine.level})</h4>
             </div>
+            <button class="collapse-btn" data-collapse="${machine.id}">▼</button>
           </div>
-          <div class="progress-bar" data-machine-progress-container="${machine.id}" style="display: ${showProgress ? 'block' : 'none'};">
+          <div class="progress-bar ${showProgress ? 'visible' : ''}" data-machine-progress-container="${machine.id}">
             <div class="progress-fill" data-machine-progress="${machine.id}" style="width: ${machine.progress * 100}%"></div>
           </div>
-          <button 
-            class="upgrade-btn ${machine.canUpgrade ? 'available' : 'disabled'}"
-            data-upgrade="${machine.id}"
-            ${!machine.canUpgrade ? 'disabled' : ''}
-          >
-            Upgrade (${upgradeCostText})
-          </button>
+          <div class="machine-content">
+            <div class="machine-info">
+              <div>Speed: ${machine.currentSpeed}s (Manual: ${machine.manualSpeed}s) - ${machine.efficiency}% efficiency</div>
+              <div class="machine-status">
+                <span class="status-indicator">${statusIcon} ${statusText}</span>
+                ${machine.statusMessage ? `<div class="status-message">${machine.statusMessage}</div>` : ''}
+              </div>
+            </div>
+            <div class="machine-actions">
+              <button 
+                class="toggle-btn" 
+                data-toggle="${machine.id}"
+              >
+                ${machine.isActive ? '⏸️ Pause' : '▶️ Start'}
+              </button>
+              <button 
+                class="upgrade-btn ${machine.canUpgrade ? 'available' : 'disabled'}"
+                data-upgrade="${machine.id}"
+                ${!machine.canUpgrade ? 'disabled' : ''}
+              >
+                Upgrade (${upgradeCostText})
+              </button>
+            </div>
+          </div>
         </div>
       `;
     }).join('');
@@ -125,6 +132,22 @@ export class MachinesPanel {
         const machineId = (e.target as HTMLElement).getAttribute('data-upgrade');
         if (machineId) {
           this.actions.upgradeMachine(machineId);
+        }
+      });
+    });
+
+    // Machine collapse
+    container.querySelectorAll('[data-collapse]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const machineId = (e.target as HTMLElement).getAttribute('data-collapse');
+        if (machineId) {
+          const machineItem = container.querySelector(`[data-machine-id="${machineId}"]`);
+          const content = machineItem?.querySelector('.machine-content');
+          const collapseBtn = machineItem?.querySelector('.collapse-btn');
+          if (content && collapseBtn) {
+            content.classList.toggle('collapsed');
+            collapseBtn.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+          }
         }
       });
     });
