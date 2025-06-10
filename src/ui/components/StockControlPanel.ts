@@ -55,30 +55,36 @@ export class StockControlPanel {
       `;
     }).join('');
 
-    // Rules management section
-    const rulesDisplay = rulesData.map(rule => {
-      return `
-        <div class="rule-item ${rule.isEnabled ? 'enabled' : 'disabled'}">
-          <div class="rule-header">
-            <span>${rule.type.toUpperCase()} ${rule.resourceName}</span>
-            <button 
-              class="toggle-rule-btn" 
-              data-toggle-rule="${rule.id}"
-            >
-              ${rule.isEnabled ? '⏸️' : '▶️'}
-            </button>
+    // Group rules by type
+    const buyRules = rulesData.filter(rule => rule.type === 'buy');
+    const sellRules = rulesData.filter(rule => rule.type === 'sell');
+
+    // Rules management section with collapsible containers
+    const rulesDisplay = `
+      <div class="rules-section">
+        <h4>Active Rules</h4>
+        
+        <div class="rule-group">
+          <div class="rule-group-header" data-toggle-group="buy-rules">
+            <h5>Buy Rules (${buyRules.length})</h5>
+            <span class="toggle-icon">▼</span>
           </div>
-          <div class="rule-info">
-            <div class="threshold-control">
-              <button class="threshold-btn" data-decrease-threshold="${rule.id}">-</button>
-              <span>Threshold: ${rule.threshold}</span>
-              <button class="threshold-btn" data-increase-threshold="${rule.id}">+</button>
-            </div>
-            <div>Manager: ${rule.managerName}</div>
+          <div class="rule-group-content" id="buy-rules">
+            ${buyRules.map(rule => this.renderRule(rule)).join('')}
           </div>
         </div>
-      `;
-    }).join('');
+
+        <div class="rule-group">
+          <div class="rule-group-header" data-toggle-group="sell-rules">
+            <h5>Sell Rules (${sellRules.length})</h5>
+            <span class="toggle-icon">▼</span>
+          </div>
+          <div class="rule-group-content" id="sell-rules">
+            ${sellRules.map(rule => this.renderRule(rule)).join('')}
+          </div>
+        </div>
+      </div>
+    `;
 
     return `
       <div class="panel stock-control-panel">
@@ -107,12 +113,7 @@ export class StockControlPanel {
           </div>
         ` : ''}
         
-        ${rulesDisplay ? `
-          <div class="rules-section">
-            <h4>Active Rules</h4>
-            ${rulesDisplay}
-          </div>
-        ` : ''}
+        ${rulesDisplay}
         
         ${personnelData.active.length === 0 && personnelData.available.length === 0 ? `
           <p>Complete more market transactions to unlock stock control personnel.</p>
@@ -121,11 +122,33 @@ export class StockControlPanel {
     `;
   }
 
+  private renderRule(rule: UIRuleData): string {
+    return `
+      <div class="rule-item">
+        <div class="rule-header">
+          <span>${rule.type.toUpperCase()} ${rule.resourceName}</span>
+        </div>
+        <div class="rule-info">
+          <div class="threshold-control">
+            <div class="threshold-buttons">
+              <button class="threshold-btn" data-decrease-threshold="${rule.id}">-</button>
+              <button class="threshold-btn" data-increase-threshold="${rule.id}">+</button>
+            </div>
+            <div class="threshold-info">
+              <span class="threshold-value" data-threshold-value="${rule.id}">${rule.threshold}</span>
+              <span class="threshold-label">target stock</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   attachEventListeners(container: HTMLElement): void {
-    // Hire personnel
+    // Hire buttons
     container.querySelectorAll('[data-hire]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const personnelId = (e.target as HTMLElement).closest('[data-hire]')?.getAttribute('data-hire');
+      btn.addEventListener('click', () => {
+        const personnelId = (btn as HTMLElement).dataset.hire;
         if (personnelId) {
           this.actions.hirePersonnel(personnelId);
         }
@@ -152,21 +175,28 @@ export class StockControlPanel {
       });
     });
 
-    // Threshold controls
-    container.querySelectorAll('[data-increase-threshold]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const ruleId = (e.target as HTMLElement).getAttribute('data-increase-threshold');
+    // Threshold adjustment buttons
+    container.querySelectorAll('[data-increase-threshold], [data-decrease-threshold]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const ruleId = (btn as HTMLElement).dataset.increaseThreshold || (btn as HTMLElement).dataset.decreaseThreshold;
         if (ruleId) {
-          this.actions.adjustThreshold(ruleId, 1);
+          const delta = (btn as HTMLElement).dataset.increaseThreshold ? 1 : -1;
+          this.actions.adjustThreshold(ruleId, delta);
         }
       });
     });
 
-    container.querySelectorAll('[data-decrease-threshold]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const ruleId = (e.target as HTMLElement).getAttribute('data-decrease-threshold');
-        if (ruleId) {
-          this.actions.adjustThreshold(ruleId, -1);
+    // Toggle rule groups
+    container.querySelectorAll('[data-toggle-group]').forEach(header => {
+      header.addEventListener('click', (e) => {
+        const groupId = (e.target as HTMLElement).closest('[data-toggle-group]')?.getAttribute('data-toggle-group');
+        if (groupId) {
+          const content = container.querySelector(`#${groupId}`);
+          const icon = header.querySelector('.toggle-icon');
+          if (content && icon) {
+            content.classList.toggle('collapsed');
+            icon.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+          }
         }
       });
     });
@@ -177,9 +207,17 @@ export class StockControlPanel {
     personnelData.available.forEach(personnel => {
       const btn = container.querySelector(`[data-hire="${personnel.id}"]`);
       if (btn) {
-        btn.classList.toggle('avjailable', personnel.canHire);
+        btn.classList.toggle('available', personnel.canHire);
         btn.classList.toggle('disabled', !personnel.canHire);
         (btn as HTMLButtonElement).disabled = !personnel.canHire;
+      }
+    });
+
+    // Update threshold values
+    rulesData.forEach(rule => {
+      const thresholdElement = container.querySelector(`[data-threshold-value="${rule.id}"]`);
+      if (thresholdElement) {
+        thresholdElement.textContent = rule.threshold.toString();
       }
     });
 

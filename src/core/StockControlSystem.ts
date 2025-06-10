@@ -14,10 +14,10 @@ export class StockControlSystem {
       name: 'Material Buyer',
       description: 'Automatically buys materials when stock is low',
       capabilities: ['buy_materials'],
-      upfrontCost: 20,
+      upfrontCost: 5,
       type: 'procurement',
       monthlySalary: 5,
-      hiringCost: 20,
+      hiringCost: 5,
       isActive: false,
       hiredAt: Date.now(),
       id: 'procurementSpecialist'
@@ -26,10 +26,10 @@ export class StockControlSystem {
       name: 'Parts Seller',
       description: 'Automatically sells parts when stock is high',
       capabilities: ['sell_parts'],
-      upfrontCost: 30,
+      upfrontCost: 5,
       type: 'sales',
       monthlySalary: 5,
-      hiringCost: 30,
+      hiringCost: 5,
       isActive: false,
       hiredAt: Date.now(),
       id: 'salesManager'
@@ -196,8 +196,8 @@ export class StockControlSystem {
     const rule = state.stockControl.rules[ruleId];
     if (!rule) return;
 
-    // Ensure threshold doesn't go below 1
-    const newThreshold = Math.max(1, rule.threshold + delta);
+    // Ensure threshold doesn't go below 0
+    const newThreshold = Math.max(0, rule.threshold + delta);
     this.updateRule(ruleId, { ...rule, threshold: newThreshold });
   }
 
