@@ -6,7 +6,7 @@ export class StockControlPanel {
       hirePersonnel: (personnelId: string) => boolean;
       firePersonnel: (personnelId: string) => void;
       toggleRule: (ruleId: string) => void;
-      deleteRule: (ruleId: string) => void;
+      adjustThreshold: (ruleId: string, delta: number) => void;
     }
   ) {}
 
@@ -69,16 +69,13 @@ export class StockControlPanel {
             </button>
           </div>
           <div class="rule-info">
-            <div>Threshold: ${rule.threshold}</div>
-            <div>Quantity: ${rule.quantity}</div>
+            <div class="threshold-control">
+              <button class="threshold-btn" data-decrease-threshold="${rule.id}">-</button>
+              <span>Threshold: ${rule.threshold}</span>
+              <button class="threshold-btn" data-increase-threshold="${rule.id}">+</button>
+            </div>
             <div>Manager: ${rule.managerName}</div>
           </div>
-          <button 
-            class="delete-rule-btn" 
-            data-delete-rule="${rule.id}"
-          >
-            🗑️ Delete
-          </button>
         </div>
       `;
     }).join('');
@@ -155,12 +152,21 @@ export class StockControlPanel {
       });
     });
 
-    // Delete rules
-    container.querySelectorAll('[data-delete-rule]').forEach(btn => {
+    // Threshold controls
+    container.querySelectorAll('[data-increase-threshold]').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const ruleId = (e.target as HTMLElement).getAttribute('data-delete-rule');
-        if (ruleId && confirm('Are you sure you want to delete this rule?')) {
-          this.actions.deleteRule(ruleId);
+        const ruleId = (e.target as HTMLElement).getAttribute('data-increase-threshold');
+        if (ruleId) {
+          this.actions.adjustThreshold(ruleId, 1);
+        }
+      });
+    });
+
+    container.querySelectorAll('[data-decrease-threshold]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const ruleId = (e.target as HTMLElement).getAttribute('data-decrease-threshold');
+        if (ruleId) {
+          this.actions.adjustThreshold(ruleId, -1);
         }
       });
     });
@@ -171,7 +177,7 @@ export class StockControlPanel {
     personnelData.available.forEach(personnel => {
       const btn = container.querySelector(`[data-hire="${personnel.id}"]`);
       if (btn) {
-        btn.classList.toggle('available', personnel.canHire);
+        btn.classList.toggle('avjailable', personnel.canHire);
         btn.classList.toggle('disabled', !personnel.canHire);
         (btn as HTMLButtonElement).disabled = !personnel.canHire;
       }

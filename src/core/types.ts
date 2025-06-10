@@ -74,9 +74,10 @@ export interface StockControlPersonnel {
   name: string;
   type: 'procurement' | 'sales' | 'coordinator';
   monthlySalary: number; // marks per minute
+  upfrontCost: number;
   hiringCost: number;
   isActive: boolean;
-  hiredAt: number;
+  hiredAt?: number;
   description: string;
   capabilities: string[];
 }

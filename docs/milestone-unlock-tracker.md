@@ -289,7 +289,7 @@
 ### Milestone: "Stock Control Mastery"
 **Condition:** Hire both `procurementSpecialist` AND `salesManager`  
 **Unlocks:**
-- Personnel: `supplyChainCoordinator`
+- Bonus: 1000 Marks
 
 ---
 

@@ -9,20 +9,30 @@ export class StockControlSystem {
   private lastUpdate: number = Date.now();
   private lastRuleExecution: number = 0;
 
-  private readonly personnelTemplates = {
+  private readonly personnelTemplates: Record<string, StockControlPersonnel> = {
     procurementSpecialist: {
       name: 'Material Buyer',
       description: 'Automatically buys materials when stock is low',
       capabilities: ['buy_materials'],
-      salary: 5,
-      upfrontCost: 20
+      upfrontCost: 20,
+      type: 'procurement',
+      monthlySalary: 5,
+      hiringCost: 20,
+      isActive: false,
+      hiredAt: Date.now(),
+      id: 'procurementSpecialist'
     },
     salesManager: {
       name: 'Parts Seller',
       description: 'Automatically sells parts when stock is high',
       capabilities: ['sell_parts'],
-      salary: 5,
-      upfrontCost: 30
+      upfrontCost: 30,
+      type: 'sales',
+      monthlySalary: 5,
+      hiringCost: 30,
+      isActive: false,
+      hiredAt: Date.now(),
+      id: 'salesManager'
     }
   };
 
@@ -50,35 +60,59 @@ export class StockControlSystem {
   }
 
   hirePersonnel(personnelId: string): boolean {
-    if (!this.canHirePersonnel(personnelId)) return false;
+    const state = this.gameState.getState();
+    const template = this.personnelTemplates[personnelId];
     
-    const template = this.getPersonnelTemplate(personnelId);
     if (!template) return false;
     
-    const state = this.gameState.getState();
-    const totalCost = template.hiringCost + template.monthlySalary;
+    // Check if already hired
+    if (state.stockControl.personnel[personnelId]) return false;
     
-    if (!this.gameState.spendResources([{ resourceId: 'marks', amount: totalCost }])) {
+    // Check if we can afford the upfront cost
+    if (state.resources.marks.amount < template.hiringCost) {
       return false;
     }
     
-    const personnel: StockControlPersonnel = {
+    // Pay the upfront cost
+    this.gameState.updateResource('marks', -template.hiringCost);
+    
+    // Create and activate the personnel
+    const personnel = {
       ...template,
       isActive: true,
       hiredAt: Date.now()
     };
-    
     this.gameState.updatePersonnel(personnelId, personnel);
+
+    // Create default rules for this personnel based on their capabilities
+    if (personnel.capabilities.includes('buy_materials')) {
+      // Create buy rules for all discovered materials
+      Object.values(state.resources).forEach(resource => {
+        if (isMaterial(resource.id) && state.uiState.discoveredResources.has(resource.id)) {
+          this.createRule(resource.id, 'buy', 1, 1, personnelId);
+        }
+      });
+    }
+    
+    if (personnel.capabilities.includes('sell_parts')) {
+      // Create sell rules for all discovered parts
+      Object.values(state.resources).forEach(resource => {
+        if (isPart(resource.id) && state.uiState.discoveredResources.has(resource.id)) {
+          this.createRule(resource.id, 'sell', 5, 1, personnelId);
+        }
+      });
+    }
+    
     return true;
   }
 
   firePersonnel(personnelId: string): void {
     const state = this.gameState.getState();
     if (state.stockControl.personnel[personnelId]) {
-      // Disable all rules managed by this personnel
+      // Remove all rules managed by this personnel
       Object.values(state.stockControl.rules).forEach(rule => {
         if (rule.managedBy === personnelId) {
-          this.updateRule(rule.id, { ...rule, isEnabled: false });
+          this.gameState.removeRule(rule.id);
         }
       });
       
@@ -87,7 +121,15 @@ export class StockControlSystem {
   }
 
   // Rule Management
-  createRule(resourceId: string, type: 'buy' | 'sell', threshold: number, quantity: number, managedBy: string): string {
+  createRule(resourceId: string, type: 'buy' | 'sell', threshold: number, quantity: number, managedBy: string): string | undefined {
+    const state = this.gameState.getState();
+    const personnel = state.stockControl.personnel[managedBy];
+    
+    // Only create rule if personnel is active
+    if (!personnel || !personnel.isActive) {
+      return undefined;
+    }
+
     const ruleId = `${type}_${resourceId}_${Date.now()}`;
     const rule: StockControlRule = {
       id: ruleId,
@@ -96,23 +138,67 @@ export class StockControlSystem {
       threshold,
       isEnabled: true,
       managedBy,
-      quantity
+      quantity: quantity
     };
     this.gameState.updateRule(ruleId, rule);
     return ruleId;
   }
 
-  updateRule(ruleId: string, updates: Partial<StockControlRule>): void {
+  private canEnableRule(rule: StockControlRule): boolean {
     const state = this.gameState.getState();
-    const rule = state.stockControl.rules[ruleId];
-    if (rule) {
-      const updatedRule = { ...rule, ...updates };
-      this.gameState.updateRule(ruleId, updatedRule);
+    
+    // If rule is already managed by someone, check if that personnel is still active
+    if (rule.managedBy) {
+      const manager = state.stockControl.personnel[rule.managedBy];
+      if (!manager || !manager.isActive) return false;
+      return true;
     }
+
+    // For new rules, check if we have appropriate personnel
+    const activePersonnel = Object.values(state.stockControl.personnel).filter(p => p.isActive);
+    
+    if (rule.action === 'buy') {
+      return activePersonnel.some(p => p.capabilities.includes('buy_materials'));
+    } else if (rule.action === 'sell') {
+      return activePersonnel.some(p => p.capabilities.includes('sell_parts'));
+    }
+    
+    return false;
   }
 
-  deleteRule(ruleId: string): void {
-    this.gameState.removeRule(ruleId);
+  updateRule(ruleId: string, rule: StockControlRule): void {
+    const state = this.gameState.getState();
+    const existingRule = state.stockControl.rules[ruleId];
+    
+    // If trying to enable a rule, check if we can
+    if (rule.isEnabled && !this.canEnableRule(rule)) {
+      rule.isEnabled = false;
+    }
+    
+    // If rule is being enabled and doesn't have a manager, assign one
+    if (rule.isEnabled && !rule.managedBy) {
+      const activePersonnel = Object.values(state.stockControl.personnel).filter(p => p.isActive);
+      
+      if (rule.action === 'buy') {
+        const buyer = activePersonnel.find(p => p.capabilities.includes('buy_materials'));
+        if (buyer) rule.managedBy = buyer.id;
+      } else if (rule.action === 'sell') {
+        const seller = activePersonnel.find(p => p.capabilities.includes('sell_parts'));
+        if (seller) rule.managedBy = seller.id;
+      }
+    }
+    
+    this.gameState.updateRule(ruleId, rule);
+  }
+
+  adjustThreshold(ruleId: string, delta: number): void {
+    const state = this.gameState.getState();
+    const rule = state.stockControl.rules[ruleId];
+    if (!rule) return;
+
+    // Ensure threshold doesn't go below 1
+    const newThreshold = Math.max(1, rule.threshold + delta);
+    this.updateRule(ruleId, { ...rule, threshold: newThreshold });
   }
 
   // System Updates
@@ -142,7 +228,7 @@ export class StockControlSystem {
       } else {
         // Fire all personnel if can't pay salaries
         this.fireAllPersonnel();
-        this.gameState.showNotification('⚠️ All stock control personnel quit due to unpaid salaries!');
+        this.gameState.addNotification('⚠️ All stock control personnel quit due to unpaid salaries!');
       }
     }
   }
@@ -150,7 +236,12 @@ export class StockControlSystem {
   private executeRules(): void {
     const state = this.gameState.getState();
     Object.values(state.stockControl.rules).forEach(rule => {
+      // Skip if rule is disabled or if managing personnel is not active
       if (!rule.isEnabled) return;
+      if (rule.managedBy) {
+        const personnel = state.stockControl.personnel[rule.managedBy];
+        if (!personnel || !personnel.isActive) return;
+      }
 
       const resource = state.resources[rule.resourceId];
       if (!resource) return;
@@ -192,32 +283,7 @@ export class StockControlSystem {
   }
 
   getPersonnelTemplate(personnelId: string): StockControlPersonnel | null {
-    const templates: Record<string, StockControlPersonnel> = {
-      procurementSpecialist: {
-        id: 'procurementSpecialist',
-        name: 'Material Buyer',
-        type: 'procurement',
-        monthlySalary: 2, // marks per 10-second interval
-        hiringCost: 50,
-        isActive: false,
-        hiredAt: 0,
-        description: 'Automatically buys raw materials when inventory is low',
-        capabilities: ['Auto-buy raw materials', 'Inventory monitoring']
-      },
-      salesManager: {
-        id: 'salesManager',
-        name: 'Parts Seller',
-        type: 'sales',
-        monthlySalary: 3,
-        hiringCost: 50,
-        isActive: false,
-        hiredAt: 0,
-        description: 'Automatically sells finished parts when inventory is high',
-        capabilities: ['Auto-sell parts', 'Inventory monitoring']
-      }
-    };
-    
-    return templates[personnelId] || null;
+    return this.personnelTemplates[personnelId] || null;
   }
 
   getAvailablePersonnel(): string[] {
@@ -227,19 +293,8 @@ export class StockControlSystem {
 
   // Remove quick configure option and automatically create rules for discovered resources
   private createDefaultRules(resourceId: string): void {
-    const resource = this.gameState.getState().resources[resourceId];
-    if (!resource) return;
-
-    const ruleId = `auto_${resourceId}`;
-    const rule: StockControlRule = {
-      id: ruleId,
-      resourceId,
-      threshold: isMaterial(resourceId) ? 10 : 5,
-      action: isMaterial(resourceId) ? 'buy' : 'sell',
-      isEnabled: true,
-      managedBy: null
-    };
-    this.gameState.updateRule(ruleId, rule);
+    // This method is no longer needed as rules are created with workers
+    return;
   }
 
   // Add a method to pause or stop trading for a resource
@@ -260,15 +315,7 @@ export class StockControlSystem {
   }
 
   public initializeDefaultRulesForDiscoveredResources(): void {
-    const state = this.gameState.getState();
-    const discovered = state.uiState.discoveredResources;
-    Object.values(state.resources).forEach(resource => {
-      if (discovered.has(resource.id) && (isMaterial(resource.id) || isPart(resource.id))) {
-        const ruleId = `auto_${resource.id}`;
-        if (!state.stockControl.rules[ruleId]) {
-          this.createDefaultRules(resource.id);
-        }
-      }
-    });
+    // This method is no longer needed as rules are created with workers
+    return;
   }
 }

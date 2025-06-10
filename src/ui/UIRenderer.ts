@@ -98,7 +98,9 @@ export class UIRenderer {
           stockControlSystem.updateRule(ruleId, { ...rule, isEnabled: !rule.isEnabled });
         }
       },
-      deleteRule: (ruleId: string) => stockControlSystem.deleteRule(ruleId)
+      adjustThreshold: (ruleId: string, delta: number) => {
+        stockControlSystem.adjustThreshold(ruleId, delta);
+      }
     };
   }
 

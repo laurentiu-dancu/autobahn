@@ -476,8 +476,7 @@ export const MILESTONES: Milestone[] = [
                 state.stockControl.personnel.salesManager);
     },
     reward: (state, gameStateManager) => {
-      state.unlockedStockControl.add('supplyChainCoordinator');
-      gameStateManager?.addNotification('Supply Chain Coordinator unlocked!', 'success', 3000);
+      gameStateManager?.addNotification('Stock Control System Mastered!', 'success', 3000);
     }
   }
 ];
