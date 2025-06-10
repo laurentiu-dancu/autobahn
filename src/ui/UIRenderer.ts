@@ -60,7 +60,11 @@ export class UIRenderer {
     this.automobileConstructionPanel = new AutomobileConstructionPanel(this.createCraftingActions(craftingSystem, salvageSystem));
     this.machinesPanel = new MachinesPanel(this.createMachineActions(automationManager));
     this.marketPanel = new MarketPanel(this.createMarketActions(marketSystem));
-    this.stockControlPanel = new StockControlPanel(this.createStockControlActions(stockControlSystem));
+    this.stockControlPanel = new StockControlPanel(
+      this.gameState,
+      this.uiDataProvider,
+      this.createStockControlActions(stockControlSystem)
+    );
     
     this.setupEventListeners();
   }

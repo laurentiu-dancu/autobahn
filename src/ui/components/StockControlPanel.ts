@@ -1,7 +1,16 @@
 import { UIPersonnelData, UIRuleData } from '../../core/types';
+import { GameStateManager } from '../../core/GameState';
+import { UIDataProvider } from '../UIDataProvider';
 
 export class StockControlPanel {
+  private readonly GROUP_IDS = {
+    BUY: 'stockControlBuyRules',
+    SELL: 'stockControlSellRules'
+  };
+
   constructor(
+    private gameState: GameStateManager,
+    private uiDataProvider: UIDataProvider,
     private actions: {
       hirePersonnel: (personnelId: string) => boolean;
       firePersonnel: (personnelId: string) => void;
@@ -14,6 +23,11 @@ export class StockControlPanel {
     if (!showStockControl) {
       return ''; // Don't show until unlocked
     }
+
+    // Get group states from game state
+    const state = this.gameState.getState();
+    const buyGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.BUY]?.expanded ?? true;
+    const sellGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.SELL]?.expanded ?? true;
 
     // Personnel hiring section
     const personnelHiring = personnelData.available.map(personnel => {
@@ -65,21 +79,21 @@ export class StockControlPanel {
         <h4>Active Rules</h4>
         
         <div class="rule-group">
-          <div class="rule-group-header" data-toggle-group="buy-rules">
+          <div class="rule-group-header" data-toggle-group="${this.GROUP_IDS.BUY}">
             <h5>Buy Rules (${buyRules.length})</h5>
-            <span class="toggle-icon">▼</span>
+            <span class="toggle-icon">${buyGroupExpanded ? '▼' : '▶'}</span>
           </div>
-          <div class="rule-group-content" id="buy-rules">
+          <div class="rule-group-content ${buyGroupExpanded ? '' : 'collapsed'}" id="${this.GROUP_IDS.BUY}">
             ${buyRules.map(rule => this.renderRule(rule)).join('')}
           </div>
         </div>
 
         <div class="rule-group">
-          <div class="rule-group-header" data-toggle-group="sell-rules">
+          <div class="rule-group-header" data-toggle-group="${this.GROUP_IDS.SELL}">
             <h5>Sell Rules (${sellRules.length})</h5>
-            <span class="toggle-icon">▼</span>
+            <span class="toggle-icon">${sellGroupExpanded ? '▼' : '▶'}</span>
           </div>
-          <div class="rule-group-content" id="sell-rules">
+          <div class="rule-group-content ${sellGroupExpanded ? '' : 'collapsed'}" id="${this.GROUP_IDS.SELL}">
             ${sellRules.map(rule => this.renderRule(rule)).join('')}
           </div>
         </div>
@@ -189,13 +203,21 @@ export class StockControlPanel {
     // Toggle rule groups
     container.querySelectorAll('[data-toggle-group]').forEach(header => {
       header.addEventListener('click', (e) => {
-        const groupId = (e.target as HTMLElement).closest('[data-toggle-group]')?.getAttribute('data-toggle-group');
+        const groupId = (e.currentTarget as HTMLElement).getAttribute('data-toggle-group');
         if (groupId) {
           const content = container.querySelector(`#${groupId}`);
           const icon = header.querySelector('.toggle-icon');
           if (content && icon) {
+            const isCollapsed = content.classList.contains('collapsed');
             content.classList.toggle('collapsed');
-            icon.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+            icon.textContent = isCollapsed ? '▼' : '▶';
+            
+            // Update game state with the new expanded state
+            this.gameState.setPanelState(groupId, {
+              expanded: isCollapsed // If it was collapsed, it will now be expanded and vice versa
+            });
+            // Save game state to persist the panel state
+            this.gameState.saveGame();
           }
         }
       });
