@@ -1,7 +1,15 @@
 import { UIMachineData } from '../../core/types';
+import { GameStateManager } from '../../core/GameState';
+
+interface MachineCost {
+  resourceId: string;
+  amount: number;
+  name: string;
+}
 
 export class MachinesPanel {
   constructor(
+    private gameState: GameStateManager,
     private actions: {
       buildMachine: (machineId: string) => boolean;
       toggleMachine: (machineId: string) => void;
@@ -15,23 +23,17 @@ export class MachinesPanel {
     }
     
     const machineBuilds = availableMachinesData.map(machine => {
-      const costText = machine.cost.map((cost: any) => {
-        const symbol = cost.resourceId === 'marks' ? '€' : '';
-        return `${cost.amount}${symbol} ${cost.name}`;
-      }).join(', ');
-
       return `
-        <div class="machine-build">
-          <button 
-            class="build-btn ${machine.canBuild ? 'available' : 'disabled'}"
-            data-machine="${machine.id}"
-            ${!machine.canBuild ? 'disabled' : ''}
-          >
-            <div class="machine-name">Build ${machine.name}</div>
-            <div class="machine-cost">Cost: ${costText}</div>
-            <div class="machine-desc">${machine.description}</div>
-          </button>
-        </div>
+        <button 
+          class="build-btn ${machine.canBuild ? 'available' : 'disabled'}"
+          data-machine="${machine.id}"
+          ${!machine.canBuild ? 'disabled' : ''}
+        >
+          Build ${machine.name} (${machine.cost.map((cost: MachineCost) => {
+            const symbol = cost.resourceId === 'marks' ? '€' : '';
+            return `${cost.amount}${symbol} ${cost.name}`;
+          }).join(', ')})
+        </button>
       `;
     }).join('');
 
@@ -50,20 +52,23 @@ export class MachinesPanel {
 
       const showProgress = machine.isActive && machine.status === 'running';
       
+      // Get the saved expanded state for this machine
+      const isExpanded = this.gameState.getState().uiState.panelStates[`machine-${machine.id}`]?.expanded ?? true;
+      
       return `
         <div class="machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}" data-machine-id="${machine.id}">
           <div class="machine-header">
             <div class="machine-header-left">
               <h4>${machine.name} (Level ${machine.level})</h4>
             </div>
-            <button class="collapse-btn" data-collapse="${machine.id}">▼</button>
+            <button class="collapse-btn" data-collapse="${machine.id}">${isExpanded ? '▼' : '▶'}</button>
           </div>
           <div class="progress-bar ${showProgress ? 'visible' : ''}" data-machine-progress-container="${machine.id}">
             <div class="progress-fill" data-machine-progress="${machine.id}" style="width: ${machine.progress * 100}%"></div>
           </div>
-          <div class="machine-content">
+          <div class="machine-content ${isExpanded ? '' : 'collapsed'}">
             <div class="machine-info">
-              <div>Speed: ${machine.currentSpeed}s (Manual: ${machine.manualSpeed}s) - ${machine.efficiency}% efficiency</div>
+              <div>Speed: ${machine.currentSpeed}s - ${machine.efficiency}% efficiency</div>
               <div class="machine-status">
                 <span class="status-indicator">${statusIcon} ${statusText}</span>
                 ${machine.statusMessage ? `<div class="status-message">${machine.statusMessage}</div>` : ''}
@@ -99,24 +104,17 @@ export class MachinesPanel {
   }
 
   attachEventListeners(container: HTMLElement): void {
-    // Machine building
+    // Machine build buttons
     container.querySelectorAll('[data-machine]').forEach(btn => {
       btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).closest('[data-machine]')?.getAttribute('data-machine');
+        const machineId = (e.target as HTMLElement).getAttribute('data-machine');
         if (machineId) {
-          const success = this.actions.buildMachine(machineId);
-          if (success) {
-            // Immediately disable the button to prevent visual flash
-            const button = e.target as HTMLButtonElement;
-            button.disabled = true;
-            button.classList.remove('available');
-            button.classList.add('disabled');
-          }
+          this.actions.buildMachine(machineId);
         }
       });
     });
 
-    // Machine toggle
+    // Machine toggle buttons
     container.querySelectorAll('[data-toggle]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const machineId = (e.target as HTMLElement).getAttribute('data-toggle');
@@ -126,7 +124,7 @@ export class MachinesPanel {
       });
     });
 
-    // Machine upgrade
+    // Machine upgrade buttons
     container.querySelectorAll('[data-upgrade]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         const machineId = (e.target as HTMLElement).getAttribute('data-upgrade');
@@ -145,8 +143,16 @@ export class MachinesPanel {
           const content = machineItem?.querySelector('.machine-content');
           const collapseBtn = machineItem?.querySelector('.collapse-btn');
           if (content && collapseBtn) {
+            const isCollapsed = content.classList.contains('collapsed');
             content.classList.toggle('collapsed');
-            collapseBtn.textContent = content.classList.contains('collapsed') ? '▶' : '▼';
+            collapseBtn.textContent = isCollapsed ? '▼' : '▶';
+            
+            // Update game state with the new expanded state
+            this.gameState.setPanelState(`machine-${machineId}`, {
+              expanded: isCollapsed // If it was collapsed, it will now be expanded and vice versa
+            });
+            // Save game state to persist the panel state
+            this.gameState.saveGame();
           }
         }
       });

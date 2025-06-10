@@ -34,9 +34,9 @@ export class AutomationManager {
     const machine: Machine = {
       ...machineTemplate,
       lastProduction: Date.now(),
-      isActive: false, // Start machines as stopped
-      status: canAffordInputs ? 'paused' : 'waiting_resources',
-      statusMessage: undefined
+      isActive: true, // Start machines as active
+      status: canAffordInputs ? 'running' : 'waiting_resources',
+      statusMessage: canAffordInputs ? undefined : 'Waiting for resources'
     };
 
     this.gameState.addMachine(machineId, machine);

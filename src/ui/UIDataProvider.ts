@@ -127,6 +127,18 @@ export class UIDataProvider {
       const manualSpeed = recipe ? (recipe.craftTime / 1000).toFixed(1) : '0';
       const efficiency = recipe ? Math.round((1 / machine.productionRate) * 100) : 100;
       
+      // Calculate upgrade cost based on next level
+      const nextLevel = machine.level + 1;
+      const upgradeCost = machine.upgradeCost.map(cost => {
+        const resource = state.resources[cost.resourceId];
+        const actualCost = cost.amount * nextLevel; // Use next level for upgrade cost
+        return {
+          resourceId: cost.resourceId,
+          name: resource?.name || cost.resourceId,
+          amount: actualCost
+        };
+      });
+      
       return {
         id: machine.id,
         name: machine.name,
@@ -136,15 +148,7 @@ export class UIDataProvider {
         statusMessage: machine.statusMessage,
         progress,
         canUpgrade: this.automationManager.canUpgradeMachine(machine.id),
-        upgradeCost: machine.upgradeCost.map(cost => {
-          const resource = state.resources[cost.resourceId];
-          const actualCost = cost.amount * machine.level;
-          return {
-            resourceId: cost.resourceId,
-            name: resource?.name || cost.resourceId,
-            amount: actualCost
-          };
-        }),
+        upgradeCost,
         efficiency,
         currentSpeed,
         manualSpeed

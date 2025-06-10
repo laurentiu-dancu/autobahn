@@ -39,6 +39,11 @@ export class StockControlSystem {
   constructor(gameState: GameStateManager, marketSystem: MarketSystem) {
     this.gameState = gameState;
     this.marketSystem = marketSystem;
+    
+    // Listen for resource discovery events
+    this.gameState.getEventEmitter().on('resourceDiscovered', ({ resourceId }) => {
+      this.handleResourceDiscovery(resourceId);
+    });
   }
 
   // Personnel Management
@@ -235,6 +240,14 @@ export class StockControlSystem {
 
   private executeRules(): void {
     const state = this.gameState.getState();
+    const now = Date.now();
+    
+    // Only execute rules once per second
+    if (now - this.lastRuleExecution < 1000) {
+      return;
+    }
+    this.lastRuleExecution = now;
+
     Object.values(state.stockControl.rules).forEach(rule => {
       // Skip if rule is disabled or if managing personnel is not active
       if (!rule.isEnabled) return;
@@ -246,13 +259,24 @@ export class StockControlSystem {
       const resource = state.resources[rule.resourceId];
       if (!resource) return;
 
+      // Ensure quantity is defined, default to 1 if not set
+      const quantity = rule.quantity ?? 1;
+
       if (rule.action === 'buy' && isMaterial(rule.resourceId)) {
-        if (resource.amount < rule.threshold) {
-          this.marketSystem.buy(rule.resourceId, 1);
+        // Calculate how many we need to buy to reach threshold
+        const needed = rule.threshold - resource.amount;
+        if (needed > 0) {
+          // Buy up to the rule's quantity, but not more than needed
+          const buyAmount = Math.min(quantity, needed);
+          this.marketSystem.buy(rule.resourceId, buyAmount);
         }
       } else if (rule.action === 'sell' && isPart(rule.resourceId)) {
-        if (resource.amount > rule.threshold) {
-          this.marketSystem.sell(rule.resourceId, 1);
+        // Calculate how many we can sell to reach threshold
+        const excess = resource.amount - rule.threshold;
+        if (excess > 0) {
+          // Sell up to the rule's quantity, but not more than excess
+          const sellAmount = Math.min(quantity, excess);
+          this.marketSystem.sell(rule.resourceId, sellAmount);
         }
       }
     });
@@ -317,5 +341,28 @@ export class StockControlSystem {
   public initializeDefaultRulesForDiscoveredResources(): void {
     // This method is no longer needed as rules are created with workers
     return;
+  }
+
+  private handleResourceDiscovery(resourceId: string): void {
+    const state = this.gameState.getState();
+    
+    // Get active personnel
+    const activePersonnel = Object.values(state.stockControl.personnel).filter(p => p.isActive);
+    
+    // Create buy rules for materials
+    if (isMaterial(resourceId)) {
+      const buyer = activePersonnel.find(p => p.capabilities.includes('buy_materials'));
+      if (buyer) {
+        this.createRule(resourceId, 'buy', 1, 1, buyer.id);
+      }
+    }
+    
+    // Create sell rules for parts
+    if (isPart(resourceId)) {
+      const seller = activePersonnel.find(p => p.capabilities.includes('sell_parts'));
+      if (seller) {
+        this.createRule(resourceId, 'sell', 5, 1, seller.id);
+      }
+    }
   }
 }

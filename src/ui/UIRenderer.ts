@@ -58,7 +58,7 @@ export class UIRenderer {
     this.advancedCraftingPanel = new AdvancedCraftingPanel(this.createCraftingActions(craftingSystem, salvageSystem));
     this.assemblySystemsPanel = new AssemblySystemsPanel(this.createCraftingActions(craftingSystem, salvageSystem));
     this.automobileConstructionPanel = new AutomobileConstructionPanel(this.createCraftingActions(craftingSystem, salvageSystem));
-    this.machinesPanel = new MachinesPanel(this.createMachineActions(automationManager));
+    this.machinesPanel = new MachinesPanel(this.gameState, this.createMachineActions(automationManager));
     this.marketPanel = new MarketPanel(this.createMarketActions(marketSystem));
     this.stockControlPanel = new StockControlPanel(
       this.gameState,
@@ -117,6 +117,7 @@ export class UIRenderer {
     this.eventEmitter.on('machineBuilt', () => this.forceFullRender());
     this.eventEmitter.on('machineStatusChanged', () => this.scheduleUpdate());
     this.eventEmitter.on('machineToggled', () => this.scheduleUpdate());
+    this.eventEmitter.on('machineUpgraded', () => this.scheduleUpdate());
     this.eventEmitter.on('personnelHired', () => this.forceFullRender());
     this.eventEmitter.on('personnelFired', () => this.forceFullRender());
     this.eventEmitter.on('ruleCreated', () => this.forceFullRender());
@@ -185,7 +186,7 @@ export class UIRenderer {
         <header class="game-header">
           <h1>🏭 Autobahn - Industrial Incremental</h1>
           <div class="game-stats">
-            <span id="marks-display">€${uiState.marksAmount} Marks</span>
+            <span id="marks-display">€${uiState.marksAmount} Deutsche Marks</span>
             <button id="save-btn" class="save-btn">💾 Save</button>
             <button id="reset-btn" class="reset-btn">🔄 Reset</button>
           </div>
@@ -221,7 +222,7 @@ export class UIRenderer {
     // Update marks display
     const marksElement = this.container.querySelector('#marks-display');
     if (marksElement) {
-      marksElement.textContent = `€${uiState.marksAmount} Marks`;
+      marksElement.textContent = `€${uiState.marksAmount} Deutsche Marks`;
     }
 
     // Update each panel's dynamic elements
