@@ -67,14 +67,43 @@ export class ComponentPopover {
 
     popover.innerHTML = content;
 
-    // Position the popover
-    const rect = targetElement.getBoundingClientRect();
-    popover.style.left = `${rect.right + 10}px`;
-    popover.style.top = `${rect.top}px`;
-
-    // Add to container
+    // Add to container first to get dimensions
     this.container?.appendChild(popover);
     this.currentPopover = popover;
+
+    // Get viewport dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Get target element position
+    const rect = targetElement.getBoundingClientRect();
+    
+    // Calculate initial position (right of target)
+    let posX = rect.right + 10;
+    let posY = rect.top;
+
+    // Get popover dimensions
+    const popoverRect = popover.getBoundingClientRect();
+
+    // Adjust position if popover would go outside viewport
+    if (posX + popoverRect.width > viewportWidth) {
+      // Try to position on the left side
+      posX = rect.left - popoverRect.width - 10;
+      
+      // If still outside viewport, align with left edge
+      if (posX < 10) {
+        posX = 10;
+      }
+    }
+
+    // Adjust vertical position if needed
+    if (posY + popoverRect.height > viewportHeight) {
+      posY = Math.max(10, viewportHeight - popoverRect.height - 10);
+    }
+
+    // Apply position
+    popover.style.left = `${posX}px`;
+    popover.style.top = `${posY}px`;
 
     // Add hover listeners to component items
     popover.querySelectorAll('.component-item').forEach(item => {

@@ -1049,10 +1049,18 @@ body {
 }
 
 .sub-components {
-  margin-left: 16px;
-  margin-top: 8px;
+  margin-left: 8px;
+  margin-top: 4px;
   padding-left: 8px;
   border-left: 2px solid #3c4043;
+}
+
+.sub-components .component-header {
+  font-size: 0.85rem;
+}
+
+.sub-components .component-price {
+  font-size: 0.85rem;
 }
 
 /* Make resource-info and machine-header-left hoverable */
