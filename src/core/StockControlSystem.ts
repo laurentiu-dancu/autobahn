@@ -8,6 +8,7 @@ export class StockControlSystem {
   private marketSystem: MarketSystem;
   private lastUpdate: number = Date.now();
   private lastRuleExecution: number = 0;
+  private ruleValueHistory: Map<string, { threshold: number; quantity: number }> = new Map();
 
   private readonly personnelTemplates: Record<string, StockControlPersonnel> = {
     procurementSpecialist: {
@@ -99,7 +100,15 @@ export class StockControlSystem {
             r => r.resourceId === resource.id && r.action === 'buy'
           );
           if (!existingRule) {
-            this.createRule(resource.id, 'buy', 1, 1, personnelId);
+            // Try to restore previous values, or use defaults
+            const storedValues = this.getStoredRuleValues('buy', resource.id);
+            this.createRule(
+              resource.id,
+              'buy',
+              storedValues?.threshold ?? 1,
+              storedValues?.quantity ?? 1,
+              personnelId
+            );
           }
         }
       });
@@ -114,7 +123,15 @@ export class StockControlSystem {
             r => r.resourceId === resource.id && r.action === 'sell'
           );
           if (!existingRule) {
-            this.createRule(resource.id, 'sell', 5, 1, personnelId);
+            // Try to restore previous values, or use defaults
+            const storedValues = this.getStoredRuleValues('sell', resource.id);
+            this.createRule(
+              resource.id,
+              'sell',
+              storedValues?.threshold ?? 5,
+              storedValues?.quantity ?? 1,
+              personnelId
+            );
           }
         }
       });
@@ -126,9 +143,13 @@ export class StockControlSystem {
   firePersonnel(personnelId: string): void {
     const state = this.gameState.getState();
     if (state.stockControl.personnel[personnelId]) {
-      // Remove all rules managed by this personnel
+      // Store rule values before removing them
       Object.values(state.stockControl.rules).forEach(rule => {
         if (rule.managedBy === personnelId) {
+          this.ruleValueHistory.set(`${rule.action}_${rule.resourceId}`, {
+            threshold: rule.threshold,
+            quantity: rule.quantity ?? 1
+          });
           this.gameState.removeRule(rule.id);
         }
       });
@@ -370,7 +391,15 @@ export class StockControlSystem {
           r => r.resourceId === resourceId && r.action === 'buy'
         );
         if (!existingRule) {
-          this.createRule(resourceId, 'buy', 1, 1, buyer.id);
+          // Try to restore previous values, or use defaults
+          const storedValues = this.getStoredRuleValues('buy', resourceId);
+          this.createRule(
+            resourceId,
+            'buy',
+            storedValues?.threshold ?? 1,
+            storedValues?.quantity ?? 1,
+            buyer.id
+          );
         }
       }
     }
@@ -384,9 +413,21 @@ export class StockControlSystem {
           r => r.resourceId === resourceId && r.action === 'sell'
         );
         if (!existingRule) {
-          this.createRule(resourceId, 'sell', 5, 1, seller.id);
+          // Try to restore previous values, or use defaults
+          const storedValues = this.getStoredRuleValues('sell', resourceId);
+          this.createRule(
+            resourceId,
+            'sell',
+            storedValues?.threshold ?? 5,
+            storedValues?.quantity ?? 1,
+            seller.id
+          );
         }
       }
     }
+  }
+
+  private getStoredRuleValues(action: 'buy' | 'sell', resourceId: string): { threshold: number; quantity: number } | undefined {
+    return this.ruleValueHistory.get(`${action}_${resourceId}`);
   }
 }
