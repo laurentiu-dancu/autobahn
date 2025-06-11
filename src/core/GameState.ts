@@ -58,6 +58,7 @@ export class GameStateManager {
         discoveredResources: new Set(['marks', 'wireStock', 'sheetMetal', 'leatherScraps', 'oil']), // Show salvageable resources from start
         showMarket: true, // Market available from start
         showStockControl: false,
+        showStockRules: false,
         showAdvancedCrafting: false,
         showAssemblySystems: false,
         showAutomobileConstruction: false,
@@ -335,6 +336,7 @@ export class GameStateManager {
           discoveredResources: new Set(parsed.uiState?.discoveredResources || ['marks']),
           showMarket: parsed.uiState?.showMarket || false,
           showStockControl: parsed.uiState?.showStockControl || false,
+          showStockRules: parsed.uiState?.showStockRules || false,
           showAdvancedCrafting: parsed.uiState?.showAdvancedCrafting || false,
           showAssemblySystems: parsed.uiState?.showAssemblySystems || false,
           showAutomobileConstruction: parsed.uiState?.showAutomobileConstruction || false,
@@ -342,15 +344,17 @@ export class GameStateManager {
         },
         totalProduced: parsed.totalProduced || {},
         totalSales: parsed.totalSales || 0,
-        totalMarketTransactions: parsed.totalMarketTransactions || 0
+        totalMarketTransactions: parsed.totalMarketTransactions || 0,
+        gameStartTime: parsed.gameStartTime || Date.now(),
+        lastSaveTime: parsed.lastSaveTime || Date.now()
       };
-
-      // Mark that we need to reapply milestones after initialization
+      
+      // Schedule milestone reapplication for next frame
       this.needsMilestoneReapplication = true;
       
       return loadedState;
     } catch (error) {
-      console.error('Failed to load game:', error);
+      console.error('Error loading game:', error);
       return null;
     }
   }

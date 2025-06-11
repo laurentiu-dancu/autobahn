@@ -465,7 +465,17 @@ export const MILESTONES: Milestone[] = [
       state.unlockedStockControl.add('salesManager');
       state.uiState.showStockControl = true;
       
-      gameStateManager?.addNotification('📊 Stock Control Unlocked!', 'success', 4000);
+      gameStateManager?.addNotification('👥 Personnel Management Unlocked!', 'success', 4000);
+    }
+  },
+  {
+    id: 'firstPersonnel',
+    name: 'First Personnel',
+    description: 'Hire your first personnel',
+    condition: (state) => Object.keys(state.stockControl.personnel).length > 0,
+    reward: (state, gameStateManager) => {
+      state.uiState.showStockRules = true;
+      gameStateManager?.addNotification('📊 Stock Rules Unlocked!', 'success', 4000);
     }
   },
   {

@@ -35,6 +35,7 @@ export interface UIState {
   discoveredResources: Set<string>;
   showMarket: boolean;
   showStockControl: boolean;
+  showStockRules: boolean;
   showAdvancedCrafting: boolean;
   showAssemblySystems: boolean;
   showAutomobileConstruction: boolean;

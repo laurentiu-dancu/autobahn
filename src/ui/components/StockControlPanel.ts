@@ -153,6 +153,10 @@ export class StockControlPanel {
 
     // Get group states from game state
     const state = this.gameState.getState();
+    if (!state.uiState.showStockRules) {
+      return ''; // Don't show the panel at all until stock rules are unlocked
+    }
+
     const buyGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.BUY]?.expanded ?? true;
     const sellGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.SELL]?.expanded ?? true;
 
