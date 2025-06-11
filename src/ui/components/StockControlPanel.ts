@@ -1,4 +1,4 @@
-import { UIPersonnelData, UIRuleData } from '../../core/types';
+import { UIPersonnelData, UIRuleData, StockControlRule } from '../../core/types';
 import { GameStateManager } from '../../core/GameState';
 import { UIDataProvider } from '../UIDataProvider';
 
@@ -203,6 +203,18 @@ export class StockControlPanel {
         const amount = parseInt((btn as HTMLElement).dataset.amount || '1');
         if (ruleId) {
           this.actions.adjustThreshold(ruleId, amount);
+          
+          // Get the updated rule from the game state
+          const state = this.gameState.getState();
+          const updatedRule = state.stockControl.rules[ruleId];
+          
+          if (updatedRule) {
+            // Update the threshold value display
+            const thresholdValueElement = container.querySelector(`[data-threshold-value="${ruleId}"]`);
+            if (thresholdValueElement) {
+              thresholdValueElement.textContent = updatedRule.threshold.toString();
+            }
+          }
         }
       });
     });
