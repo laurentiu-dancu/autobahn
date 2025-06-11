@@ -29,7 +29,7 @@ export class MarketPanel {
 
     return `
       <div class="panel market-panel">
-        <h3>💰 Resources & Market</h3>
+        <h3>📦 Inventory</h3>
         
         <div class="resources-section">
           <div class="resources-list">
