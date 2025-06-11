@@ -1,13 +1,16 @@
 import { UIResourceData } from '../../core/types';
 import { isMaterial } from '../../core/utils';
+import { ComponentPopover } from './ComponentPopover';
 
 export class MarketPanel {
-  constructor(
-    private actions: {
-      buyResource: (resourceId: string) => boolean;
-      sellResource: (resourceId: string) => boolean;
-    }
-  ) {}
+  private actions: {
+    buyResource: (resourceId: string) => void;
+    sellResource: (resourceId: string) => void;
+  };
+
+  constructor(actions: { buyResource: (resourceId: string) => void; sellResource: (resourceId: string) => void }) {
+    this.actions = actions;
+  }
 
   render(resourcesData: UIResourceData[], showMarket: boolean): string {
     if (!showMarket) {
@@ -42,7 +45,7 @@ export class MarketPanel {
     
     return `
       <div class="resource-item-with-market">
-        <div class="resource-info">
+        <div class="resource-info" data-resource-id="${resource.id}">
           <span class="resource-name">${pricePrefix}${resource.name}</span>
           <span class="resource-amount" data-resource-amount="${resource.id}">${resource.displayAmount}</span>
         </div>
@@ -71,60 +74,63 @@ export class MarketPanel {
   }
 
   attachEventListeners(container: HTMLElement): void {
-    // Market buy
+    // Buy buttons
     container.querySelectorAll('[data-buy]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const resourceId = (e.target as HTMLElement).getAttribute('data-buy');
+      btn.addEventListener('click', () => {
+        const resourceId = (btn as HTMLElement).dataset.buy;
         if (resourceId) {
           this.actions.buyResource(resourceId);
         }
       });
     });
 
-    // Market sell
+    // Sell buttons
     container.querySelectorAll('[data-sell]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const resourceId = (e.target as HTMLElement).getAttribute('data-sell');
+      btn.addEventListener('click', () => {
+        const resourceId = (btn as HTMLElement).dataset.sell;
         if (resourceId) {
           this.actions.sellResource(resourceId);
         }
       });
     });
+
+    // Resource info hover
+    container.querySelectorAll('.resource-info').forEach(info => {
+      const resourceId = (info as HTMLElement).dataset.resourceId;
+      if (!resourceId) return;
+
+      info.addEventListener('mouseenter', () => {
+        ComponentPopover.getInstance().showPopover(resourceId, info as HTMLElement);
+      });
+
+      info.addEventListener('mouseleave', () => {
+        ComponentPopover.getInstance().scheduleHide();
+      });
+    });
   }
 
   updateDynamicElements(container: HTMLElement, resourcesData: UIResourceData[]): void {
-    // Update resource amounts
     resourcesData.forEach(resource => {
-      const amountElement = container.querySelector(`[data-resource-amount="${resource.id}"]`);
-      if (amountElement) {
-        amountElement.textContent = resource.displayAmount;
-      }
-    });
-
-    // Update inline market button states
-    const buyButtons = container.querySelectorAll('[data-buy]');
-    buyButtons.forEach(btn => {
-      const resourceId = btn.getAttribute('data-buy');
-      if (resourceId) {
-        const resource = resourcesData.find(r => r.id === resourceId);
-        if (resource) {
-          btn.classList.toggle('available', resource.canBuy);
-          btn.classList.toggle('disabled', !resource.canBuy);
-          (btn as HTMLButtonElement).disabled = !resource.canBuy;
+      const item = container.querySelector(`[data-resource-id="${resource.id}"]`);
+      if (item) {
+        const amountElement = item.querySelector('.resource-amount');
+        if (amountElement) {
+          amountElement.textContent = resource.displayAmount;
         }
       }
-    });
 
-    const sellButtons = container.querySelectorAll('[data-sell]');
-    sellButtons.forEach(btn => {
-      const resourceId = btn.getAttribute('data-sell');
-      if (resourceId) {
-        const resource = resourcesData.find(r => r.id === resourceId);
-        if (resource) {
-          btn.classList.toggle('available', resource.canSell);
-          btn.classList.toggle('disabled', !resource.canSell);
-          (btn as HTMLButtonElement).disabled = !resource.canSell;
-        }
+      const buyBtn = container.querySelector(`[data-buy="${resource.id}"]`);
+      if (buyBtn) {
+        buyBtn.classList.toggle('available', resource.canBuy);
+        buyBtn.classList.toggle('disabled', !resource.canBuy);
+        (buyBtn as HTMLButtonElement).disabled = !resource.canBuy;
+      }
+
+      const sellBtn = container.querySelector(`[data-sell="${resource.id}"]`);
+      if (sellBtn) {
+        sellBtn.classList.toggle('available', resource.canSell);
+        sellBtn.classList.toggle('disabled', !resource.canSell);
+        (sellBtn as HTMLButtonElement).disabled = !resource.canSell;
       }
     });
   }
