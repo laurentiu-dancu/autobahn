@@ -12,6 +12,8 @@ export class GameStateManager {
   private eventEmitter: EventEmitter;
   private notificationManager: NotificationManager;
   private stockControlSystem: StockControlSystem;
+  private needsMilestoneReapplication: boolean = false;
+  private isSilentMode: boolean = false;
 
   constructor() {
     this.eventEmitter = new EventEmitter();
@@ -21,6 +23,11 @@ export class GameStateManager {
     this.stockControlSystem = new StockControlSystem(this, new MarketSystem(this));
     // Ensure default rules are created for discovered resources
     this.stockControlSystem.initializeDefaultRulesForDiscoveredResources();
+    
+    // If we loaded a save, schedule milestone reapplication for next frame
+    if (this.needsMilestoneReapplication) {
+      requestAnimationFrame(() => this.reapplyMilestoneRewards());
+    }
   }
 
   getEventEmitter(): EventEmitter {
@@ -81,6 +88,7 @@ export class GameStateManager {
   }
 
   addNotification(message: string, type: 'success' | 'warning' | 'error' | 'info' = 'info', duration: number = 5000): string {
+    if (this.isSilentMode) return '';
     return this.notificationManager.addNotification(message, type, duration);
   }
 
@@ -298,7 +306,7 @@ export class GameStateManager {
       if (!saveData) return null;
       
       const parsed = JSON.parse(saveData);
-      return {
+      const loadedState = {
         ...parsed,
         // Merge saved resources with current INITIAL_RESOURCES to ensure all resources exist
         resources: { ...INITIAL_RESOURCES, ...parsed.resources },
@@ -336,10 +344,63 @@ export class GameStateManager {
         totalSales: parsed.totalSales || 0,
         totalMarketTransactions: parsed.totalMarketTransactions || 0
       };
+
+      // Mark that we need to reapply milestones after initialization
+      this.needsMilestoneReapplication = true;
+      
+      return loadedState;
     } catch (error) {
       console.error('Failed to load game:', error);
       return null;
     }
+  }
+
+  private reapplyMilestoneRewards(): void {
+    if (!this.needsMilestoneReapplication) return;
+    
+    const state = this.getState();
+    const completedMilestones = Array.from(state.completedMilestones);
+    
+    // Create a map of milestone IDs to their index in MILESTONES array
+    const milestoneOrder = new Map(MILESTONES.map((m, i) => [m.id, i]));
+    
+    // Sort completed milestones by their definition order
+    const sortedMilestones = completedMilestones
+      .map(id => MILESTONES.find(m => m.id === id))
+      .filter((m): m is typeof MILESTONES[0] => m !== undefined)
+      .sort((a, b) => (milestoneOrder.get(a.id) || 0) - (milestoneOrder.get(b.id) || 0));
+
+    // Create temporary sets to track unlocks
+    const tempUnlockedRecipes = new Set(state.unlockedRecipes);
+    const tempUnlockedMachines = new Set(state.unlockedMachines);
+    const tempUnlockedStockControl = new Set(state.unlockedStockControl);
+    const tempDiscoveredResources = new Set(state.uiState.discoveredResources);
+    
+    // Enable silent mode for reapplication
+    this.isSilentMode = true;
+    
+    // Apply rewards in order
+    for (const milestone of sortedMilestones) {
+      milestone.reward(state, this);
+    }
+    
+    // Disable silent mode
+    this.isSilentMode = false;
+
+    // Ensure uniqueness by using the temporary sets
+    state.unlockedRecipes = new Set([...tempUnlockedRecipes, ...state.unlockedRecipes]);
+    state.unlockedMachines = new Set([...tempUnlockedMachines, ...state.unlockedMachines]);
+    state.unlockedStockControl = new Set([...tempUnlockedStockControl, ...state.unlockedStockControl]);
+    state.uiState.discoveredResources = new Set([...tempDiscoveredResources, ...state.uiState.discoveredResources]);
+
+    // Ensure stock control system is updated
+    this.stockControlSystem.initializeDefaultRulesForDiscoveredResources();
+    
+    // Mark that we've completed the reapplication
+    this.needsMilestoneReapplication = false;
+    
+    // Notify that the game state has been updated
+    this.eventEmitter.emit('gameStateUpdated', { timestamp: Date.now() });
   }
 
   resetGame(): void {
