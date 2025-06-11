@@ -61,20 +61,44 @@ export class ComponentPopover {
     // Get target element position
     const rect = targetElement.getBoundingClientRect();
     
-    // Calculate initial position (right of target)
-    let posX = rect.right + 10;
-    let posY = rect.top;
-
     // Get popover dimensions
     const popoverRect = popover.getBoundingClientRect();
 
-    // Adjust position if popover would go off screen
-    if (posX + popoverRect.width > viewportWidth) {
+    // Calculate available space in each direction
+    const spaceRight = viewportWidth - rect.right;
+    const spaceLeft = rect.left;
+    const spaceBottom = viewportHeight - rect.top;
+    const spaceTop = rect.bottom;
+
+    // Determine horizontal position
+    let posX: number;
+    if (spaceRight >= popoverRect.width) {
+      // Position to the right if there's enough space
+      posX = rect.right + 10;
+    } else if (spaceLeft >= popoverRect.width) {
+      // Position to the left if there's enough space
       posX = rect.left - popoverRect.width - 10;
+    } else {
+      // Center horizontally if neither side has enough space
+      posX = Math.max(10, Math.min(viewportWidth - popoverRect.width - 10, (viewportWidth - popoverRect.width) / 2));
     }
-    if (posY + popoverRect.height > viewportHeight) {
-      posY = viewportHeight - popoverRect.height - 10;
+
+    // Determine vertical position
+    let posY: number;
+    if (spaceBottom >= popoverRect.height) {
+      // Position below if there's enough space
+      posY = rect.bottom + 10;
+    } else if (spaceTop >= popoverRect.height) {
+      // Position above if there's enough space
+      posY = rect.top - popoverRect.height - 10;
+    } else {
+      // Center vertically if neither side has enough space
+      posY = Math.max(10, Math.min(viewportHeight - popoverRect.height - 10, (viewportHeight - popoverRect.height) / 2));
     }
+
+    // Ensure the popover stays within viewport bounds
+    posX = Math.max(10, Math.min(viewportWidth - popoverRect.width - 10, posX));
+    posY = Math.max(10, Math.min(viewportHeight - popoverRect.height - 10, posY));
 
     // Set final position
     popover.style.left = `${posX}px`;
