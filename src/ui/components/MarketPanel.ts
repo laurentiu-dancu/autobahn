@@ -106,7 +106,7 @@ export class MarketPanel {
       info.addEventListener('mouseleave', () => {
         ComponentPopover.getInstance().setHoverTimeout(() => {
           ComponentPopover.getInstance().hidePopover();
-        }, 10000000);
+        }, 100);
       });
     });
   }

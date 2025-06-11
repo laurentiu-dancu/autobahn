@@ -188,7 +188,7 @@ export class MachinesPanel {
       header.addEventListener('mouseleave', () => {
         popover.setHoverTimeout(() => {
           popover.hidePopover();
-        }, 10000000);
+        }, 100);
       });
     });
   }

@@ -94,7 +94,13 @@ export class StockControlSystem {
       // Create buy rules for all discovered materials
       Object.values(state.resources).forEach(resource => {
         if (isMaterial(resource.id) && state.uiState.discoveredResources.has(resource.id)) {
-          this.createRule(resource.id, 'buy', 1, 1, personnelId);
+          // Check if a rule already exists for this resource
+          const existingRule = Object.values(state.stockControl.rules).find(
+            r => r.resourceId === resource.id && r.action === 'buy'
+          );
+          if (!existingRule) {
+            this.createRule(resource.id, 'buy', 1, 1, personnelId);
+          }
         }
       });
     }
@@ -103,7 +109,13 @@ export class StockControlSystem {
       // Create sell rules for all discovered parts
       Object.values(state.resources).forEach(resource => {
         if (isPart(resource.id) && state.uiState.discoveredResources.has(resource.id)) {
-          this.createRule(resource.id, 'sell', 5, 1, personnelId);
+          // Check if a rule already exists for this resource
+          const existingRule = Object.values(state.stockControl.rules).find(
+            r => r.resourceId === resource.id && r.action === 'sell'
+          );
+          if (!existingRule) {
+            this.createRule(resource.id, 'sell', 5, 1, personnelId);
+          }
         }
       });
     }
@@ -353,7 +365,13 @@ export class StockControlSystem {
     if (isMaterial(resourceId)) {
       const buyer = activePersonnel.find(p => p.capabilities.includes('buy_materials'));
       if (buyer) {
-        this.createRule(resourceId, 'buy', 1, 1, buyer.id);
+        // Check if a rule already exists for this resource
+        const existingRule = Object.values(state.stockControl.rules).find(
+          r => r.resourceId === resourceId && r.action === 'buy'
+        );
+        if (!existingRule) {
+          this.createRule(resourceId, 'buy', 1, 1, buyer.id);
+        }
       }
     }
     
@@ -361,7 +379,13 @@ export class StockControlSystem {
     if (isPart(resourceId)) {
       const seller = activePersonnel.find(p => p.capabilities.includes('sell_parts'));
       if (seller) {
-        this.createRule(resourceId, 'sell', 5, 1, seller.id);
+        // Check if a rule already exists for this resource
+        const existingRule = Object.values(state.stockControl.rules).find(
+          r => r.resourceId === resourceId && r.action === 'sell'
+        );
+        if (!existingRule) {
+          this.createRule(resourceId, 'sell', 5, 1, seller.id);
+        }
       }
     }
   }
