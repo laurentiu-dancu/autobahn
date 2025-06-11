@@ -202,11 +202,11 @@ export class UIRenderer {
           
           <div class="center-panel">
             ${this.machinesPanel.render(this.uiDataProvider.getMachinesData(), this.uiDataProvider.getAvailableMachinesData())}
-            ${this.stockControlPanel.render(this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData(), uiState.showStockControl)}
           </div>
           
           <div class="right-panel">
             ${this.marketPanel.render(this.uiDataProvider.getResourcesData(), uiState.showMarket)}
+            ${this.stockControlPanel.render(this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData(), uiState.showStockControl)}
           </div>
         </div>
       </div>
@@ -244,7 +244,6 @@ export class UIRenderer {
     }
     if (centerPanel) {
       this.machinesPanel.updateDynamicElements(centerPanel as HTMLElement, this.uiDataProvider.getMachinesData(), this.uiDataProvider.getAvailableMachinesData());
-      this.stockControlPanel.updateDynamicElements(centerPanel as HTMLElement, this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData());
     }
     if (rightPanel) {
       this.marketPanel.updateDynamicElements(rightPanel as HTMLElement, this.uiDataProvider.getResourcesData());
@@ -272,8 +271,8 @@ export class UIRenderer {
       }
     }
     if (centerPanel) this.machinesPanel.attachEventListeners(centerPanel as HTMLElement);
-    if (centerPanel) this.stockControlPanel.attachEventListeners(centerPanel as HTMLElement);
     if (rightPanel) this.marketPanel.attachEventListeners(rightPanel as HTMLElement);
+    if (rightPanel) this.stockControlPanel.attachEventListeners(rightPanel as HTMLElement);
 
     // Save button
     this.container.querySelector('#save-btn')?.addEventListener('click', () => {

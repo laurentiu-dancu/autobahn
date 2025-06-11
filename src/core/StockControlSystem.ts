@@ -232,11 +232,11 @@ export class StockControlSystem {
   adjustThreshold(ruleId: string, delta: number): void {
     const state = this.gameState.getState();
     const rule = state.stockControl.rules[ruleId];
-    if (!rule) return;
-
-    // Ensure threshold doesn't go below 0
-    const newThreshold = Math.max(0, rule.threshold + delta);
-    this.updateRule(ruleId, { ...rule, threshold: newThreshold });
+    
+    if (rule) {
+      const newThreshold = Math.max(0, rule.threshold + delta);
+      this.updateRule(ruleId, { ...rule, threshold: newThreshold });
+    }
   }
 
   // System Updates

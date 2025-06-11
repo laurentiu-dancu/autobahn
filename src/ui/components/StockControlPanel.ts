@@ -84,7 +84,17 @@ export class StockControlPanel {
             <span class="toggle-icon">${buyGroupExpanded ? '▼' : '▶'}</span>
           </div>
           <div class="rule-group-content ${buyGroupExpanded ? '' : 'collapsed'}" id="${this.GROUP_IDS.BUY}">
-            ${buyRules.map(rule => this.renderRule(rule)).join('')}
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>Resource</th>
+                  <th>Target Stock</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${buyRules.map(rule => this.renderRule(rule)).join('')}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -94,7 +104,17 @@ export class StockControlPanel {
             <span class="toggle-icon">${sellGroupExpanded ? '▼' : '▶'}</span>
           </div>
           <div class="rule-group-content ${sellGroupExpanded ? '' : 'collapsed'}" id="${this.GROUP_IDS.SELL}">
-            ${sellRules.map(rule => this.renderRule(rule)).join('')}
+            <table class="rules-table">
+              <thead>
+                <tr>
+                  <th>Resource</th>
+                  <th>Target Stock</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sellRules.map(rule => this.renderRule(rule)).join('')}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -138,23 +158,20 @@ export class StockControlPanel {
 
   private renderRule(rule: UIRuleData): string {
     return `
-      <div class="rule-item">
-        <div class="rule-header">
-          <span>${rule.type.toUpperCase()} ${rule.resourceName}</span>
-        </div>
-        <div class="rule-info">
+      <tr class="rule-row ${rule.isEnabled ? 'enabled' : 'disabled'}">
+        <td class="rule-resource">${rule.resourceName}</td>
+        <td class="rule-threshold">
           <div class="threshold-control">
             <div class="threshold-buttons">
-              <button class="threshold-btn" data-decrease-threshold="${rule.id}">-</button>
-              <button class="threshold-btn" data-increase-threshold="${rule.id}">+</button>
-            </div>
-            <div class="threshold-info">
+              <button class="threshold-btn" data-threshold="${rule.id}" data-amount="-10">-10</button>
+              <button class="threshold-btn" data-threshold="${rule.id}" data-amount="-1">-</button>
               <span class="threshold-value" data-threshold-value="${rule.id}">${rule.threshold}</span>
-              <span class="threshold-label">target stock</span>
+              <button class="threshold-btn" data-threshold="${rule.id}" data-amount="1">+</button>
+              <button class="threshold-btn" data-threshold="${rule.id}" data-amount="10">+10</button>
             </div>
           </div>
-        </div>
-      </div>
+        </td>
+      </tr>
     `;
   }
 
@@ -179,23 +196,13 @@ export class StockControlPanel {
       });
     });
 
-    // Toggle rules
-    container.querySelectorAll('[data-toggle-rule]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const ruleId = (e.target as HTMLElement).getAttribute('data-toggle-rule');
-        if (ruleId) {
-          this.actions.toggleRule(ruleId);
-        }
-      });
-    });
-
     // Threshold adjustment buttons
-    container.querySelectorAll('[data-increase-threshold], [data-decrease-threshold]').forEach(btn => {
+    container.querySelectorAll('[data-threshold]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const ruleId = (btn as HTMLElement).dataset.increaseThreshold || (btn as HTMLElement).dataset.decreaseThreshold;
+        const ruleId = (btn as HTMLElement).dataset.threshold;
+        const amount = parseInt((btn as HTMLElement).dataset.amount || '1');
         if (ruleId) {
-          const delta = (btn as HTMLElement).dataset.increaseThreshold ? 1 : -1;
-          this.actions.adjustThreshold(ruleId, delta);
+          this.actions.adjustThreshold(ruleId, amount);
         }
       });
     });
