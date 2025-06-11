@@ -1,4 +1,5 @@
 import { UIMachineData } from '../../core/types';
+import { ComponentPopover } from './ComponentPopover';
 import { GameStateManager } from '../../core/GameState';
 
 interface MachineCost {
@@ -8,32 +9,47 @@ interface MachineCost {
 }
 
 export class MachinesPanel {
+  private actions: {
+    buildMachine: (machineId: string) => void;
+    toggleMachine: (machineId: string) => void;
+    upgradeMachine: (machineId: string) => void;
+  };
+  private gameState: GameStateManager;
+
   constructor(
-    private gameState: GameStateManager,
-    private actions: {
-      buildMachine: (machineId: string) => boolean;
+    gameState: GameStateManager,
+    actions: {
+      buildMachine: (machineId: string) => void;
       toggleMachine: (machineId: string) => void;
       upgradeMachine: (machineId: string) => void;
     }
-  ) {}
+  ) {
+    this.gameState = gameState;
+    this.actions = actions;
+  }
 
   render(machinesData: UIMachineData[], availableMachinesData: any[]): string {
-    if (availableMachinesData.length === 0 && machinesData.length === 0) {
-      return ''; // Don't show machines panel if no machines available
+    if (machinesData.length === 0 && availableMachinesData.length === 0) {
+      return '';
     }
-    
+
     const machineBuilds = availableMachinesData.map(machine => {
+      const buildCostText = machine.cost.map((cost: MachineCost) => {
+        const symbol = cost.resourceId === 'marks' ? '€' : '';
+        return `${cost.amount}${symbol} ${cost.name}`;
+      }).join(', ');
+
       return `
-        <button 
-          class="build-btn ${machine.canBuild ? 'available' : 'disabled'}"
-          data-machine="${machine.id}"
-          ${!machine.canBuild ? 'disabled' : ''}
-        >
-          Build ${machine.name} (${machine.cost.map((cost: MachineCost) => {
-            const symbol = cost.resourceId === 'marks' ? '€' : '';
-            return `${cost.amount}${symbol} ${cost.name}`;
-          }).join(', ')})
-        </button>
+        <div class="machine-build">
+          <button 
+            class="build-btn ${machine.canBuild ? 'available' : 'disabled'}"
+            data-machine="${machine.id}"
+            ${!machine.canBuild ? 'disabled' : ''}
+          >
+            <div class="build-name">${machine.name}</div>
+            <div class="build-cost">Cost: ${buildCostText}</div>
+          </button>
+        </div>
       `;
     }).join('');
 
@@ -58,7 +74,7 @@ export class MachinesPanel {
       return `
         <div class="machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}" data-machine-id="${machine.id}">
           <div class="machine-header">
-            <div class="machine-header-left">
+            <div class="machine-header-left" data-machine-id="${machine.id}">
               <h4>${machine.name} (Level ${machine.level})</h4>
             </div>
             <button class="collapse-btn" data-collapse="${machine.id}">${isExpanded ? '▼' : '▶'}</button>
@@ -104,57 +120,75 @@ export class MachinesPanel {
   }
 
   attachEventListeners(container: HTMLElement): void {
-    // Machine build buttons
-    container.querySelectorAll('[data-machine]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).getAttribute('data-machine');
+    // Build machine buttons
+    container.querySelectorAll('[data-machine]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const machineId = (e.currentTarget as HTMLElement).getAttribute('data-machine');
         if (machineId) {
           this.actions.buildMachine(machineId);
         }
       });
     });
 
-    // Machine toggle buttons
-    container.querySelectorAll('[data-toggle]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).getAttribute('data-toggle');
+    // Toggle machine buttons
+    container.querySelectorAll('[data-toggle]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const machineId = (e.currentTarget as HTMLElement).getAttribute('data-toggle');
         if (machineId) {
           this.actions.toggleMachine(machineId);
         }
       });
     });
 
-    // Machine upgrade buttons
-    container.querySelectorAll('[data-upgrade]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).getAttribute('data-upgrade');
+    // Upgrade machine buttons
+    container.querySelectorAll('[data-upgrade]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const machineId = (e.currentTarget as HTMLElement).getAttribute('data-upgrade');
         if (machineId) {
           this.actions.upgradeMachine(machineId);
         }
       });
     });
 
-    // Machine collapse
-    container.querySelectorAll('[data-collapse]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const machineId = (e.target as HTMLElement).getAttribute('data-collapse');
+    // Collapse/expand buttons
+    container.querySelectorAll('[data-collapse]').forEach(button => {
+      button.addEventListener('click', (e) => {
+        const machineId = (e.currentTarget as HTMLElement).getAttribute('data-collapse');
         if (machineId) {
           const machineItem = container.querySelector(`[data-machine-id="${machineId}"]`);
           const content = machineItem?.querySelector('.machine-content');
-          const collapseBtn = machineItem?.querySelector('.collapse-btn');
-          if (content && collapseBtn) {
-            const isCollapsed = content.classList.contains('collapsed');
+          const button = e.currentTarget as HTMLElement;
+          
+          if (content && button) {
+            const isExpanded = !content.classList.contains('collapsed');
             content.classList.toggle('collapsed');
-            collapseBtn.textContent = isCollapsed ? '▼' : '▶';
+            button.textContent = isExpanded ? '▶' : '▼';
             
-            // Update game state with the new expanded state
-            this.gameState.setPanelState(`machine-${machineId}`, {
-              expanded: isCollapsed // If it was collapsed, it will now be expanded and vice versa
-            });
-            // Save game state to persist the panel state
-            this.gameState.saveGame();
+            // Save state
+            const state = this.gameState.getState();
+            if (!state.uiState.panelStates[`machine-${machineId}`]) {
+              state.uiState.panelStates[`machine-${machineId}`] = { expanded: true };
+            }
+            state.uiState.panelStates[`machine-${machineId}`].expanded = !isExpanded;
           }
         }
+      });
+    });
+
+    // Machine header hover for popover
+    const popover = ComponentPopover.getInstance();
+    container.querySelectorAll('.machine-header-left').forEach(header => {
+      header.addEventListener('mouseenter', (e) => {
+        const machineId = (e.currentTarget as HTMLElement).getAttribute('data-machine-id');
+        if (machineId) {
+          popover.showPopover(null, e.currentTarget as HTMLElement, machineId);
+        }
+      });
+
+      header.addEventListener('mouseleave', () => {
+        popover.setHoverTimeout(() => {
+          popover.hidePopover();
+        }, 100);
       });
     });
   }

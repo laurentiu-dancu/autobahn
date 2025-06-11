@@ -104,7 +104,9 @@ export class MarketPanel {
       });
 
       info.addEventListener('mouseleave', () => {
-        ComponentPopover.getInstance().scheduleHide();
+        ComponentPopover.getInstance().setHoverTimeout(() => {
+          ComponentPopover.getInstance().hidePopover();
+        }, 100);
       });
     });
   }
