@@ -2,32 +2,20 @@ import { UIPersonnelData, UIRuleData, StockControlRule } from '../../core/types'
 import { GameStateManager } from '../../core/GameState';
 import { UIDataProvider } from '../UIDataProvider';
 
-export class StockControlPanel {
-  private readonly GROUP_IDS = {
-    BUY: 'stockControlBuyRules',
-    SELL: 'stockControlSellRules'
-  };
-
+export class PersonnelPanel {
   constructor(
     private gameState: GameStateManager,
     private uiDataProvider: UIDataProvider,
     private actions: {
       hirePersonnel: (personnelId: string) => boolean;
       firePersonnel: (personnelId: string) => void;
-      toggleRule: (ruleId: string) => void;
-      adjustThreshold: (ruleId: string, delta: number) => void;
     }
   ) {}
 
-  render(personnelData: { available: UIPersonnelData[], active: UIPersonnelData[], totalMonthlyCost: number }, rulesData: UIRuleData[], showStockControl: boolean): string {
+  render(personnelData: { available: UIPersonnelData[], active: UIPersonnelData[], totalMonthlyCost: number }, showStockControl: boolean): string {
     if (!showStockControl) {
       return ''; // Don't show until unlocked
     }
-
-    // Get group states from game state
-    const state = this.gameState.getState();
-    const buyGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.BUY]?.expanded ?? true;
-    const sellGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.SELL]?.expanded ?? true;
 
     // Personnel hiring section
     const personnelHiring = personnelData.available.map(personnel => {
@@ -63,11 +51,110 @@ export class StockControlPanel {
           <div class="personnel-info">
             <div>Salary: €${personnel.monthlySalary}/10s</div>
             <div>Managing: ${personnel.managedRulesCount} rules</div>
-            <div>Type: ${personnel.type}</div>
           </div>
         </div>
       `;
     }).join('');
+
+    return `
+      <div class="panel personnel-panel">
+        <h3>👥 Personnel</h3>
+        
+        ${personnelData.totalMonthlyCost > 0 ? `
+          <div class="cost-summary">
+            <strong>Operating Cost: €${personnelData.totalMonthlyCost.toFixed(1)}/10s</strong>
+            <div class="cost-warning" data-cost-warning>
+              ✅ Sufficient funds
+            </div>
+          </div>
+        ` : ''}
+        
+        ${personnelHiring ? `
+          <div class="personnel-section">
+            <h4>Available Personnel</h4>
+            ${personnelHiring}
+          </div>
+        ` : ''}
+        
+        ${activePersonnelDisplay ? `
+          <div class="personnel-section">
+            <h4>Active Personnel</h4>
+            ${activePersonnelDisplay}
+          </div>
+        ` : ''}
+        
+        ${personnelData.active.length === 0 && personnelData.available.length === 0 ? `
+          <p>Complete more market transactions to unlock stock control personnel.</p>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  attachEventListeners(container: HTMLElement): void {
+    // Hire buttons
+    container.querySelectorAll('[data-hire]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const personnelId = (btn as HTMLElement).dataset.hire;
+        if (personnelId) {
+          this.actions.hirePersonnel(personnelId);
+        }
+      });
+    });
+
+    // Fire personnel
+    container.querySelectorAll('[data-fire]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const personnelId = (e.target as HTMLElement).getAttribute('data-fire');
+        if (personnelId && confirm('Are you sure you want to fire this personnel?')) {
+          this.actions.firePersonnel(personnelId);
+        }
+      });
+    });
+  }
+
+  updateDynamicElements(container: HTMLElement, personnelData: { available: UIPersonnelData[], active: UIPersonnelData[], totalMonthlyCost: number }): void {
+    // Update hire button states
+    personnelData.available.forEach(personnel => {
+      const btn = container.querySelector(`[data-hire="${personnel.id}"]`);
+      if (btn) {
+        btn.classList.toggle('available', personnel.canHire);
+        btn.classList.toggle('disabled', !personnel.canHire);
+        (btn as HTMLButtonElement).disabled = !personnel.canHire;
+      }
+    });
+
+    // Update cost warning
+    const costWarning = container.querySelector('[data-cost-warning]');
+    if (costWarning) {
+      // This would be updated based on current funds vs cost
+      // Implementation would depend on having access to current marks amount
+    }
+  }
+}
+
+export class StockControlPanel {
+  private readonly GROUP_IDS = {
+    BUY: 'stockControlBuyRules',
+    SELL: 'stockControlSellRules'
+  };
+
+  constructor(
+    private gameState: GameStateManager,
+    private uiDataProvider: UIDataProvider,
+    private actions: {
+      adjustThreshold: (ruleId: string, delta: number) => void;
+    }
+  ) {}
+
+  render(rulesData: UIRuleData[], showStockControl: boolean): string {
+    if (!showStockControl) {
+      return ''; // Don't show until unlocked
+    }
+
+    // Get group states from game state
+    const state = this.gameState.getState();
+    const buyGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.BUY]?.expanded ?? true;
+    const sellGroupExpanded = state.uiState.panelStates[this.GROUP_IDS.SELL]?.expanded ?? true;
 
     // Group rules by type
     const buyRules = rulesData.filter(rule => rule.type === 'buy');
@@ -122,36 +209,8 @@ export class StockControlPanel {
 
     return `
       <div class="panel stock-control-panel">
-        <h3>📊 Stock Control</h3>
-        
-        ${personnelData.totalMonthlyCost > 0 ? `
-          <div class="cost-summary">
-            <strong>Operating Cost: €${personnelData.totalMonthlyCost.toFixed(1)}/10s</strong>
-            <div class="cost-warning" data-cost-warning>
-              ✅ Sufficient funds
-            </div>
-          </div>
-        ` : ''}
-        
-        ${personnelHiring ? `
-          <div class="personnel-section">
-            <h4>Available Personnel</h4>
-            ${personnelHiring}
-          </div>
-        ` : ''}
-        
-        ${activePersonnelDisplay ? `
-          <div class="personnel-section">
-            <h4>Active Personnel</h4>
-            ${activePersonnelDisplay}
-          </div>
-        ` : ''}
-        
+        <h3>📊 Stock Rules</h3>
         ${rulesDisplay}
-        
-        ${personnelData.active.length === 0 && personnelData.available.length === 0 ? `
-          <p>Complete more market transactions to unlock stock control personnel.</p>
-        ` : ''}
       </div>
     `;
   }
@@ -176,26 +235,6 @@ export class StockControlPanel {
   }
 
   attachEventListeners(container: HTMLElement): void {
-    // Hire buttons
-    container.querySelectorAll('[data-hire]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const personnelId = (btn as HTMLElement).dataset.hire;
-        if (personnelId) {
-          this.actions.hirePersonnel(personnelId);
-        }
-      });
-    });
-
-    // Fire personnel
-    container.querySelectorAll('[data-fire]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const personnelId = (e.target as HTMLElement).getAttribute('data-fire');
-        if (personnelId && confirm('Are you sure you want to fire this personnel?')) {
-          this.actions.firePersonnel(personnelId);
-        }
-      });
-    });
-
     // Threshold adjustment buttons
     container.querySelectorAll('[data-threshold]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -222,7 +261,7 @@ export class StockControlPanel {
     // Toggle rule groups
     container.querySelectorAll('[data-toggle-group]').forEach(header => {
       header.addEventListener('click', (e) => {
-        const groupId = (e.currentTarget as HTMLElement).getAttribute('data-toggle-group');
+        const groupId = (header as HTMLElement).dataset.toggleGroup;
         if (groupId) {
           const content = container.querySelector(`#${groupId}`);
           const icon = header.querySelector('.toggle-icon');
@@ -243,17 +282,7 @@ export class StockControlPanel {
     });
   }
 
-  updateDynamicElements(container: HTMLElement, personnelData: { available: UIPersonnelData[], active: UIPersonnelData[], totalMonthlyCost: number }, rulesData: UIRuleData[]): void {
-    // Update hire button states
-    personnelData.available.forEach(personnel => {
-      const btn = container.querySelector(`[data-hire="${personnel.id}"]`);
-      if (btn) {
-        btn.classList.toggle('available', personnel.canHire);
-        btn.classList.toggle('disabled', !personnel.canHire);
-        (btn as HTMLButtonElement).disabled = !personnel.canHire;
-      }
-    });
-
+  updateDynamicElements(container: HTMLElement, rulesData: UIRuleData[]): void {
     // Update threshold values
     rulesData.forEach(rule => {
       const thresholdElement = container.querySelector(`[data-threshold-value="${rule.id}"]`);
@@ -261,13 +290,5 @@ export class StockControlPanel {
         thresholdElement.textContent = rule.threshold.toString();
       }
     });
-
-    // Update cost warning (this would need access to current marks amount)
-    // For now, we'll leave this as a placeholder since we'd need to pass more data
-    const costWarning = container.querySelector('[data-cost-warning]');
-    if (costWarning) {
-      // This would be updated based on current funds vs cost
-      // Implementation would depend on having access to current marks amount
-    }
   }
 }

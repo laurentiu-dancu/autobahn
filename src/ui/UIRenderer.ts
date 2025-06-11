@@ -11,7 +11,7 @@ import { AssemblySystemsPanel } from './components/AssemblySystemsPanel';
 import { AutomobileConstructionPanel } from './components/AutomobileConstructionPanel';
 import { MachinesPanel } from './components/MachinesPanel';
 import { MarketPanel } from './components/MarketPanel';
-import { StockControlPanel } from './components/StockControlPanel';
+import { StockControlPanel, PersonnelPanel } from './components/StockControlPanel';
 import { EventEmitter } from '../core/EventEmitter';
 
 export class UIRenderer {
@@ -30,6 +30,7 @@ export class UIRenderer {
   private machinesPanel: MachinesPanel;
   private marketPanel: MarketPanel;
   private stockControlPanel: StockControlPanel;
+  private personnelPanel: PersonnelPanel;
 
   constructor(
     gameState: GameStateManager,
@@ -61,6 +62,11 @@ export class UIRenderer {
     this.machinesPanel = new MachinesPanel(this.gameState, this.createMachineActions(automationManager));
     this.marketPanel = new MarketPanel(this.createMarketActions(marketSystem));
     this.stockControlPanel = new StockControlPanel(
+      this.gameState,
+      this.uiDataProvider,
+      this.createStockControlActions(stockControlSystem)
+    );
+    this.personnelPanel = new PersonnelPanel(
       this.gameState,
       this.uiDataProvider,
       this.createStockControlActions(stockControlSystem)
@@ -198,6 +204,7 @@ export class UIRenderer {
             ${uiState.showAdvancedCrafting ? this.advancedCraftingPanel.render(craftingDataByTier.advanced) : ''}
             ${uiState.showAssemblySystems ? this.assemblySystemsPanel.render(craftingDataByTier.assembly) : ''}
             ${uiState.showAutomobileConstruction ? this.automobileConstructionPanel.render(craftingDataByTier.automobile) : ''}
+            ${this.personnelPanel.render(this.uiDataProvider.getPersonnelData(), uiState.showStockControl)}
           </div>
           
           <div class="center-panel">
@@ -206,7 +213,7 @@ export class UIRenderer {
           
           <div class="right-panel">
             ${this.marketPanel.render(this.uiDataProvider.getResourcesData(), uiState.showMarket)}
-            ${this.stockControlPanel.render(this.uiDataProvider.getPersonnelData(), this.uiDataProvider.getRulesData(), uiState.showStockControl)}
+            ${this.stockControlPanel.render(this.uiDataProvider.getRulesData(), uiState.showStockControl)}
           </div>
         </div>
       </div>
@@ -241,12 +248,14 @@ export class UIRenderer {
       if (uiState.showAutomobileConstruction) {
         this.automobileConstructionPanel.updateDynamicElements(leftPanel as HTMLElement, craftingDataByTier.automobile);
       }
+      this.personnelPanel.updateDynamicElements(leftPanel as HTMLElement, this.uiDataProvider.getPersonnelData());
     }
     if (centerPanel) {
       this.machinesPanel.updateDynamicElements(centerPanel as HTMLElement, this.uiDataProvider.getMachinesData(), this.uiDataProvider.getAvailableMachinesData());
     }
     if (rightPanel) {
       this.marketPanel.updateDynamicElements(rightPanel as HTMLElement, this.uiDataProvider.getResourcesData());
+      this.stockControlPanel.updateDynamicElements(rightPanel as HTMLElement, this.uiDataProvider.getRulesData());
     }
   }
 
@@ -256,23 +265,26 @@ export class UIRenderer {
     const centerPanel = this.container.querySelector('.center-panel');
     const rightPanel = this.container.querySelector('.right-panel');
 
-    const uiState = this.uiDataProvider.getUIStateData();
-
     if (leftPanel) {
       this.craftingPanel.attachEventListeners(leftPanel as HTMLElement);
-      if (uiState.showAdvancedCrafting) {
+      if (this.uiDataProvider.getUIStateData().showAdvancedCrafting) {
         this.advancedCraftingPanel.attachEventListeners(leftPanel as HTMLElement);
       }
-      if (uiState.showAssemblySystems) {
+      if (this.uiDataProvider.getUIStateData().showAssemblySystems) {
         this.assemblySystemsPanel.attachEventListeners(leftPanel as HTMLElement);
       }
-      if (uiState.showAutomobileConstruction) {
+      if (this.uiDataProvider.getUIStateData().showAutomobileConstruction) {
         this.automobileConstructionPanel.attachEventListeners(leftPanel as HTMLElement);
       }
+      this.personnelPanel.attachEventListeners(leftPanel as HTMLElement);
     }
-    if (centerPanel) this.machinesPanel.attachEventListeners(centerPanel as HTMLElement);
-    if (rightPanel) this.marketPanel.attachEventListeners(rightPanel as HTMLElement);
-    if (rightPanel) this.stockControlPanel.attachEventListeners(rightPanel as HTMLElement);
+    if (centerPanel) {
+      this.machinesPanel.attachEventListeners(centerPanel as HTMLElement);
+    }
+    if (rightPanel) {
+      this.marketPanel.attachEventListeners(rightPanel as HTMLElement);
+      this.stockControlPanel.attachEventListeners(rightPanel as HTMLElement);
+    }
 
     // Save button
     this.container.querySelector('#save-btn')?.addEventListener('click', () => {
