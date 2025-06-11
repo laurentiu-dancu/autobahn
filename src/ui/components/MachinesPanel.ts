@@ -201,6 +201,18 @@ export class MachinesPanel {
         // Update machine item classes based on actual machine status
         item.className = `machine-item ${machine.isActive ? 'active' : 'inactive'} machine-${machine.status}`;
         
+        // Update machine level in header
+        const header = item.querySelector('.machine-header-left h4');
+        if (header) {
+          header.textContent = `${machine.name} (Level ${machine.level})`;
+        }
+        
+        // Update machine info (speed and efficiency)
+        const machineInfo = item.querySelector('.machine-info div:first-child');
+        if (machineInfo) {
+          machineInfo.textContent = `Speed: ${machine.currentSpeed}s - ${machine.efficiency}% efficiency`;
+        }
+        
         // Update status display
         const statusIndicator = item.querySelector('.status-indicator');
         if (statusIndicator) {
@@ -241,6 +253,20 @@ export class MachinesPanel {
         if (progressFill) {
           progressFill.style.width = `${machine.progress * 100}%`;
         }
+
+        // Update upgrade button state and cost
+        const upgradeBtn = item.querySelector('[data-upgrade]');
+        if (upgradeBtn) {
+          const upgradeCostText = machine.upgradeCost.map(cost => {
+            const symbol = cost.resourceId === 'marks' ? '€' : '';
+            return `${cost.amount}${symbol} ${cost.name}`;
+          }).join(', ');
+          
+          upgradeBtn.classList.toggle('available', machine.canUpgrade);
+          upgradeBtn.classList.toggle('disabled', !machine.canUpgrade);
+          (upgradeBtn as HTMLButtonElement).disabled = !machine.canUpgrade;
+          upgradeBtn.textContent = `Upgrade (${upgradeCostText})`;
+        }
       }
     });
 
@@ -251,16 +277,6 @@ export class MachinesPanel {
         btn.classList.toggle('available', machine.canBuild);
         btn.classList.toggle('disabled', !machine.canBuild);
         (btn as HTMLButtonElement).disabled = !machine.canBuild;
-      }
-    });
-
-    // Update machine upgrade button states
-    machinesData.forEach(machine => {
-      const btn = container.querySelector(`[data-upgrade="${machine.id}"]`);
-      if (btn) {
-        btn.classList.toggle('available', machine.canUpgrade);
-        btn.classList.toggle('disabled', !machine.canUpgrade);
-        (btn as HTMLButtonElement).disabled = !machine.canUpgrade;
       }
     });
   }
