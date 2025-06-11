@@ -154,6 +154,7 @@
 **Unlocks:**
 - Recipe: `machinePiston` (2 Metal Rods + Metal Plates → Pistons)
 - Recipe: `craftSparkPlug` (Metal Rods + Electrical Wire → Spark Plugs)
+- Recipe: `forgeCrankshaft` (3 Metal Rods + 2 Bearings → Crankshaft)
 
 ### Milestone: "Power System Development"
 **Condition:** Produce 3 `pistons` AND 3 `sparkPlugs`  

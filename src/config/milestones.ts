@@ -224,6 +224,7 @@ export const MILESTONES: Milestone[] = [
       // Unlock piston and spark plug crafting
       state.unlockedRecipes.add('machinePiston');
       state.unlockedRecipes.add('craftSparkPlug');
+      state.unlockedRecipes.add('forgeCrankshaft');
       
       gameStateManager?.addNotification('Engine basics unlocked piston technology!', 'success', 3000);
     }
